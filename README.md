@@ -1,41 +1,41 @@
-# MARCO MALIK & WAQAR WRITES MD — واٹس ایپ منی بوٹ
+# MARCO MALIK & WAQAR WRITES MD — WhatsApp Mini Bot
 
-تیار کنندگان: **Marco Malik** (Rajanpur) اور **Waqar Writes** (Karachi)
+## Railway deployment
 
-## Railway پر چلانے کا طریقہ
+1. Connect this GitHub repository to a Railway service and deploy the `main` branch.
+2. Once deployment is ready, open the Railway-generated domain. The root URL redirects to the pairing page; you can also open `/pair` directly.
+3. On the pairing page, enter your phone number with its country code. Enter digits only: do not include a leading `+` or an extra leading zero. Choose QR pairing or a pairing code and follow the instructions in WhatsApp under **Linked Devices**.
+4. After pairing succeeds, the bot sends a `SESSION_ID` to your WhatsApp chat. Add it to Railway Variables if you need the main bot session to connect on startup, then redeploy. Keep this value private.
+5. The start command is `npm start`. Railway provides `PORT` automatically; do not set it manually.
 
-1. اس GitHub ریپوزٹری کو Railway میں سروس کے طور پر تعینات کریں۔
-2. تعیناتی کامیاب ہونے کے بعد Railway کا دیا ہوا ڈومین کھولیں۔ مرکزی لنک خود جوڑنے والے صفحے پر لے جائے گا؛ ضرورت ہو تو آخر میں `/pair` شامل کریں۔
-3. اپنا فون نمبر ملکی کوڈ سمیت درج کریں۔ نمبر کے شروع میں `+` یا اضافی صفر نہ لکھیں۔ QR اسکین یا فون کوڈ کا طریقہ منتخب کرکے واٹس ایپ میں **منسلک آلات** کے ذریعے منظوری دیں۔
-4. جوڑ کامیاب ہونے پر واٹس ایپ کے نجی پیغام میں `سیشن آئی ڈی` آئے گی۔ اگر آپ Railway پر مرکزی بوٹ سیشن بحال رکھنا چاہتے ہیں تو اسے متغیر `SESSION_ID` میں محفوظ کرکے دوبارہ تعیناتی کریں۔ اپنی `سیشن آئی ڈی` کسی کے ساتھ شیئر نہ کریں۔
-5. Railway کا آغاز کمانڈ `npm start` ہے؛ عموماً اسے خود بخود پڑھ لیا جاتا ہے۔
+The pairing page can be opened before adding a `SESSION_ID`. A valid session is required for the bot's main WhatsApp connection.
 
-## Railway متغیرات
+## Railway variables
 
-پہلی بار صرف ویب صفحہ کھولنے اور نمبر جوڑنے کے لیے عموماً کوئی اختیاری کلید درکار نہیں۔ `PORT` Railway خود فراہم کرتا ہے؛ اسے خود شامل نہ کریں۔
-
-| متغیر کا نام | کب درکار ہے |
+| Variable | Purpose |
 |---|---|
-| `SESSION_ID` | کامیاب جوڑ کے بعد ملنے والی سیشن معلومات؛ مرکزی سیشن بحال کرنے کے لیے۔ اسے خفیہ رکھیں۔ |
-| `PHONE` | اگر مرکزی بوٹ کو خودکار فون کوڈ مانگنے کے لیے مقرر کرنا ہو تو ملکی کوڈ سمیت نمبر۔ |
-| `PREFIX` | کمانڈ کا سابقہ؛ پہلے سے `.` ہے۔ |
-| `OWNER_NUMBER` | مالک کا نمبر ملکی کوڈ سمیت، صرف ہندسے۔ |
-| `YT_COOKIES` | یوٹیوب سے مواد لیتے وقت تصدیق کی رکاوٹ آئے تو cookies.txt کا مواد۔ |
-| `AI_API_KEY`، `AI_BASE_URL`، `AI_MODEL` | اختیاری AI سہولت کے لیے فراہم کنندہ کی کلید، سرور پتہ اور ماڈل۔ |
-| `OMDB_KEY` | فلموں کی معلومات کے لیے اختیاری OMDb کلید۔ |
-| `NOPREFIX_ALL` | بغیر سابقے کے کمانڈ قبول کرنے کی ترتیب؛ پہلے سے فعال ہے۔ |
-| `CHANNEL_CODE` | واٹس ایپ چینل کا کوڈ؛ اسے تبدیل کرنے کی ضرورت نہیں۔ |
+| `SESSION_ID` | Session value received after pairing; required to start the main bot session. Treat it as a secret. |
+| `PHONE` | Optional phone number, including country code, for automatic phone-code pairing. Use digits only. |
+| `PREFIX` | Optional command prefix. Defaults to `.`. |
+| `OWNER_NUMBER` | Optional owner phone number, including country code, using digits only. |
+| `YT_COOKIES` | Optional `cookies.txt` content or path, for YouTube access when sign-in verification is required. |
+| `AI_API_KEY` | Optional API key for an OpenAI-compatible AI provider. |
+| `AI_BASE_URL` | Optional base URL for that AI provider. |
+| `AI_MODEL` | Optional model name for that AI provider. |
+| `OMDB_KEY` | Optional OMDb API key for movie information. |
+| `NOPREFIX_ALL` | Optional setting for accepting commands without a prefix. Defaults to `true`. |
+| `CHANNEL_CODE` | WhatsApp channel code used by the project. Leave unchanged unless you intend to configure another channel. |
 
-تمام کلیدیں صرف Railway کے **Variables** حصے میں درج کریں؛ انہیں GitHub پر یا کسی پیغام میں ظاہر نہ کریں۔
+Add variables in Railway's **Variables** panel. Do not commit real session IDs, API keys, cookies, or phone numbers to GitHub. The `.env.example` file contains blank placeholders only.
 
-## سیشن محفوظ رکھنا
+## Persistent sessions
 
-اگر ری اسٹارٹ یا نئی تعیناتی کے بعد جوڑے ہوئے نمبروں کے سیشن برقرار رکھنے ہوں تو Railway میں Volume بنا کر `/app/sessions_active` اور `/app/auth_info` پر منسلک کریں۔ Volume کے بغیر Railway کی نئی تعیناتی پر مقامی سیشن فائلیں ختم ہو سکتی ہیں۔
+To retain paired accounts across restarts and redeploys, configure Railway persistent storage for `sessions_active/` and `auth_info/`, using the mount paths `/app/sessions_active` and `/app/auth_info`. Without persistent storage, local session files may be lost during redeployment.
 
-## مدد
+## Commands and help
 
-واٹس ایپ پر `help`، `.help` یا `!help` لکھیں۔ دوسری کمانڈز مثلاً `.play`، `.movie`، `.ai`، `.pair` اور `.owner` دستیاب ہیں۔ کمانڈ کے نام انگریزی میں ہی لکھے جاتے ہیں۔
+In WhatsApp, send `help`, `.help`, or `!help` to see available commands. Examples include `.play`, `.movie`, `.ai`, `.pair`, `.owner`, and `.creator`. Command names must be entered exactly as shown.
 
-## احتیاط
+## Security
 
-`SESSION_ID`، API کیز اور cookies نجی معلومات ہیں۔ انہیں کسی عوامی جگہ پر نہ ڈالیں۔
+Treat `SESSION_ID`, API keys, cookies, and any authentication files as private credentials. Never publish or share them publicly.

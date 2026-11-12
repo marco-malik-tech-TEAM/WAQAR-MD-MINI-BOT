@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="ur" dir="rtl">
+<html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مارکو ملک اور وقار رائٹس ایم ڈی — واٹس ایپ جوڑیں</title>
+    <title>UPLINK V2.0 | MARCO MALIK & WAQAR WRITES BOT</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://unpkg.com/lucide@latest"></script>
     <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
@@ -33,10 +33,10 @@
         }
     </script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Nastaliq+Urdu:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700&display=swap');
 
         body {
-            font-family: 'Noto Nastaliq Urdu', 'Outfit', sans-serif;
+            font-family: 'Outfit', sans-serif;
             background-color: #000;
             color: #fff;
         }
@@ -140,14 +140,14 @@
                             class="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                         <span class="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                     </div>
-                    <span class="text-[10px] font-semibold tracking-[0.2em] uppercase text-primary">سسٹم فعال ہے</span>
+                    <span class="text-[10px] font-semibold tracking-[0.2em] uppercase text-primary">System Online</span>
                 </div>
                 <h1 class="text-3xl sm:text-4xl lg:text-6xl font-semibold tracking-tight leading-tight text-white">
                     MARCO MALIK & WAQAR WRITES-MINI-BOT <span class="text-primary italic">V1.0</span>
                 </h1>
                 <p class="text-xs sm:text-base text-gray-400 font-medium max-w-2xl mx-auto leading-relaxed px-4">
-                    اپنے واٹس ایپ نمبر کو بوٹ کے ساتھ محفوظ طریقے سے جوڑیں۔<br>
-                    محفوظ رابطہ۔ خودکار کام۔ ہر جگہ دستیاب۔
+                    Establish a high-bandwidth neural connection to your WhatsApp instance.<br>
+                    Encrypted. Autonomous. Irrelevant of physical proximity.
                 </p>
             </div>
         </div>
@@ -172,11 +172,11 @@
                                         <h2
                                             class="text-base sm:text-lg lg:text-xl font-semibold tracking-tight text-white flex items-center gap-3">
                                             <i data-lucide="terminal" class="h-5 w-5 text-primary"></i>
-                                            جوڑنے کا کنسول
+                                            UPLINK_TERMINAL
                                         </h2>
                                         <p
                                             class="text-[9px] sm:text-[10px] font-semibold text-gray-500 uppercase tracking-widest">
-                                            محفوظ رابطے کا طریقۂ کار</p>
+                                            Secure Handshake Protocol</p>
                                     </div>
                                     <div class="flex gap-1.5 opacity-30">
                                         <div class="w-2.5 h-2.5 rounded-full bg-white/20"></div>
@@ -188,9 +188,11 @@
                                 <!-- Action Toggle -->
                                 <div class="inline-flex p-1 bg-white/5 rounded-xl mb-8 border border-white/10">
                                     <button onclick="setMethod('qr')" id="tab-qr"
-                                        class="px-6 py-2 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all duration-300 bg-primary text-black shadow-lg">QR کوڈ اسکین</button>
+                                        class="px-6 py-2 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all duration-300 bg-primary text-black shadow-lg">Optical
+                                        Scan</button>
                                     <button onclick="setMethod('code')" id="tab-code"
-                                        class="px-6 py-2 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all duration-300 text-gray-400 hover:text-white">فون کوڈ</button>
+                                        class="px-6 py-2 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all duration-300 text-gray-400 hover:text-white">Neural
+                                        Code</button>
                                 </div>
 
                                 <!-- Content States -->
@@ -206,12 +208,12 @@
                                                 <h3
                                                     class="text-xl font-bold tracking-tight text-primary flex items-center justify-center gap-2">
                                                     <i data-lucide="sparkles" class="h-5 w-5 animate-pulse"></i>
-                                                    <span id="success-header">تصدیق کا انتظار</span>
+                                                    <span id="success-header">AUTHORIZATION_PENDING</span>
                                                     <i data-lucide="sparkles" class="h-5 w-5 animate-pulse"></i>
                                                 </h3>
                                                 <p id="success-text"
                                                     class="text-[11px] sm:text-xs text-gray-400 w-full max-w-[280px] sm:max-w-sm mx-auto leading-relaxed p-4 rounded-2xl bg-primary/5 border border-primary/10">
-                                                    رابطے کی معلومات تیار ہو رہی ہیں...
+                                                    Generating digital signature...
                                                 </p>
                                             </div>
                                         </div>
@@ -222,25 +224,25 @@
                                             <div
                                                 class="inline-flex items-center gap-3 px-4 py-2 rounded-full border border-primary/20 bg-primary/5 text-[10px] font-black uppercase tracking-[0.2em] text-primary">
                                                 <i data-lucide="clock" class="h-3 w-3"></i>
-                                                کوڈ کی میعاد: <span id="time-left">60</span> سیکنڈ
+                                                Uplink Expiry: <span id="time-left">60</span>S
                                             </div>
                                             <div id="action-buttons" class="flex gap-2">
                                                 <button id="copy-btn" onclick="copyPairingCode()"
                                                     class="hidden h-8 px-4 rounded-full border border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all">
                                                     <i data-lucide="copy" class="h-3 w-3"></i>
-                                                    کاپی کریں
+                                                    Copy
                                                 </button>
                                                 <button id="share-btn" onclick="shareUplink()"
                                                     class="h-8 px-4 rounded-full border border-primary/20 bg-primary/5 hover:bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest flex items-center gap-2 transition-all">
                                                     <i data-lucide="share-2" class="h-3 w-3"></i>
-                                                    شیئر کریں
+                                                    Share
                                                 </button>
                                             </div>
                                         </div>
                                         <div class="flex flex-col sm:flex-row gap-4 pt-4">
                                             <button onclick="resetTerminal()"
                                                 class="flex-1 h-12 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-white font-bold text-xs tracking-widest uppercase transition-all">
-                                                دوبارہ شروع کریں
+                                                Reset Uplink
                                             </button>
                                         </div>
                                     </div>
@@ -253,28 +255,29 @@
                                                 <label
                                                     class="text-[10px] font-bold uppercase tracking-widest text-gray-500 flex items-center gap-2">
                                                     <i data-lucide="globe" class="h-3 w-3"></i>
-                                                    ملکی کوڈ سمیت فون نمبر
+                                                    International_Uplink_Node
                                                 </label>
-                                                <span class="text-[10px] font-bold text-primary/70 uppercase">فون نمبر درج کریں</span>
+                                                <span class="text-[10px] font-bold text-primary/70 uppercase">Input:
+                                                    Phone_Num</span>
                                             </div>
                                             <div class="relative group/input">
                                                 <div
                                                     class="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none text-gray-500 group-focus-within/input:text-primary transition-colors">
                                                     <i data-lucide="plus" class="h-4 w-4"></i>
                                                 </div>
-                                                <input type="tel" id="phone-input" dir="ltr"
-                                                    placeholder="فون نمبر، ملکی کوڈ سمیت (مثلاً 923...)"
+                                                <input type="tel" id="phone-input"
+                                                    placeholder="Phone Module ID (e.g. 255...)"
                                                     class="w-full h-14 pl-11 bg-white/5 border border-white/10 group-hover/input:border-white/20 focus:border-primary/50 text-base font-semibold tracking-tight text-white placeholder:text-gray-700 transition-all rounded-xl outline-none">
                                             </div>
                                             <p
                                                 class="text-[9px] text-gray-600 font-medium uppercase tracking-wider ml-1">
-                                                * شروع میں صفر نہ لکھیں۔ ملکی کوڈ لازمی شامل کریں۔
+                                                * Omit leading zero. Include country prefix for global signal lock.
                                             </p>
                                         </div>
 
                                         <button onclick="startPairing()" id="pair-btn"
                                             class="w-full h-14 rounded-xl bg-primary hover:bg-primary/90 text-black font-bold uppercase tracking-widest text-[11px] shadow-lg shadow-primary/20 transition-all active:scale-[0.98] flex items-center justify-center gap-2 group/btn">
-                                            <span id="btn-text">QR کوڈ بنائیں</span>
+                                            <span id="btn-text">GENERATE_OPTICAL_KEY</span>
                                             <i data-lucide="zap"
                                                 class="h-3.5 w-3.5 group-hover/btn:translate-x-1 transition-transform"></i>
                                         </button>
@@ -296,19 +299,19 @@
                             <div
                                 class="p-4 rounded-xl border border-white/10 bg-white/5 flex flex-col items-center text-center space-y-1 hover:bg-white/10 transition-colors cursor-default">
                                 <i data-lucide="activity" class="h-3.5 w-3.5 text-gray-500"></i>
-                                <p class="text-[8px] font-bold uppercase tracking-widest text-gray-600">تاخیر</p>
+                                <p class="text-[8px] font-bold uppercase tracking-widest text-gray-600">Latency</p>
                                 <p class="text-[10px] font-semibold text-white tracking-widest">14ms</p>
                             </div>
                             <div
                                 class="p-4 rounded-xl border border-white/10 bg-white/5 flex flex-col items-center text-center space-y-1 hover:bg-white/10 transition-colors cursor-default">
                                 <i data-lucide="shield-check" class="h-3.5 w-3.5 text-gray-500"></i>
-                                <p class="text-[8px] font-bold uppercase tracking-widest text-gray-600">خفیہ کاری</p>
+                                <p class="text-[8px] font-bold uppercase tracking-widest text-gray-600">Encryption</p>
                                 <p class="text-[10px] font-semibold text-white tracking-widest">AES-256</p>
                             </div>
                             <div
                                 class="p-4 rounded-xl border border-white/10 bg-white/5 flex flex-col items-center text-center space-y-1 hover:bg-white/10 transition-colors cursor-default">
                                 <i data-lucide="refresh-ccw" class="h-3.5 w-3.5 text-gray-500"></i>
-                                <p class="text-[8px] font-bold uppercase tracking-widest text-gray-600">دستیابی</p>
+                                <p class="text-[8px] font-bold uppercase tracking-widest text-gray-600">Uptime</p>
                                 <p class="text-[10px] font-semibold text-white tracking-widest">99.9%</p>
                             </div>
                         </div>
@@ -319,8 +322,9 @@
                         <div class="p-6 lg:p-8 rounded-3xl border border-border bg-card/50 backdrop-blur-md h-full">
                             <div class="space-y-1 mb-8">
                                 <h2 class="text-base lg:text-lg font-semibold text-white tracking-tight uppercase">
-                                    اہم سہولتیں</h2>
-                                <p class="text-[10px] font-semibold text-gray-500 tracking-widest uppercase">جدید خودکار سہولتیں</p>
+                                    Core_Modules</h2>
+                                <p class="text-[10px] font-semibold text-gray-500 tracking-widest uppercase">Advanced
+                                    Automation Suite</p>
                             </div>
 
                             <div class="grid gap-3 lg:gap-4">
@@ -334,8 +338,9 @@
                                     <div class="space-y-0.5">
                                         <h3
                                             class="text-xs font-bold text-white tracking-tight uppercase group-hover:text-primary transition-colors">
-                                            ذہین کمانڈز</h3>
-                                        <p class="text-[11px] text-gray-500 leading-relaxed font-medium">خودکاری اور کام کے لیے 90 سے زیادہ ذہین کمانڈز</p>
+                                            AI-Powered Commands</h3>
+                                        <p class="text-[11px] text-gray-500 leading-relaxed font-medium">90+ intelligent
+                                            commands for automation and productivity</p>
                                     </div>
                                 </div>
                                 <div
@@ -347,8 +352,9 @@
                                     <div class="space-y-0.5">
                                         <h3
                                             class="text-xs font-bold text-white tracking-tight uppercase group-hover:text-primary transition-colors">
-                                            خودکار جوابات</h3>
-                                        <p class="text-[11px] text-gray-500 leading-relaxed font-medium">خاص الفاظ اور جملوں کے لیے خودکار جوابات مقرر کریں</p>
+                                            Auto Replies</h3>
+                                        <p class="text-[11px] text-gray-500 leading-relaxed font-medium">Set custom
+                                            auto-replies for keywords and phrases</p>
                                     </div>
                                 </div>
                                 <div
@@ -360,8 +366,9 @@
                                     <div class="space-y-0.5">
                                         <h3
                                             class="text-xs font-bold text-white tracking-tight uppercase group-hover:text-primary transition-colors">
-                                            رازداری مقدم</h3>
-                                        <p class="text-[11px] text-gray-500 leading-relaxed font-medium">آپ کا ڈیٹا مکمل سرے تا سرے خفیہ کاری سے محفوظ ہے</p>
+                                            Privacy First</h3>
+                                        <p class="text-[11px] text-gray-500 leading-relaxed font-medium">Your data is
+                                            secured with end-to-end encryption</p>
                                     </div>
                                 </div>
                                 <div
@@ -373,8 +380,9 @@
                                     <div class="space-y-0.5">
                                         <h3
                                             class="text-xs font-bold text-white tracking-tight uppercase group-hover:text-primary transition-colors">
-                                            ہمہ وقت فعال</h3>
-                                        <p class="text-[11px] text-gray-500 leading-relaxed font-medium">ہر کامیاب جوڑ کے بعد بوٹ 3 دن تک فعال رہتا ہے</p>
+                                            24/7 Active</h3>
+                                        <p class="text-[11px] text-gray-500 leading-relaxed font-medium">Bot remains
+                                            active for 3 days per pairing session</p>
                                     </div>
                                 </div>
                             </div>
@@ -383,10 +391,11 @@
                                 <div class="flex items-center gap-3 text-primary">
                                     <i data-lucide="sparkles" class="h-4 w-4 animate-spin-slow"></i>
                                     <span
-                                        class="text-[10px] font-bold uppercase tracking-widest">خصوصی حفاظتی نظام</span>
+                                        class="text-[10px] font-bold uppercase tracking-widest">Premium_Protocol</span>
                                 </div>
                                 <p class="text-[11px] text-gray-400 font-medium leading-relaxed italic">
-                                    "ہر حصہ بہتر کارکردگی کے لیے بنایا گیا ہے۔ تاہم کسی نظام میں غلطی یا شناخت کا امکان ختم ہونے کی ضمانت نہیں دی جا سکتی۔"
+                                    "Every node is optimized for maximum performance and stealth, ensuring 100%
+                                    detection avoidance."
                                 </p>
                             </div>
                         </div>
@@ -409,10 +418,10 @@
                             <div class="flex-1 space-y-6 text-center lg:text-left">
                                 <div class="space-y-1">
                                     <h2 class="text-2xl font-semibold tracking-tight text-white uppercase">
-                                        حفاظتی اطلاع <span class="text-amber-500 font-normal">v1.2</span>
+                                        SECURITY_DISCLAIMER <span class="text-amber-500 font-normal">v1.2</span>
                                     </h2>
                                     <p class="text-[10px] font-bold text-amber-500/70 uppercase tracking-widest">
-                                        اہم حفاظتی ہدایات</p>
+                                        Official Safety Protocol</p>
                                 </div>
 
                                 <div class="grid md:grid-cols-2 gap-6 pt-4">
@@ -420,21 +429,24 @@
                                         <div class="flex items-center gap-2 text-amber-500">
                                             <i data-lucide="zap" class="w-3.5 h-3.5"></i>
                                             <span
-                                                class="text-[10px] font-bold uppercase tracking-widest">بلا معاوضہ رابطہ</span>
+                                                class="text-[10px] font-bold uppercase tracking-widest">Zero_Cost_Neural_Link</span>
                                         </div>
                                         <p class="text-xs text-gray-400 leading-relaxed font-medium">
-                                            MARCO MALIK & WAQAR WRITES MD کے ماڈیول <span class="text-white font-bold">سو فیصد مفت</span> ہیں۔
-                                            اگر کوئی اس رابطے کے لیے رقم مانگے تو فوراً رابطہ بند کر دیں۔
+                                            MARCO MALIK & WAQAR WRITES MD modules are <span class="text-white font-bold">100%
+                                                FREE</span>.
+                                            If any entity requests currency for this uplink, terminate the connection
+                                            immediately.
                                         </p>
                                     </div>
                                     <div class="space-y-3 p-6 rounded-2xl bg-white/5 border border-white/10">
                                         <div class="flex items-center gap-2 text-gray-500">
                                             <i data-lucide="cpu" class="w-3.5 h-3.5"></i>
                                             <span
-                                                class="text-[10px] font-bold uppercase tracking-widest">آزمائشی نسخے کی تنبیہ</span>
+                                                class="text-[10px] font-bold uppercase tracking-widest">BETA_OS_CAUTION</span>
                                         </div>
                                         <p class="text-xs text-gray-400 leading-relaxed font-medium">
-                                            یہ نظام آزمائشی مرحلے میں ہے اور اس میں غلطیاں ہو سکتی ہیں۔ اہم یا حساس معلومات کے لیے اس پر انحصار نہ کریں۔
+                                            This system is in autonomous beta. Algorithmic errors may occur.
+                                            Do not rely on this node for mission-critical data.
                                         </p>
                                     </div>
                                 </div>
@@ -445,11 +457,12 @@
 
                 <!-- Command Core Header -->
                 <div class="mb-20 lg:mb-32 animate-fade-in text-center space-y-3">
-                    <h2 class="text-3xl lg:text-5xl font-semibold tracking-tight text-white uppercase">بوٹ کی کمانڈز</h2>
-                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">کمانڈز اور کنٹرول</p>
+                    <h2 class="text-3xl lg:text-5xl font-semibold tracking-tight text-white uppercase">COMMAND_CORE</h2>
+                    <p class="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Centralized Control
+                        Interface</p>
 
                     <!-- Command Grid -->
-                    <div class="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-right px-4">
+                    <div class="mt-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 text-left px-4">
                         <!-- Fun Category -->
                         <div
                             class="p-6 glass rounded-2xl border border-white/5 hover:border-primary/20 transition-all duration-500 group">
@@ -459,8 +472,8 @@
                                     <i data-lucide="gamepad-2" class="w-5 h-5"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-xs font-bold text-white uppercase tracking-wider">تفریحی کمانڈز</h3>
-                                    <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">30 سے زیادہ کمانڈز
+                                    <h3 class="text-xs font-bold text-white uppercase tracking-wider">FUN_MODULES</h3>
+                                    <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">30+ Commands
                                     </p>
                                 </div>
                             </div>
@@ -479,8 +492,8 @@
                                     <i data-lucide="play" class="w-5 h-5"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-xs font-bold text-white uppercase tracking-wider">میڈیا کمانڈز</h3>
-                                    <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">10 سے زیادہ کمانڈز
+                                    <h3 class="text-xs font-bold text-white uppercase tracking-wider">MEDIA_NODES</h3>
+                                    <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">10+ Commands
                                     </p>
                                 </div>
                             </div>
@@ -498,8 +511,8 @@
                                     <i data-lucide="wrench" class="w-5 h-5"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-xs font-bold text-white uppercase tracking-wider">مددگار کمانڈز</h3>
-                                    <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">13 سے زیادہ کمانڈز
+                                    <h3 class="text-xs font-bold text-white uppercase tracking-wider">TOOL_ARRAY</h3>
+                                    <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">13+ Commands
                                     </p>
                                 </div>
                             </div>
@@ -517,8 +530,8 @@
                                     <i data-lucide="users" class="w-5 h-5"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-xs font-bold text-white uppercase tracking-wider">گروپ کمانڈز</h3>
-                                    <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">25 سے زیادہ کمانڈز
+                                    <h3 class="text-xs font-bold text-white uppercase tracking-wider">GROUP_CENTRAL</h3>
+                                    <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">25+ Commands
                                     </p>
                                 </div>
                             </div>
@@ -536,9 +549,9 @@
                                     <i data-lucide="settings" class="w-5 h-5"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-xs font-bold text-white uppercase tracking-wider">ترتیبات کی کمانڈز
+                                    <h3 class="text-xs font-bold text-white uppercase tracking-wider">SYSTEM_TOGGLES
                                     </h3>
-                                    <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">10 سے زیادہ کمانڈز
+                                    <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">10+ Commands
                                     </p>
                                 </div>
                             </div>
@@ -556,8 +569,8 @@
                                     <i data-lucide="terminal" class="w-5 h-5"></i>
                                 </div>
                                 <div>
-                                    <h3 class="text-xs font-bold text-white uppercase tracking-wider">بنیادی کمانڈز</h3>
-                                    <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">8 سے زیادہ کمانڈز
+                                    <h3 class="text-xs font-bold text-white uppercase tracking-wider">BASE_LOGIC</h3>
+                                    <p class="text-[9px] text-gray-500 font-bold uppercase tracking-widest">8+ Commands
                                     </p>
                                 </div>
                             </div>
@@ -571,7 +584,7 @@
                         <div
                             class="inline-flex items-center gap-3 px-6 py-3 rounded-full border border-primary/20 bg-primary/5 text-[10px] font-black uppercase tracking-[0.4em] text-primary">
                             <i data-lucide="sparkles" class="h-4 w-4 animate-pulse"></i>
-                            مجموعی طور پر 100 سے زیادہ فعال کمانڈز
+                            Total Deployment: 100+ Active Nodes
                         </div>
                     </div>
                 </div>
@@ -691,7 +704,7 @@
                 ? 'px-6 py-2 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all duration-300 bg-primary text-black shadow-lg'
                 : 'px-6 py-2 text-[10px] font-bold uppercase tracking-widest rounded-lg transition-all duration-300 text-gray-400 hover:text-white';
 
-            document.getElementById('btn-text').innerText = method === 'qr' ? 'QR کوڈ بنائیں' : 'جوڑنے کا کوڈ حاصل کریں';
+            document.getElementById('btn-text').innerText = method === 'qr' ? 'GENERATE_OPTICAL_KEY' : 'GENERATE_NEURAL_KEY';
             document.getElementById('error-display').classList.add('hidden');
         };
 
@@ -700,39 +713,39 @@
             const btn = document.getElementById('pair-btn');
 
             if (rawPhone.startsWith('+')) {
-                showError("نمبر کے شروع میں + نہ لکھیں؛ صرف ہندسے اور ملکی کوڈ درج کریں (مثلاً 923...)");
+                showError("DO NOT START WITH '+'. ENTER ONLY DIGITS (e.g. 255...)");
                 return;
             }
 
             const cleaned = rawPhone.replace(/\D/g, ''); // Normalize: remove spaces etc
 
             if (!cleaned || cleaned.length < 11) {
-                showError("نمبر نامکمل ہے۔ ملکی کوڈ سمیت پورا فون نمبر درج کریں۔");
+                showError("INCOMPLETE NUMBER. ENTER FULL MODULE ID (e.g. 255712345678)");
                 return;
             }
 
             if (cleaned.startsWith('0')) {
-                showError("نمبر کے شروع میں صفر نہ لکھیں؛ ملکی کوڈ شامل کریں۔");
+                showError("DO NOT START WITH 0. INCLUDE COUNTRY CODE (e.g. 255...)");
                 return;
             }
 
             // Detect 0 after country code (e.g. 25507...)
             // Common country codes are 1-3 digits. We look for CC followed by 07.
             if (/^\d{1,3}07/.test(cleaned)) {
-                showError("ملکی کوڈ کے بعد اضافی صفر نہ لکھیں۔");
+                showError("DO NOT INCLUDE 0 AFTER COUNTRY CODE (e.g. use 2557... not 25507...)");
                 return;
             }
 
             const phone = cleaned; // Use cleaned number for API
 
             btn.disabled = true;
-            document.getElementById('btn-text').innerText = 'شروع ہو رہا ہے...';
+            document.getElementById('btn-text').innerText = 'INITIALIZING...';
 
             // Safety timeout: Reset if no code/success after 90s
             clearTimeout(loadingTimeout);
             loadingTimeout = setTimeout(() => {
-                if (!isLinked && document.getElementById('btn-text').innerText === 'شروع ہو رہا ہے...') {
-                    showError("رابطہ مکمل نہیں ہوا۔ براہِ کرم دوبارہ کوشش کریں۔");
+                if (!isLinked && document.getElementById('btn-text').innerText === 'INITIALIZING...') {
+                    showError("CONNECTION_STALLED. PLEASE RETRY.");
                     resetTerminal();
                 }
             }, 95000); // 95s (slightly more than 90s timer)
@@ -741,7 +754,7 @@
                 // Show spinner BEFORE request
                 document.getElementById('idle-display').classList.add('hidden');
                 document.getElementById('success-display').classList.remove('hidden');
-                document.getElementById('result-display').innerHTML = '<div class="flex flex-col items-center gap-4 text-primary/50"><i data-lucide="loader-2" class="h-10 w-10 animate-spin"></i><p class="text-[10px] font-bold uppercase tracking-[0.3em]">رابطے کی معلومات تیار ہو رہی ہیں...</p></div>';
+                document.getElementById('result-display').innerHTML = '<div class="flex flex-col items-center gap-4 text-primary/50"><i data-lucide="loader-2" class="h-10 w-10 animate-spin"></i><p class="text-[10px] font-bold uppercase tracking-[0.3em]">Generating Digital Signature...</p></div>';
                 lucide.createIcons();
 
                 const res = await fetch('/api/pair', {
@@ -758,7 +771,7 @@
 
                 if (!res.ok) {
                     const errorData = await res.json().catch(() => ({}));
-                    throw new Error(errorData.error || `درخواست مکمل نہیں ہوئی۔ دوبارہ کوشش کریں۔ (${res.status})`);
+                    throw new Error(errorData.error || `API_SYNC_FAILED (${res.status})`);
                 }
 
                 const data = await res.json();
@@ -779,7 +792,7 @@
             } catch (e) {
                 showError(e.message);
                 btn.disabled = false;
-                document.getElementById('btn-text').innerText = currentMethod === 'qr' ? 'QR کوڈ بنائیں' : 'جوڑنے کا کوڈ حاصل کریں';
+                document.getElementById('btn-text').innerText = currentMethod === 'qr' ? 'GENERATE_OPTICAL_KEY' : 'GENERATE_NEURAL_KEY';
             }
         };
 
@@ -789,7 +802,7 @@
             document.getElementById('result-display').innerHTML = '';
             document.getElementById('expiry-timer').classList.add('hidden');
             document.getElementById('pair-btn').disabled = false;
-            document.getElementById('btn-text').innerText = currentMethod === 'qr' ? 'QR کوڈ بنائیں' : 'جوڑنے کا کوڈ حاصل کریں';
+            document.getElementById('btn-text').innerText = currentMethod === 'qr' ? 'GENERATE_OPTICAL_KEY' : 'GENERATE_NEURAL_KEY';
             clearInterval(countdownInterval);
             clearTimeout(loadingTimeout);
             isLinked = false;
@@ -797,10 +810,7 @@
 
         function showError(msg) {
             const el = document.getElementById('error-display');
-            const message = String(msg || '');
-            document.getElementById('error-text').innerText = /[\u0600-\u06FF]/.test(message)
-                ? message
-                : 'جوڑ بنانے میں مسئلہ پیش آیا۔ اپنا نمبر اور انٹرنیٹ چیک کرکے دوبارہ کوشش کریں۔';
+            document.getElementById('error-text').innerText = msg;
             el.classList.remove('hidden');
         }
 
@@ -808,8 +818,8 @@
         socket.on('qr_update', ({ qr, sessionId }) => {
             console.log('📡 QR received');
 
-            document.getElementById('success-header').innerText = 'QR کوڈ تیار ہے';
-            document.getElementById('success-text').innerText = 'QR کوڈ تیار ہے۔ اسے واٹس ایپ میں لنکڈ ڈیوائسز کے ذریعے اسکین کریں۔';
+            document.getElementById('success-header').innerText = 'OPTICAL_PATTERN_GENERATED';
+            document.getElementById('success-text').innerText = 'Optical pattern generated. Point your primary device at the sensor array below.';
             document.getElementById('result-display').innerHTML = '<div class="p-4 bg-white rounded-2xl shadow-xl transition-transform hover:scale-105 duration-500 border border-border/40" id="qrcode-box"></div>';
             new QRCode(document.getElementById('qrcode-box'), {
                 text: qr,
@@ -830,8 +840,8 @@
         });
 
         function displayPairingCode(code) {
-            document.getElementById('success-header').innerText = 'جوڑنے کا کوڈ تیار ہے';
-            document.getElementById('success-text').innerText = 'آٹھ ہندسوں کا کوڈ تیار ہے۔ اسے واٹس ایپ میں منسلک ڈیوائسز کے حصے میں درج کریں۔';
+            document.getElementById('success-header').innerText = 'NEURAL_KEY_GENERATED';
+            document.getElementById('success-text').innerText = '8-digit neural key generated. Input this string into your WhatsApp \'Linked Devices\' module.';
 
             let codeHtml = '<div class="flex flex-col items-center gap-6"><div class="grid grid-cols-4 sm:grid-cols-8 gap-2 cursor-pointer group" id="code-grid" onclick="copyPairingCode()">';
             code.split('').forEach(char => {
@@ -851,7 +861,7 @@
             navigator.clipboard.writeText(code).then(() => {
                 const btn = document.getElementById('copy-btn');
                 const originalContent = btn.innerHTML;
-                btn.innerHTML = '<i data-lucide="check" class="h-3 w-3"></i> کاپی ہو گیا!';
+                btn.innerHTML = '<i data-lucide="check" class="h-3 w-3"></i> Copied!';
                 btn.classList.add('bg-primary/20');
                 lucide.createIcons();
 
@@ -866,18 +876,18 @@
         window.shareUplink = () => {
             const code = window.currentPairingCode;
             const text = code
-                ? `مارکو ملک اور وقار رائٹس بوٹ کا جوڑنے کا کوڈ: ${code}\n\nجوڑنے کے لیے یہاں آئیں: ${window.location.href}`
-                : `مارکو ملک اور وقار رائٹس بوٹ سے جڑنے کے لیے یہاں آئیں: ${window.location.href}`;
+                ? `MARCO MALIK & WAQAR WRITES Bot Pairing Code: ${code}\n\nEstablish your neural link at: ${window.location.href}`
+                : `Establish your MARCO MALIK & WAQAR WRITES Bot neural link at: ${window.location.href}`;
 
             if (navigator.share) {
                 navigator.share({
-                    title: 'مارکو ملک اور وقار رائٹس بوٹ سے جوڑیں',
+                    title: 'MARCO MALIK & WAQAR WRITES Bot Uplink',
                     text: text,
                     url: window.location.href
                 }).catch(console.error);
             } else {
                 navigator.clipboard.writeText(text).then(() => {
-                    alert("رابطے کی معلومات کاپی ہو گئی ہیں۔");
+                    alert("Uplink info copied to clipboard (Web Share not supported).");
                 });
             }
         };
@@ -896,8 +906,8 @@
             console.log('📡 Pairing successful:', message);
             clearTimeout(loadingTimeout);
             isLinked = true;
-            document.getElementById('success-header').innerText = 'واٹس ایپ سے کامیابی سے جڑ گیا';
-            document.getElementById('success-text').innerHTML = `جوڑ کامیاب ہو گیا! واٹس ایپ پر اپنے نجی پیغام میں سیشن آئی ڈی دیکھیں۔<br><br><span class="text-primary font-bold animate-pulse">[ نظام فعال ہے ]</span>`;
+            document.getElementById('success-header').innerText = 'NEURAL_UPLINK_SYNCHRONIZED';
+            document.getElementById('success-text').innerHTML = `${message}<br><br><span class="text-primary font-bold animate-pulse uppercase tracking-widest">[ SYSTEM_100%_OPERATIONAL ]</span>`;
             document.getElementById('result-display').innerHTML = '<div class="w-24 h-24 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center animate-bounce"><i data-lucide="check" class="h-12 w-12 text-primary"></i></div>';
             document.getElementById('expiry-timer').classList.add('hidden');
             lucide.createIcons();
@@ -928,7 +938,7 @@
                 document.getElementById('time-left').innerText = --timer;
                 if (timer <= 0) {
                     clearInterval(countdownInterval);
-                    showError("وقت ختم ہو گیا۔ نیا کوڈ حاصل کرنے کے لیے دوبارہ کوشش کریں۔");
+                    showError("SESSION_TIMED_OUT");
                     setTimeout(resetTerminal, 2000);
                 }
             }, 1000);
