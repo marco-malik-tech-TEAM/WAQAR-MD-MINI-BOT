@@ -14,8 +14,13 @@ app.use(cors());
 app.use(express.json());
 
 // Health check
-app.get("/", (req, res) => {
+app.get("/health", (req, res) => {
     res.json({ status: "OK", service: "MARCO MALIK & WAQAR WRITES MD" });
+});
+
+// Open the pairing website from the Railway domain root.
+app.get("/", (req, res) => {
+    res.redirect(302, "/pair");
 });
 
 // Bot status
