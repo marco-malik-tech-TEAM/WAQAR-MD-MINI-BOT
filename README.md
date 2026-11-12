@@ -1,33 +1,41 @@
-# MARCO MALIK & WAQAR WRITES MD — WhatsApp Mini Bot
+# MARCO MALIK & WAQAR WRITES MD — واٹس ایپ منی بوٹ
 
-Developers: **Marco Malik** (19, Rajanpur) & **Waqar Writes** (21, Karachi) — Pakistan 🇵🇰
-Website: https://marco-waqar-mini-bot-info-web.vercel.app
+تیار کنندگان: **Marco Malik** (Rajanpur) اور **Waqar Writes** (Karachi)
 
-## Deploy
-1. `npm install`
-2. Open `/pair` on your deployed site, enter your number, get the 8-digit code, link it in WhatsApp → Linked Devices.
-3. A Session ID is sent to your WhatsApp DM + the welcome video. Put it in env `SESSION_ID` (starts with `MARCOWAQAR-`) and redeploy.
-4. `npm start`
+## Railway پر چلانے کا طریقہ
 
-## Help works 3 ways
-`help` • `.help` • `!help` (also `menu`, `.menu`, `!menu`)
+1. اس GitHub ریپوزٹری کو Railway میں سروس کے طور پر تعینات کریں۔
+2. تعیناتی کامیاب ہونے کے بعد Railway کا دیا ہوا ڈومین کھولیں۔ مرکزی لنک خود جوڑنے والے صفحے پر لے جائے گا؛ ضرورت ہو تو آخر میں `/pair` شامل کریں۔
+3. اپنا فون نمبر ملکی کوڈ سمیت درج کریں۔ نمبر کے شروع میں `+` یا اضافی صفر نہ لکھیں۔ QR اسکین یا فون کوڈ کا طریقہ منتخب کرکے واٹس ایپ میں **منسلک آلات** کے ذریعے منظوری دیں۔
+4. جوڑ کامیاب ہونے پر واٹس ایپ کے نجی پیغام میں `سیشن آئی ڈی` آئے گی۔ اگر آپ Railway پر مرکزی بوٹ سیشن بحال رکھنا چاہتے ہیں تو اسے متغیر `SESSION_ID` میں محفوظ کرکے دوبارہ تعیناتی کریں۔ اپنی `سیشن آئی ڈی` کسی کے ساتھ شیئر نہ کریں۔
+5. Railway کا آغاز کمانڈ `npm start` ہے؛ عموماً اسے خود بخود پڑھ لیا جاتا ہے۔
 
-## Environment variables (all optional except SESSION_ID)
-| Name | Use |
+## Railway متغیرات
+
+پہلی بار صرف ویب صفحہ کھولنے اور نمبر جوڑنے کے لیے عموماً کوئی اختیاری کلید درکار نہیں۔ `PORT` Railway خود فراہم کرتا ہے؛ اسے خود شامل نہ کریں۔
+
+| متغیر کا نام | کب درکار ہے |
 |---|---|
-| SESSION_ID | session from the pair page |
-| YT_COOKIES | YouTube cookies.txt content (or file path) — fixes "Sign in to confirm you're not a bot" |
-| AI_API_KEY / AI_BASE_URL / AI_MODEL | optional own OpenAI-compatible AI key (bot already works without it) |
-| OMDB_KEY | optional own key from omdbapi.com for movie info |
-| PREFIX | default command prefix |
+| `SESSION_ID` | کامیاب جوڑ کے بعد ملنے والی سیشن معلومات؛ مرکزی سیشن بحال کرنے کے لیے۔ اسے خفیہ رکھیں۔ |
+| `PHONE` | اگر مرکزی بوٹ کو خودکار فون کوڈ مانگنے کے لیے مقرر کرنا ہو تو ملکی کوڈ سمیت نمبر۔ |
+| `PREFIX` | کمانڈ کا سابقہ؛ پہلے سے `.` ہے۔ |
+| `OWNER_NUMBER` | مالک کا نمبر ملکی کوڈ سمیت، صرف ہندسے۔ |
+| `YT_COOKIES` | یوٹیوب سے مواد لیتے وقت تصدیق کی رکاوٹ آئے تو cookies.txt کا مواد۔ |
+| `AI_API_KEY`، `AI_BASE_URL`، `AI_MODEL` | اختیاری AI سہولت کے لیے فراہم کنندہ کی کلید، سرور پتہ اور ماڈل۔ |
+| `OMDB_KEY` | فلموں کی معلومات کے لیے اختیاری OMDb کلید۔ |
+| `NOPREFIX_ALL` | بغیر سابقے کے کمانڈ قبول کرنے کی ترتیب؛ پہلے سے فعال ہے۔ |
+| `CHANNEL_CODE` | واٹس ایپ چینل کا کوڈ؛ اسے تبدیل کرنے کی ضرورت نہیں۔ |
 
-## New commands
-`.tiktok <link>` `.instagram <link>` `.facebook <link>` `.play <song/link>` `.video <name/link>` `.movie <name>` (info + trailer) `.ai <question>` `.pair <number>` `.chai @user` `.owner` `.creator`
+تمام کلیدیں صرف Railway کے **Variables** حصے میں درج کریں؛ انہیں GitHub پر یا کسی پیغام میں ظاہر نہ کریں۔
 
-Status saver: react with any emoji to a status (or reply to it) → it is sent to your own chat. Works for statuses received while the bot is online.
+## سیشن محفوظ رکھنا
 
-## Multi-session (everyone who pairs gets a running bot)
-Every number paired from `/pair` is kept as its own session in `sessions_active/<number>` and starts automatically (also after restarts). On Railway add a **Volume mounted at `/app/sessions_active`** (and `/app/auth_info`), otherwise sessions are lost on redeploy.
+اگر ری اسٹارٹ یا نئی تعیناتی کے بعد جوڑے ہوئے نمبروں کے سیشن برقرار رکھنے ہوں تو Railway میں Volume بنا کر `/app/sessions_active` اور `/app/auth_info` پر منسلک کریں۔ Volume کے بغیر Railway کی نئی تعیناتی پر مقامی سیشن فائلیں ختم ہو سکتی ہیں۔
 
-## Channel
-All sessions auto-follow the channel and auto-react to new posts. Menu/help looks forwarded from the channel.
+## مدد
+
+واٹس ایپ پر `help`، `.help` یا `!help` لکھیں۔ دوسری کمانڈز مثلاً `.play`، `.movie`، `.ai`، `.pair` اور `.owner` دستیاب ہیں۔ کمانڈ کے نام انگریزی میں ہی لکھے جاتے ہیں۔
+
+## احتیاط
+
+`SESSION_ID`، API کیز اور cookies نجی معلومات ہیں۔ انہیں کسی عوامی جگہ پر نہ ڈالیں۔
