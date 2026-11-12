@@ -1,14 +1,40 @@
 import { default as makeWASocket, DisconnectReason, useMultiFileAuthState, Browsers, delay } from "@whiskeysockets/baileys";
 import pino from "pino";
 import { join } from "path";
-import { rmSync, mkdirSync, existsSync, readFileSync } from "fs";
+import { rmSync, mkdirSync, existsSync } from "fs";
 import { randomBytes } from "crypto";
 import { emitUpdate, getIO } from "./socketService.js";
-import { sendWelcome } from "./welcome.js";
 import { getWaVersion } from "../utils/waVersion.js";
 
 // Temp storage for active pairing sessions
 const activePairingSessions = new Map();
+
+const phoneFromSocket = (sock) => sock?.user?.id?.split("@")[0]?.split(":")[0]?.replace(/\D/g, "") || "";
+
+const waitForConnectionOpen = (sock, timeoutMs = 45000) => {
+    if (sock?.ws?.readyState === 1 && sock.user?.id) return Promise.resolve(sock);
+    return new Promise((resolve, reject) => {
+        let settled = false;
+        const finish = (error) => {
+            if (settled) return;
+            settled = true;
+            clearTimeout(timer);
+            sock.ev.off("connection.update", onUpdate);
+            error ? reject(error) : resolve(sock);
+        };
+        const onUpdate = ({ connection, lastDisconnect } = {}) => {
+            if (connection === "open") finish();
+            else if (connection === "close") {
+                const code = lastDisconnect?.error?.output?.statusCode;
+                const reason = lastDisconnect?.error?.message || "unknown disconnect reason";
+                finish(new Error(`WhatsApp connection closed before becoming ready (${code ?? "no status code"}): ${reason}`));
+            }
+        };
+        const timer = setTimeout(() => finish(new Error("Timed out waiting for the WhatsApp session to reconnect.")), timeoutMs);
+        sock.ev.on("connection.update", onUpdate);
+        if (sock?.ws?.readyState === 1 && sock.user?.id) finish();
+    });
+};
 
 /**
  * Generate a unique Session ID
@@ -42,6 +68,7 @@ export const startPairing = async (phoneNumber, method = "qr", socketId, hooks =
         const { state, saveCreds } = await useMultiFileAuthState(sessionDir);
         let pairRetries = 0;
         const maxPairRetries = 5;
+        let pairingHandled = false;
         const browserList = () => [Browsers.ubuntu("Chrome"), Browsers.macOS("Safari"), Browsers.windows("Edge"), Browsers.macOS("Chrome"), Browsers.ubuntu("Firefox"), Browsers.windows("Chrome")];
 
         const initializeSocket = async () => {
@@ -126,58 +153,53 @@ export const startPairing = async (phoneNumber, method = "qr", socketId, hooks =
                 }
 
                 if (connection === "open") {
+                    if (pairingHandled) return;
+                    pairingHandled = true;
                     console.log(`✅ [${sessionId}] Connected Successfully!`);
-                    await delay(2000);
-
-                    let sessionData = "";
                     try {
-                        const credsPath = join(sessionDir, "creds.json");
-                        const creds = JSON.parse(readFileSync(credsPath).toString());
-                        const expiresAt = Date.now() + (24 * 60 * 60 * 1000);
-                        sessionData = "MARCOWAQAR-" + Buffer.from(JSON.stringify({ creds, expiresAt })).toString("base64");
-                    } catch (e) {
-                        console.error(`[${sessionId}] Failed to read creds:`, e);
-                    }
+                        await safeSaveCreds();
+                        await delay(1000);
 
-                    try {
-                        const userJid = sock.user.id.split(":")[0] + "@s.whatsapp.net";
-                        const messageText = sessionData;
-                        await sock.sendMessage(userJid, { text: messageText });
-                        console.log(`[${sessionId}] Session ID sent to user DM: ${userJid}`);
-                        // Welcome video right after successful connection
-                        try { await sendWelcome(sock, userJid, "."); } catch (we) { console.error(`[${sessionId}] Welcome send failed:`, we.message); }
-                    } catch (msgErr) {
-                        console.error(`[${sessionId}] Failed to send DM:`, msgErr);
-                    }
+                        const pairedNumber = phoneFromSocket(sock);
+                        if (!pairedNumber) throw new Error("Could not determine the paired WhatsApp number.");
 
-                    notify("pairing_success", {
-                        sessionId,
-                        message: "Pairing Successful! Check your WhatsApp DM for the Session ID."
-                    });
+                        const { getClient } = await import("./whatsappClient.js");
+                        const currentMain = getClient();
+                        const mainIsAlreadyOnlineForThisNumber = phoneFromSocket(currentMain) === pairedNumber && currentMain?.ws?.readyState === 1;
 
-                    await delay(5000);
-                    const pairedNumber = sock.user?.id?.split(":")[0]?.split("@")[0];
-                    try { sock.end(undefined); } catch { }
-                    activePairingSessions.delete(sessionId);
-
-                    // Keep the user's session ALIVE inside this server (multi-session), so their bot runs now
-                    try {
-                        const { getCachedConfig: gcc } = await import("./configService.js");
-                        if (pairedNumber && pairedNumber !== gcc().phone && existsSync(join(sessionDir, "creds.json"))) {
+                        if (!mainIsAlreadyOnlineForThisNumber) {
                             const { SESSIONS_ACTIVE, startSession } = await import("./whatsappClient.js");
-                            const { cpSync, mkdirSync: mk, writeFileSync: wf } = await import("fs");
+                            const { cpSync, mkdirSync: mk } = await import("fs");
                             const target = join(SESSIONS_ACTIVE, pairedNumber);
                             mk(SESSIONS_ACTIVE, { recursive: true });
                             rmSync(target, { recursive: true, force: true });
                             cpSync(sessionDir, target, { recursive: true });
-                            wf(join(target, ".welcome_sent"), String(Date.now())); // welcome already sent above
-                            console.log(`[${sessionId}] ➕ Starting permanent session for ${pairedNumber}`);
-                            setTimeout(() => startSession(pairedNumber).catch(e => console.error("startSession:", e.message)), 3000);
-                        }
-                    } catch (ke) { console.error(`[${sessionId}] Could not keep session:`, ke.message); }
+                            console.log(`[${sessionId}] Starting persistent session for ${pairedNumber}`);
 
-                    if (existsSync(sessionDir)) {
-                        rmSync(sessionDir, { recursive: true, force: true });
+                            // This pairing socket is temporary. Do not report its planned shutdown as a pairing failure.
+                            sock.__intentionalClose = true;
+                            const persistentSock = await startSession(pairedNumber);
+                            await waitForConnectionOpen(persistentSock);
+                        } else {
+                            console.log(`[${sessionId}] The main bot socket is already online for ${pairedNumber}.`);
+                            sock.__intentionalClose = true;
+                        }
+
+                        notify("pairing_success", {
+                            sessionId,
+                            message: "Pairing is complete and the bot connection is online."
+                        });
+                        activePairingSessions.delete(sessionId);
+                        try { sock.end(undefined); } catch { }
+                        if (existsSync(sessionDir)) rmSync(sessionDir, { recursive: true, force: true });
+                    } catch (e) {
+                        console.error(`[${sessionId}] Pairing completed but the persistent bot session did not become ready:`, e);
+                        notify("pairing_error", {
+                            sessionId,
+                            error: "WhatsApp accepted pairing, but the bot's persistent connection did not become ready. Check Railway logs and persistent storage, then retry if needed."
+                        });
+                        sock.__intentionalClose = true;
+                        try { sock.end(undefined); } catch { }
                     }
                 }
 
@@ -186,6 +208,12 @@ export const startPairing = async (phoneNumber, method = "qr", socketId, hooks =
                     const reason = lastDisconnect?.error?.message || "Unknown Error";
 
                     console.warn(`[${sessionId}] Connection closed: ${code} - ${reason}`);
+
+                    if (sock.__intentionalClose || pairingHandled) {
+                        activePairingSessions.delete(sessionId);
+                        if (existsSync(sessionDir)) rmSync(sessionDir, { recursive: true, force: true });
+                        return;
+                    }
 
                     if ([515, 405, 428, 408, 500, 503].includes(code) && pairRetries < maxPairRetries) {
                         pairRetries++;

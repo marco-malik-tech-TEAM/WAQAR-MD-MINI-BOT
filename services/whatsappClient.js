@@ -53,12 +53,34 @@ const sessions = new Map(); // name -> { sock, attempts }
 let activeClient = null;
 const MAX_RECONNECT_ATTEMPTS = 100000; // never give up
 
+const normalizePhone = (value) => String(value || "").replace(/\D/g, "");
+const phoneFromSessionId = (value) => {
+    try {
+        const prefix = ["MARCOWAQAR-", "Tervux-"].find(item => value?.startsWith(item));
+        if (!prefix) return "";
+        const parsed = JSON.parse(Buffer.from(value.slice(prefix.length), "base64").toString());
+        return normalizePhone((parsed.creds || parsed).me?.id?.split("@")[0]?.split(":")[0]);
+    } catch {
+        return "";
+    }
+};
+
 export async function createWhatsAppClient(sessionName = "main") {
     const isMain = sessionName === "main";
     const authDir = isMain ? AUTH_INFO_PATH : join(SESSIONS_ACTIVE, sessionName);
-    const st = sessions.get(sessionName) || { attempts: 0 };
+    const st = sessions.get(sessionName) || { attempts: 0, reconnectTimer: null };
     sessions.set(sessionName, st);
+    if (st.reconnectTimer) {
+        clearTimeout(st.reconnectTimer);
+        st.reconnectTimer = null;
+    }
     const config = getCachedConfig();
+
+    const mainAccountPhone = normalizePhone(config.phone) || phoneFromSessionId(process.env.SESSION_ID?.trim());
+    if (isMain && mainAccountPhone && existsSync(join(SESSIONS_ACTIVE, mainAccountPhone, "creds.json"))) {
+        console.warn(`[main] Skipping duplicate socket: ${mainAccountPhone} already has a persisted paired session.`);
+        return null;
+    }
 
     // Session Restoration Logic for Cloud Platforms (Heroku/Railway/Render)
     const credsPath = join(authDir, "creds.json");
@@ -149,6 +171,14 @@ export async function createWhatsAppClient(sessionName = "main") {
     sock.ev.on("connection.update", async (update) => {
 
         const { connection, lastDisconnect, qr } = update;
+        if (sock.__intentionalClose) {
+            if (connection === "close" && sock.onlineInterval) clearInterval(sock.onlineInterval);
+            if (connection === "close" && activeClient === sock) {
+                activeClient = [...sessions.values()].map(session => session.sock)
+                    .find(client => client && client !== sock && !client.__intentionalClose && client.user?.id && client.ws?.readyState === 1) || null;
+            }
+            return;
+        }
 
         if (isMain && qr && !config.phone) {
             console.log(`\n📱 Scan this QR code with WhatsApp to connect:`);
@@ -166,6 +196,15 @@ export async function createWhatsAppClient(sessionName = "main") {
 
         if (connection === "close") {
             if (sock.onlineInterval) clearInterval(sock.onlineInterval);
+            if (activeClient === sock) {
+                activeClient = [...sessions.values()].map(session => session.sock)
+                    .find(client => client && client !== sock && !client.__intentionalClose && client.user?.id && client.ws?.readyState === 1) || null;
+            }
+
+            if (sock.__intentionalClose) {
+                console.log(`[${sessionName}] Intentional socket shutdown; reconnect skipped.`);
+                return;
+            }
 
             const error = lastDisconnect?.error;
             const statusCode = error?.output?.statusCode;
@@ -189,16 +228,19 @@ export async function createWhatsAppClient(sessionName = "main") {
                 console.log(`📱 If this persists, manually delete the 'auth_info' folder and restart.`);
                 st.attempts = MAX_RECONNECT_ATTEMPTS; // Stop reconnection
                 if (!isMain) { try { rmSync(authDir, { recursive: true, force: true }); } catch { } sessions.delete(sessionName); console.log(`🗑️ Session ${sessionName} removed (logged out)`); }
-            } else if (isConflict) {
-                console.log(`⚠️ Session active on another device.`);
             } else if (st.attempts < MAX_RECONNECT_ATTEMPTS) {
+                if (isConflict) {
+                    console.warn(`⚠️ [${sessionName}] WhatsApp replaced this connection; retrying with backoff.`);
+                }
                 st.attempts++;
-                const delay = Math.min(3000 * Math.pow(1.4, Math.min(st.attempts, 10)), 45000);
+                const baseDelay = Math.min(3000 * Math.pow(1.4, Math.min(st.attempts, 10)), 45000);
+                const delay = Math.round(baseDelay * (0.8 + Math.random() * 0.4));
                 console.log(`🔄 [${sessionName}] Reconnecting in ${(delay / 1000).toFixed(0)}s (Attempt ${st.attempts})...`);
-                sock.__closed = true;
-                setTimeout(() => {
+                st.reconnectTimer = setTimeout(() => {
+                    st.reconnectTimer = null;
+                    if (sock.__intentionalClose || st.sock !== sock) return;
                     createWhatsAppClient(sessionName).then(client => {
-                        if (isMain) activeClient = client;
+                        if (client && (isMain || !activeClient?.user?.id || activeClient.ws?.readyState !== 1)) activeClient = client;
                     }).catch(e => console.error(`[${sessionName}] reconnect failed:`, e.message));
                 }, delay);
             } else {
@@ -209,6 +251,7 @@ export async function createWhatsAppClient(sessionName = "main") {
         if (connection === "open") {
             console.log(`✅ WhatsApp connected successfully!`);
             st.attempts = 0;
+            if (!activeClient?.user?.id || activeClient.ws?.readyState !== 1 || isMain) activeClient = sock;
 
             // Update config with phone number (main session only)
             const phoneNumber = sock.user?.id?.split(":")[0] || sock.user?.id?.split("@")[0];
@@ -628,14 +671,25 @@ ${text}
     });
 
     st.sock = sock;
-    if (isMain) activeClient = sock;
+    if (isMain || !activeClient?.user?.id || activeClient.ws?.readyState !== 1) activeClient = sock;
     return sock;
 }
 
 export async function startSession(name) {
     if (!name || name === "main") return null;
+    const configuredPhone = normalizePhone(getCachedConfig().phone);
+    const mainState = sessions.get("main");
+    if (configuredPhone === normalizePhone(name) && mainState?.sock && mainState.sock.ws?.readyState !== 1) {
+        if (mainState.reconnectTimer) clearTimeout(mainState.reconnectTimer);
+        mainState.sock.__intentionalClose = true;
+        try { mainState.sock.end(undefined); } catch { }
+    }
     const old = sessions.get(name);
-    if (old?.sock) { try { old.sock.__closed = true; old.sock.end(undefined); } catch { } }
+    if (old?.reconnectTimer) clearTimeout(old.reconnectTimer);
+    if (old?.sock) {
+        old.sock.__intentionalClose = true;
+        try { old.sock.end(undefined); } catch { }
+    }
     sessions.delete(name);
     return createWhatsAppClient(name);
 }

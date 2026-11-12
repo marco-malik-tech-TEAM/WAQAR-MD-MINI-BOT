@@ -51,6 +51,7 @@ export const whatsappService = {
         const client = getClient();
         if (client) {
             try {
+                client.__intentionalClose = true;
                 client.end();
             } catch (e) { }
         }
