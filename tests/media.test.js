@@ -1,30 +1,41 @@
 import test from "node:test";
 import assert from "node:assert/strict";
+import { spawn } from "node:child_process";
+import { resolve } from "node:path";
 import { createCanvas } from "@napi-rs/canvas";
-import { detectSite, downloadMedia, isPublicTelegramPost, ytdlp } from "../utils/downloader.js";
+import { detectSite, firstUrl, tiktokDownload } from "../utils/downloader.js";
+import { tiktok } from "../commands/media/social.js";
 import { makeWelcomeCard } from "../services/welcomeCard.js";
 
-test("only public Telegram channel post URLs are accepted for the Telegram extractor", () => {
-    assert.equal(isPublicTelegramPost("https://t.me/europa_press/613"), true);
-    assert.equal(isPublicTelegramPost("https://www.t.me/channel_name/42?single"), true);
-    assert.equal(isPublicTelegramPost("http://t.me/channel_name/42"), false);
-    assert.equal(isPublicTelegramPost("https://t.me/s/channel_name/42"), false);
-    assert.equal(isPublicTelegramPost("https://t.me.attacker.example/channel_name/42"), false);
-    assert.equal(isPublicTelegramPost("https://t.me/+privateInviteCode"), false);
+test("media URLs are classified for the user's YouTube, TikTok, Instagram, and Facebook routes", () => {
+    assert.equal(detectSite("https://www.youtube.com/watch?v=abcdefghijk"), "youtube");
+    assert.equal(detectSite("https://www.tiktok.com/@creator/video/1234567890"), "tiktok");
+    assert.equal(detectSite("https://www.instagram.com/reel/ABC123/"), "instagram");
+    assert.equal(detectSite("https://www.facebook.com/watch/?v=123"), "facebook");
+    assert.equal(detectSite("https://example.org/video"), "generic");
 });
 
-test("detectSite distinguishes supported public Telegram posts and YouTube links", () => {
-    assert.equal(detectSite("https://t.me/europa_press/613"), "telegram");
-    assert.equal(detectSite("https://youtube.com/watch?v=he7tX1N46n8"), "youtube");
-    assert.equal(detectSite("https://t.me/+privateInviteCode"), "generic");
+test("URL extraction trims trailing sentence punctuation without damaging query strings", () => {
+    assert.equal(firstUrl("video https://www.instagram.com/reel/ABC123/."), "https://www.instagram.com/reel/ABC123/");
+    assert.equal(firstUrl("song https://youtu.be/abcdefghijk?t=12"), "https://youtu.be/abcdefghijk?t=12");
+    assert.equal(firstUrl("no URL here"), undefined);
 });
 
-test("YouTube audio/video extraction is blocked in the downloader", async () => {
-    await assert.rejects(
-        downloadMedia("https://youtube.com/watch?v=he7tX1N46n8", { site: "youtube", kind: "video" }),
-        /official YouTube link or a licensed source/i
-    );
-    await assert.rejects(ytdlp("https://youtube.com/watch?v=he7tX1N46n8", "audio"), /publicly accessible Telegram/i);
+test("the TikTok social command can import its required downloader export", async () => {
+    assert.equal(typeof tiktok, "function");
+    await assert.rejects(tiktokDownload("https://example.org/not-tiktok"), /valid HTTPS TikTok link/i);
+});
+
+test("bundled yt-dlp is executable in the deployment checkout", async () => {
+    const binary = resolve("bin/yt-dlp");
+    const version = await new Promise((resolvePromise, reject) => {
+        const child = spawn(binary, ["--version"]);
+        let output = "";
+        child.stdout.on("data", chunk => { output += chunk.toString(); });
+        child.once("error", reject);
+        child.once("close", code => code === 0 ? resolvePromise(output.trim()) : reject(new Error(`yt-dlp exited with ${code}`)));
+    });
+    assert.match(version, /^\d{4}\.\d{2}\.\d{2}$/);
 });
 
 test("welcome card renders with supplied display name, phone, and profile image", async () => {

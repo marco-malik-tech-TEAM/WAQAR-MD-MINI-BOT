@@ -34,7 +34,7 @@ export function ytdlp(url, kind = "video") {
         const out = `${base}.%(ext)s`;
         const common = [
             "--no-playlist", "--no-warnings", "--geo-bypass", "--force-ipv4",
-            "--socket-timeout", "30", "--retries", "3", "--no-check-certificates",
+            "--socket-timeout", "30", "--retries", "3", "--no-check-certificates", "--max-filesize", "90M",
             "--extractor-args", "youtube:player_client=tv,ios,web_safari,android",
             "--user-agent", UA,
             "-o", out
@@ -59,23 +59,45 @@ export function ytdlp(url, kind = "video") {
             let err = "";
             let child;
             try { child = spawn(bins[i], [...fmt, ...common, url]); } catch (e) { return tryBin(i + 1); }
-            child.on("error", () => tryBin(i + 1));
+            let completed = false;
+            let timer;
+            const cleanup = () => {
+                try { fs.readdirSync(os.tmpdir()).filter(f => f.startsWith(`dl_${id}`)).forEach(f => { try { fs.unlinkSync(path.join(os.tmpdir(), f)); } catch { } }); } catch { }
+            };
+            child.stdout?.resume();
             child.stderr.on("data", d => { err += d.toString(); });
-            child.on("close", (code) => {
+            child.once("error", () => {
+                if (completed) return;
+                completed = true;
+                clearTimeout(timer);
+                cleanup();
+                tryBin(i + 1);
+            });
+            child.once("close", (code) => {
+                if (completed) return;
+                completed = true;
+                clearTimeout(timer);
                 const dir = os.tmpdir();
                 const file = fs.readdirSync(dir).find(f => f.startsWith(`dl_${id}.`) && !f.endsWith(".txt") && !f.endsWith(".part"));
                 if (code === 0 && file) {
                     const full = path.join(dir, file);
                     try {
+                        if (fs.statSync(full).size > MAX_BYTES) throw new Error("Downloaded file exceeds WhatsApp's 95 MB limit.");
                         const buf = fs.readFileSync(full);
-                        fs.unlinkSync(full);
-                        if (cookieFile && cookieFile.startsWith(base)) fs.unlinkSync(cookieFile);
+                        cleanup();
                         return resolve(buf);
-                    } catch (e) { return reject(e); }
+                    } catch (e) { cleanup(); return reject(e); }
                 }
-                fs.readdirSync(dir).filter(f => f.startsWith(`dl_${id}`)).forEach(f => { try { fs.unlinkSync(path.join(dir, f)); } catch { } });
+                cleanup();
                 reject(new Error(`yt-dlp: ${(err.split("\n").filter(Boolean).pop() || "failed").slice(0, 200)}`));
             });
+            timer = setTimeout(() => {
+                if (completed) return;
+                completed = true;
+                child.kill("SIGTERM");
+                cleanup();
+                reject(new Error("yt-dlp download timed out after five minutes."));
+            }, 5 * 60 * 1000);
         };
         tryBin(0);
     });
@@ -160,3 +182,122 @@ export const firstUrl = (s = "") => {
     const match = s.match(/https?:\/\/[^\s]+/i);
     return match?.[0]?.replace(/[),.!?]+$/g, "");
 };
+
+const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+const isTikTokHost = host => host === "tiktok.com" || host.endsWith(".tiktok.com");
+
+/** Resolve TikTok short links without following redirects to non-TikTok hosts. */
+export async function expandUrl(value) {
+    try {
+        let current = new URL(value);
+        if (current.protocol !== "https:" || !isTikTokHost(current.hostname.toLowerCase())) return value;
+        for (let i = 0; i < 8; i++) {
+            let response;
+            try {
+                response = await axios.get(current.href, {
+                    maxRedirects: 0,
+                    timeout: 15000,
+                    headers: { "User-Agent": UA },
+                    validateStatus: () => true,
+                    responseType: "text",
+                    maxContentLength: 2 * 1024 * 1024
+                });
+            } catch (error) {
+                const location = error.response?.headers?.location;
+                if (!location) return current.href.split("?")[0];
+                const next = new URL(location, current);
+                if (next.protocol !== "https:" || !isTikTokHost(next.hostname.toLowerCase())) throw new Error("TikTok redirect left the allowed host set.");
+                current = next;
+                continue;
+            }
+            if (response.status >= 300 && response.status < 400 && response.headers.location) {
+                const next = new URL(response.headers.location, current);
+                if (next.protocol !== "https:" || !isTikTokHost(next.hostname.toLowerCase())) throw new Error("TikTok redirect left the allowed host set.");
+                current = next;
+                continue;
+            }
+            const finalUrl = response.request?.res?.responseUrl;
+            if (finalUrl) {
+                const final = new URL(finalUrl);
+                if (final.protocol === "https:" && isTikTokHost(final.hostname.toLowerCase())) current = final;
+            }
+            return current.href.split("?")[0];
+        }
+        return current.href.split("?")[0];
+    } catch {
+        return value;
+    }
+}
+
+/** Download a TikTok video and return { buffer, info, via } for the existing command handler. */
+export async function tiktokDownload(rawUrl) {
+    let original;
+    try {
+        original = new URL(rawUrl);
+        if (original.protocol !== "https:" || !isTikTokHost(original.hostname.toLowerCase())) throw new Error("Expected an HTTPS TikTok link.");
+    } catch {
+        throw new Error("Please provide a valid HTTPS TikTok link.");
+    }
+
+    const errors = [];
+    const urls = [...new Set([rawUrl, await expandUrl(rawUrl)])];
+    let info = {};
+    const absolute = value => value ? (value.startsWith("http") ? value : `https://www.tikwm.com${value}`) : null;
+
+    for (const url of urls) {
+        for (const mode of ["get", "post", "get"]) {
+            try {
+                let data;
+                if (mode === "get") {
+                    data = (await axios.get(`https://www.tikwm.com/api/?url=${encodeURIComponent(url)}&hd=1`, { timeout: 30000, headers: { "User-Agent": UA } })).data;
+                } else {
+                    data = (await axios.post("https://www.tikwm.com/api/", new URLSearchParams({ url, hd: "1" }).toString(), {
+                        timeout: 30000,
+                        headers: { "User-Agent": UA, "Content-Type": "application/x-www-form-urlencoded" }
+                    })).data;
+                }
+                const item = data?.data;
+                if (!item || data.code !== 0) {
+                    errors.push(`tikwm: ${data?.msg || "no data"}`);
+                    await sleep(1200);
+                    continue;
+                }
+                info = {
+                    title: item.title,
+                    author: item.author?.nickname,
+                    username: item.author?.unique_id,
+                    id: item.author?.id,
+                    views: item.play_count,
+                    likes: item.digg_count,
+                    comments: item.comment_count,
+                    shares: item.share_count,
+                    date: item.create_time ? new Date(item.create_time * 1000) : null,
+                    duration: item.duration
+                };
+                for (const link of [absolute(item.hdplay), absolute(item.play), absolute(item.wmplay)].filter(Boolean)) {
+                    try { return { buffer: await fetchBuffer(link, 30 * 1024), info, via: "tikwm" }; }
+                    catch (error) { errors.push(`tikwm-dl: ${error.message.slice(0, 60)}`); }
+                }
+            } catch (error) {
+                errors.push(`tikwm: ${(error.code || error.message || "").toString().slice(0, 60)}`);
+                await sleep(1200);
+            }
+        }
+
+        for (const provider of tiktokProviders(url).slice(1)) {
+            try {
+                const direct = await provider();
+                if (direct) return { buffer: await fetchBuffer(direct, 30 * 1024), info, via: "api" };
+            } catch (error) { errors.push(`api: ${(error.code || error.message || "").toString().slice(0, 60)}`); }
+        }
+        try {
+            const data = (await axios.get(`https://api.tiklydown.eu.org/api/download/v5?url=${encodeURIComponent(url)}`, { timeout: 30000 })).data;
+            const direct = first(data?.result?.video1, data?.result?.video_hd, data?.result?.video2, data?.video?.noWatermark);
+            if (direct) return { buffer: await fetchBuffer(direct, 30 * 1024), info, via: "tiklydown" };
+        } catch (error) { errors.push("tiklydown"); }
+    }
+
+    const error = new Error("TikTok download failed");
+    error.details = errors;
+    throw error;
+}
