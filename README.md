@@ -4,40 +4,29 @@
 
 1. Connect this GitHub repository to a Railway service and deploy the `main` branch.
 2. Open the Railway-generated domain. The root URL redirects to the pairing page; `/pair` is also available directly.
-3. Enter the phone number with its country code. Use digits only—do not include `+` or an extra leading zero. Choose QR pairing or a pairing code and follow WhatsApp's **Linked Devices** instructions.
-4. Wait for the pairing page to confirm that the bot connection is online before sending commands. The bot starts a permanent socket from the complete saved authentication state; a successful code entry alone does not mean that this replacement socket is ready.
+3. Pair the WhatsApp number and wait for the page to confirm the bot connection is online before sending commands.
+4. Attach a persistent volume at `/app/sessions_active` for web-paired accounts. If separately using `auth_info/`, attach another volume at `/app/auth_info`.
 5. Railway provides `PORT` automatically. The start command is `npm start`.
 
-## Persistent storage is required
+## Media commands
 
-The complete Baileys authentication state for web-paired numbers is stored in `sessions_active/<number>`. In Railway, attach a persistent volume to the service at **`/app/sessions_active`**. If you separately run a main bot account using `auth_info/`, attach persistent storage at **`/app/auth_info`** as well. Without the appropriate volume, Railway can discard the authentication files during a restart or redeployment, and the account may go offline or require pairing again.
+- `.video <link>` accepts a publicly accessible Telegram channel post in the form `https://t.me/channel_name/123`. The file must be under 95 MB. Private, invite-only, restricted, or unavailable posts are not supported. The command can show YouTube videos through their official watch links but does not download YouTube files.
+- `.play <song>` searches for a song and shares its YouTube listening link; it does not extract MP3 files.
+- `.movie <name>` returns movie information and a trailer-search link; it does not distribute full-movie files. Use licensed streaming or rental services for full movies.
+- TikTok, Instagram, and Facebook downloader routes depend on external providers and may be unavailable. Only download or redistribute media you own or have permission to use.
 
-For a number paired through the website, leave both `SESSION_ID` and `PHONE` blank. `PHONE` starts a separate direct pairing attempt at app startup. The older `SESSION_ID` fallback contains credentials only; it does not replace the complete Baileys authentication directory and is not a reliable long-term session backup. The website-pairing flow saves the full state itself and does not require either variable.
+The bundled `bin/yt-dlp` executable is used only for publicly accessible Telegram channel-post video links. The service does not use cookies, geo-bypass options, or third-party YouTube extraction endpoints.
 
 ## Environment variables
 
-No custom variable is required just to open the pairing page. Add optional settings in Railway's **Variables** panel only when you use the corresponding feature.
+For a number paired through the website, leave `SESSION_ID` and `PHONE` blank. Do not treat the legacy `SESSION_ID` value as a backup of the complete Baileys authentication state. The full state is saved under `sessions_active/<number>` and needs the Railway volume above.
 
-| Variable | Purpose |
-|---|---|
-| `SESSION_ID` | Legacy compatibility only; leave blank. It is not a substitute for persistent auth-state storage. |
-| `PHONE` | Optional number for direct main-account pairing at startup. Leave blank when pairing through `/pair`. |
-| `PREFIX` | Optional command prefix; defaults to `.`. |
-| `OWNER_NUMBER` | Optional owner number, including country code, using digits only. |
-| `YT_COOKIES` | Optional `cookies.txt` content or file path if YouTube requests sign-in verification. |
-| `AI_API_KEY` | Optional key for an OpenAI-compatible AI provider. |
-| `AI_BASE_URL` | Optional base URL for that AI provider. |
-| `AI_MODEL` | Optional model name for that AI provider. |
-| `OMDB_KEY` | Optional OMDb API key for movie information. |
-| `NOPREFIX_ALL` | Accept commands without a prefix; defaults to `true`. |
-| `CHANNEL_CODE` | WhatsApp channel code used by the project. Leave unchanged unless configuring another channel. |
+Optional variables are `PREFIX` (default `.`), `OWNER_NUMBER`, `AI_API_KEY`, `AI_BASE_URL`, `AI_MODEL`, `OMDB_KEY`, `NOPREFIX_ALL` (default `true`), and `CHANNEL_CODE`. See `.env.example` for blank placeholders. Never commit API keys or authentication files.
 
-`.env.example` contains placeholders only. Never commit real session data, API keys, cookies, phone numbers, or authentication files to GitHub.
+## Welcome messages
 
-## Commands and help
-
-In WhatsApp, send `help`, `.help`, or `!help` to see available commands. Examples include `.play`, `.movie`, `.ai`, `.pair`, `.owner`, and `.creator`. Enter command names exactly as shown.
+Group welcome cards use the participant name and phone number only when WhatsApp provides them, and attempt to load the profile image through the WhatsApp client. If the participant's privacy settings hide their image, or WhatsApp supplies a privacy-preserving identifier instead of a phone number, the card displays initials or an availability notice.
 
 ## Availability and security
 
-The bot can reconnect after transient network or WhatsApp disconnects, and Railway can restart a process after a failure within the limits of the service plan. No code can guarantee lifetime uptime: Railway service availability and billing, WhatsApp's linked-device policy, account logout, and network conditions remain external dependencies. Treat all authentication data as private credentials.
+The bot retries transient connection failures, but lifetime uptime cannot be guaranteed. Railway availability and plan limits, WhatsApp linked-device policies, account logout, and network conditions are external dependencies. Treat authentication data as private credentials.

@@ -1,3 +1,4 @@
+import axios from "axios";
 import { makeWelcomeCard } from "./welcomeCard.js";
 import { loadGroupSettings, saveGroupSettings } from "./groupSettingsService.js";
 import { isAdmin, isBotAdmin, getGroupMetadata } from "../utils/groupUtils.js";
@@ -12,10 +13,13 @@ export async function handleGroupParticipantsUpdate(sock, update) {
     // Only handle add/remove
     if (action !== "add" && action !== "remove") return;
 
-    // Normalize participants (some Baileys versions send objects instead of JIDs)
-    const normalizedParticipants = (update.participants || []).map(p => typeof p === "string" ? p : p.id).filter(Boolean);
+    // Keep original participant metadata when a Baileys version includes it alongside the JID.
+    const participantEvents = (participants || []).map(raw => ({
+        raw,
+        jid: typeof raw === "string" ? raw : (raw?.id || raw?.jid || (raw?.phoneNumber ? `${String(raw.phoneNumber).replace(/\D/g, "")}@s.whatsapp.net` : ""))
+    })).filter(x => x.jid);
 
-    console.log(`👥 [GroupEvent] Participants update: action=${action}, group=${id}, participants=${normalizedParticipants.join(", ")}`);
+    console.log(`👥 [GroupEvent] Participants update: action=${action}, group=${id}, participants=${participantEvents.map(x => x.jid).join(", ")}`);
 
     try {
         const settings = loadGroupSettings(id);
@@ -30,7 +34,15 @@ export async function handleGroupParticipantsUpdate(sock, update) {
         const groupName = metadata?.subject || "Group";
         const desc = metadata?.desc?.toString() || "";
 
-        for (const participant of normalizedParticipants) {
+        for (const entry of participantEvents) {
+            const participant = entry.jid;
+            const raw = typeof entry.raw === "object" ? entry.raw : {};
+            const member = (metadata.participants || []).find(x =>
+                [x.id, x.lid, x.phoneNumber].filter(Boolean).some(value => String(value).split(":")[0] === participant.split(":")[0])
+            ) || {};
+            const displayName = String(raw.name || raw.notify || raw.notifyName || raw.pushName || member.name || member.notify || member.verifiedName || "New member").trim().slice(0, 80);
+            const phoneValue = raw.phoneNumber || raw.phone || member.phoneNumber || (participant.endsWith("@s.whatsapp.net") ? participant.split("@")[0] : "");
+            const number = String(phoneValue).replace(/\D/g, "");
             let messageText = "";
             let isWelcome = false;
 
@@ -54,10 +66,25 @@ export async function handleGroupParticipantsUpdate(sock, update) {
                     .replace(/{group}/g, groupName)
                     .replace(/{desc}/g, desc)
                     .replace(/{count}/g, count)
+                    .replace(/{name}/g, displayName)
+                    .replace(/{number}/g, number || "Not provided by WhatsApp")
                     .replace(/@user/g, user);
 
+                let avatar = null;
+                try {
+                    if (typeof sock.profilePictureUrl === "function") {
+                        const avatarUrl = await sock.profilePictureUrl(participant, "image");
+                        const parsedAvatarUrl = new URL(avatarUrl);
+                        if (parsedAvatarUrl.protocol !== "https:" || !(parsedAvatarUrl.hostname === "whatsapp.net" || parsedAvatarUrl.hostname.endsWith(".whatsapp.net"))) {
+                            throw new Error("Profile image URL is not on a WhatsApp domain.");
+                        }
+                        const response = await axios.get(avatarUrl, { responseType: "arraybuffer", timeout: 8000, maxContentLength: 2 * 1024 * 1024, maxRedirects: 0 });
+                        if (String(response.headers["content-type"] || "").startsWith("image/")) avatar = Buffer.from(response.data);
+                    }
+                } catch { /* profile images may be hidden by the member's privacy settings */ }
+
                 // Send message (with a generated welcome card image when possible)
-                const card = await makeWelcomeCard({ groupName, number: participant.split("@")[0], count: metadata?.participants?.length || 0, kind: isWelcome ? "welcome" : "goodbye" });
+                const card = await makeWelcomeCard({ groupName, name: displayName, number, avatar, count: metadata?.participants?.length || 0, kind: isWelcome ? "welcome" : "goodbye" });
                 if (card) {
                     await sock.sendMessage(id, { image: card, caption: messageText, mentions: [participant] });
                 } else {
@@ -171,4 +198,3 @@ export async function handleGroupMessage(sock, m) {
 
     return false; // Continue processing
 }
-

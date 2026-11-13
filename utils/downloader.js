@@ -8,6 +8,16 @@ import { randomBytes } from "crypto";
 const UA = "Mozilla/5.0 (Linux; Android 13; Pixel 7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0 Mobile Safari/537.36";
 const MAX_BYTES = 95 * 1024 * 1024; // WhatsApp practical limit
 
+export function isPublicTelegramPost(value) {
+    try {
+        const u = new URL(value);
+        return u.protocol === "https:" && ["t.me", "www.t.me"].includes(u.hostname.toLowerCase()) &&
+            /^\/[A-Za-z0-9_]{4,64}\/\d+\/?$/.test(u.pathname);
+    } catch {
+        return false;
+    }
+}
+
 /** Download a direct media URL into a Buffer and validate it is really media (not an HTML error page). */
 export async function fetchBuffer(url, minBytes = 10 * 1024) {
     const res = await axios.get(url, {
@@ -26,32 +36,21 @@ export async function fetchBuffer(url, minBytes = 10 * 1024) {
     return buf;
 }
 
-/** Run yt-dlp (works for YouTube, TikTok, Instagram, Facebook, Twitter...) */
+/** Download a publicly accessible Telegram channel post supported by yt-dlp. */
 export function ytdlp(url, kind = "video") {
     return new Promise((resolve, reject) => {
+        if (kind !== "video" || !isPublicTelegramPost(url)) {
+            return reject(new Error("Only publicly accessible Telegram channel video posts are supported here."));
+        }
         const id = randomBytes(6).toString("hex");
         const base = path.join(os.tmpdir(), `dl_${id}`);
         const out = `${base}.%(ext)s`;
         const common = [
-            "--no-playlist", "--no-warnings", "--geo-bypass", "--force-ipv4",
-            "--socket-timeout", "30", "--retries", "3",
-            "--extractor-args", "youtube:player_client=tv,ios,web_safari,android",
-            "--user-agent", UA,
+            "--no-playlist", "--no-warnings", "--socket-timeout", "30", "--retries", "3",
+            "--max-filesize", "90M", "--user-agent", UA,
             "-o", out
         ];
-        // Optional cookies (fixes "Sign in to confirm you're not a bot"): set YT_COOKIES env = path or raw cookies.txt content
-        let cookieFile = null;
-        if (process.env.YT_COOKIES) {
-            try {
-                const v = process.env.YT_COOKIES;
-                if (fs.existsSync(v)) cookieFile = v;
-                else { cookieFile = `${base}.cookies.txt`; fs.writeFileSync(cookieFile, v); }
-                common.push("--cookies", cookieFile);
-            } catch { /* ignore */ }
-        }
-        const fmt = kind === "audio"
-            ? ["-f", "bestaudio[ext=m4a]/bestaudio/best", "-x", "--audio-format", "mp3", "--audio-quality", "5"]
-            : ["-f", "best[ext=mp4][filesize<90M]/best[ext=mp4]/bestvideo[ext=mp4][height<=720]+bestaudio[ext=m4a]/best", "--merge-output-format", "mp4"];
+        const fmt = ["-f", "best[ext=mp4]/best", "--merge-output-format", "mp4"];
 
         const bins = [path.resolve("./bin/yt-dlp"), "yt-dlp"];
         const tryBin = (i) => {
@@ -59,23 +58,41 @@ export function ytdlp(url, kind = "video") {
             let err = "";
             let child;
             try { child = spawn(bins[i], [...fmt, ...common, url]); } catch (e) { return tryBin(i + 1); }
-            child.on("error", () => tryBin(i + 1));
+            let completed = false;
+            let timer;
+            const cleanup = () => fs.readdirSync(os.tmpdir()).filter(f => f.startsWith(`dl_${id}`)).forEach(f => { try { fs.unlinkSync(path.join(os.tmpdir(), f)); } catch { } });
+            child.once("error", () => {
+                if (completed) return;
+                completed = true;
+                clearTimeout(timer);
+                tryBin(i + 1);
+            });
             child.stderr.on("data", d => { err += d.toString(); });
-            child.on("close", (code) => {
+            child.once("close", (code) => {
+                if (completed) return;
+                completed = true;
+                clearTimeout(timer);
                 const dir = os.tmpdir();
                 const file = fs.readdirSync(dir).find(f => f.startsWith(`dl_${id}.`) && !f.endsWith(".txt") && !f.endsWith(".part"));
                 if (code === 0 && file) {
                     const full = path.join(dir, file);
                     try {
+                        if (fs.statSync(full).size > MAX_BYTES) throw new Error("Telegram video exceeds WhatsApp's 95 MB attachment limit.");
                         const buf = fs.readFileSync(full);
-                        fs.unlinkSync(full);
-                        if (cookieFile && cookieFile.startsWith(base)) fs.unlinkSync(cookieFile);
+                        cleanup();
                         return resolve(buf);
-                    } catch (e) { return reject(e); }
+                    } catch (e) { cleanup(); return reject(e); }
                 }
-                fs.readdirSync(dir).filter(f => f.startsWith(`dl_${id}`)).forEach(f => { try { fs.unlinkSync(path.join(dir, f)); } catch { } });
+                cleanup();
                 reject(new Error(`yt-dlp: ${(err.split("\n").filter(Boolean).pop() || "failed").slice(0, 200)}`));
             });
+            timer = setTimeout(() => {
+                if (completed) return;
+                completed = true;
+                child.kill("SIGTERM");
+                cleanup();
+                reject(new Error("Telegram video download timed out after four minutes."));
+            }, 4 * 60 * 1000);
         };
         tryBin(0);
     });
@@ -84,19 +101,7 @@ export function ytdlp(url, kind = "video") {
 const first = (...v) => v.find(x => typeof x === "string" && x.startsWith("http"));
 const getJSON = async (url, opts = {}) => (await axios.get(url, { timeout: 45000, headers: { "User-Agent": UA }, ...opts })).data;
 
-// ---------- Provider chains (each returns a direct media URL) ----------
-const ytAudioProviders = (u) => [
-    async () => { const d = await getJSON(`https://api.siputzx.my.id/api/d/ytmp3?url=${encodeURIComponent(u)}`); return first(d?.data?.dl, d?.data?.url, d?.result?.download?.url); },
-    async () => { const d = await getJSON(`https://api.ryzendesu.vip/api/downloader/ytmp3?url=${encodeURIComponent(u)}`); return first(d?.url, d?.data?.url, d?.result?.url); },
-    async () => { const d = await getJSON(`https://api.vreden.my.id/api/ytmp3?url=${encodeURIComponent(u)}`); return first(d?.result?.download?.url, d?.result?.url); },
-    async () => { const d = await getJSON(`https://api.agatz.xyz/api/ytmp3?url=${encodeURIComponent(u)}`); return first(d?.data?.downloadUrl, d?.data?.url); }
-];
-const ytVideoProviders = (u) => [
-    async () => { const d = await getJSON(`https://api.siputzx.my.id/api/d/ytmp4?url=${encodeURIComponent(u)}`); return first(d?.data?.dl, d?.data?.url, d?.result?.download?.url); },
-    async () => { const d = await getJSON(`https://api.ryzendesu.vip/api/downloader/ytmp4?url=${encodeURIComponent(u)}`); return first(d?.url, d?.data?.url, d?.result?.url); },
-    async () => { const d = await getJSON(`https://api.vreden.my.id/api/ytmp4?url=${encodeURIComponent(u)}`); return first(d?.result?.download?.url, d?.result?.url); },
-    async () => { const d = await getJSON(`https://api.agatz.xyz/api/ytmp4?url=${encodeURIComponent(u)}`); return first(d?.data?.downloadUrl, d?.data?.url); }
-];
+// ---------- Public-platform provider chains (no YouTube extraction endpoints) ----------
 const tiktokProviders = (u) => [
     async () => { const d = await getJSON(`https://www.tikwm.com/api/?url=${encodeURIComponent(u)}&hd=1`); const x = d?.data; if (!x) return null; const r = x.hdplay || x.play; return r?.startsWith("http") ? r : (r ? "https://www.tikwm.com" + r : null); },
     async () => { const d = await getJSON(`https://api.siputzx.my.id/api/tiktok?url=${encodeURIComponent(u)}`); return first(d?.data?.urls?.[0], d?.data?.video?.play, d?.data?.play); },
@@ -114,34 +119,34 @@ const facebookProviders = (u) => [
 ];
 
 /**
- * Main entry. site: youtube | tiktok | instagram | facebook | generic
+ * Main entry. site: telegram | tiktok | instagram | facebook | youtube | generic
  * kind: audio | video
- * Order: local yt-dlp -> public API chain (with real-media validation each time)
+ * YouTube is link-only; yt-dlp is limited to public Telegram channel posts.
  */
 export async function downloadMedia(url, { site = "generic", kind = "video" } = {}) {
     const errors = [];
     const apiChain = (
-        site === "youtube" ? (kind === "audio" ? ytAudioProviders(url) : ytVideoProviders(url)) :
         site === "tiktok" ? tiktokProviders(url) :
         site === "instagram" ? instaProviders(url) :
         site === "facebook" ? facebookProviders(url) : []
     );
 
-    // TikTok/IG/FB: APIs first (fast, no cookies), YouTube: yt-dlp first
-    const order = site === "youtube" ? ["ytdlp", "api"] : ["api", "ytdlp"];
-    for (const step of order) {
-        if (step === "ytdlp") {
-            try { return { buffer: await ytdlp(url, kind), via: "yt-dlp" }; }
-            catch (e) { errors.push(e.message); }
-        } else {
-            for (let i = 0; i < apiChain.length; i++) {
-                try {
-                    const direct = await apiChain[i]();
-                    if (!direct) { errors.push(`api#${i + 1}: no link`); continue; }
-                    const buffer = await fetchBuffer(direct, kind === "audio" ? 20 * 1024 : 30 * 1024);
-                    return { buffer, via: `api#${i + 1}` };
-                } catch (e) { errors.push(`api#${i + 1}: ${(e.code || e.message || "").toString().slice(0, 80)}`); }
-            }
+    if (site === "youtube") {
+        throw new Error("YouTube audio/video file downloads are not provided. Use the official YouTube link or a licensed source.");
+    }
+    if (site === "telegram") {
+        return { buffer: await ytdlp(url, kind), via: "yt-dlp" };
+    }
+
+    // Existing social-media providers are tried in order, with every result validated as media.
+    for (let i = 0; i < apiChain.length; i++) {
+        try {
+            const direct = await apiChain[i]();
+            if (!direct) { errors.push(`api#${i + 1}: no link`); continue; }
+            const buffer = await fetchBuffer(direct, kind === "audio" ? 20 * 1024 : 30 * 1024);
+            return { buffer, via: `api#${i + 1}` };
+        } catch (e) {
+            errors.push(`api#${i + 1}: ${(e.code || e.message || "").toString().slice(0, 80)}`);
         }
     }
     const err = new Error("All download methods failed");
@@ -151,6 +156,7 @@ export async function downloadMedia(url, { site = "generic", kind = "video" } = 
 
 export const detectSite = (u = "") => {
     if (/(youtube\.com|youtu\.be)/i.test(u)) return "youtube";
+    if (isPublicTelegramPost(u)) return "telegram";
     if (/(tiktok\.com)/i.test(u)) return "tiktok";
     if (/(instagram\.com|instagr\.am)/i.test(u)) return "instagram";
     if (/(facebook\.com|fb\.watch|fb\.com)/i.test(u)) return "facebook";
@@ -205,7 +211,7 @@ export async function tiktokDownload(rawUrl) {
             const link = first(d?.result?.video1, d?.result?.video_hd, d?.result?.video2, d?.video?.noWatermark);
             if (link) return { buffer: await fetchBuffer(link, 30 * 1024), info, via: "tiklydown" };
         } catch (e) { errors.push("tiklydown"); }
-        try { return { buffer: await ytdlp(u, "video"), info, via: "yt-dlp" }; } catch (e) { errors.push(e.message.slice(0, 80)); }
+        // TikTok fallback via yt-dlp intentionally disabled: this downloader is limited to public Telegram posts.
     }
     const err = new Error("TikTok download failed"); err.details = errors; throw err;
 }

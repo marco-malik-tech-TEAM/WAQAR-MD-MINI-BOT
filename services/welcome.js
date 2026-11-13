@@ -10,7 +10,7 @@ export const buildWelcomeText = (prefix = ".") => `╭─━─━━━━━�
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 🔥 *BOT FEATURES*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🎵 Music (MP3), Video, TikTok, Instagram, Facebook downloader
+🎵 Music search links • Public Telegram post video • Social links
 🤖 AI Chat   🛡️ Anti-Delete / Antilink
 🎮 Games, Jokes & Fun   👥 Group Management
 💾 Status Saver (react to any status)
