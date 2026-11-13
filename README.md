@@ -10,18 +10,18 @@
 
 ## Media commands
 
-- `.video <link>` accepts a publicly accessible Telegram channel post in the form `https://t.me/channel_name/123`. The file must be under 90 MB. Private, invite-only, restricted, or unavailable posts are not supported. The command can show YouTube videos through their official watch links but does not download YouTube files.
-- `.play <song>` searches for a song and shares its YouTube listening link; it does not extract MP3 files.
-- `.movie <name>` returns movie information and a trailer-search link; it does not distribute full-movie files. Use licensed streaming or rental services for full movies.
-- TikTok, Instagram, and Facebook downloader routes depend on external providers and may be unavailable. Only download or redistribute media you own or have permission to use.
+- `.play <song name or YouTube link>` searches for the track and attempts to send an MP3. It uses yt-dlp first and then configured public provider endpoints; sign-in challenges, provider availability, source restrictions, or WhatsApp's media-size limits can prevent a download.
+- `.video <title or link>` attempts to send a video. Supported source routes include YouTube, TikTok, Instagram, and Facebook; external extractors/providers can change availability, and files that exceed the bot's attachment limits will fail.
+- `.movie <name>` looks up movie details and searches for an official trailer, then attempts to send that trailer as a video. It does not search for or distribute full movie files.
+- `.tiktok`, `.instagram`, and `.facebook` also accept links; social downloads depend on the upstream providers being available.
 
-The bundled `bin/yt-dlp` executable is used only for publicly accessible Telegram channel-post video links. The service does not use cookies, geo-bypass options, or third-party YouTube extraction endpoints.
+Only download or share media that you own or are authorized to use. Third-party extraction services can fail or change their interfaces, so the bot cannot guarantee that every public link will always download. `YT_COOKIES` is an optional yt-dlp cookies.txt path or content for YouTube sign-in challenges; protect it as a credential and do not commit it to GitHub.
 
 ## Environment variables
 
 For a number paired through the website, leave `SESSION_ID` and `PHONE` blank. Do not treat the legacy `SESSION_ID` value as a backup of the complete Baileys authentication state. The full state is saved under `sessions_active/<number>` and needs the Railway volume above.
 
-Optional variables are `PREFIX` (default `.`), `OWNER_NUMBER`, `AI_API_KEY`, `AI_BASE_URL`, `AI_MODEL`, `OMDB_KEY`, `NOPREFIX_ALL` (default `true`), and `CHANNEL_CODE`. See `.env.example` for blank placeholders. Never commit API keys or authentication files.
+Optional variables are `PREFIX` (default `.`), `OWNER_NUMBER`, `YT_COOKIES`, `AI_API_KEY`, `AI_BASE_URL`, `AI_MODEL`, `OMDB_KEY`, `NOPREFIX_ALL` (default `true`), and `CHANNEL_CODE`. See `.env.example` for placeholders. Never commit API keys, cookie data, phone numbers, or authentication files.
 
 ## Welcome messages
 
