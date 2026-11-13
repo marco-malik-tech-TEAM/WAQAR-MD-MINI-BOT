@@ -39,7 +39,7 @@ export const video = async (sock, m, args) => {
             await sock.sendMessage(jid, { video: buffer, caption: `🎬 Telegram video\n\n${BRAND.footer}`, mimetype: "video/mp4" }, { quoted: m });
         } catch (e) {
             console.error("Telegram video download failed:", e.message, e.details);
-            await sock.sendMessage(jid, { text: `❌ Telegram video download failed. Check that the post is public, the link is a channel post such as https://t.me/channel_name/123, and the file is under 95 MB. Private or restricted posts are not supported.` }, { quoted: m });
+            await sock.sendMessage(jid, { text: `❌ Telegram video download failed. Check that the post is public, the link is a channel post such as https://t.me/channel_name/123, and the file is under 90 MB. Private or restricted posts are not supported.` }, { quoted: m });
         }
     } catch (err) {
         console.error("Video command error:", err.message);

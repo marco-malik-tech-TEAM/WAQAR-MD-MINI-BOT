@@ -10,7 +10,7 @@
 
 ## Media commands
 
-- `.video <link>` accepts a publicly accessible Telegram channel post in the form `https://t.me/channel_name/123`. The file must be under 95 MB. Private, invite-only, restricted, or unavailable posts are not supported. The command can show YouTube videos through their official watch links but does not download YouTube files.
+- `.video <link>` accepts a publicly accessible Telegram channel post in the form `https://t.me/channel_name/123`. The file must be under 90 MB. Private, invite-only, restricted, or unavailable posts are not supported. The command can show YouTube videos through their official watch links but does not download YouTube files.
 - `.play <song>` searches for a song and shares its YouTube listening link; it does not extract MP3 files.
 - `.movie <name>` returns movie information and a trailer-search link; it does not distribute full-movie files. Use licensed streaming or rental services for full movies.
 - TikTok, Instagram, and Facebook downloader routes depend on external providers and may be unavailable. Only download or redistribute media you own or have permission to use.
