@@ -17,7 +17,7 @@ export const chatbot = async (sock, message, args) => {
         return `🤖 *AI Chatbot Control*\n\nUsage: ${prefix}chatbot on | off | status\n\nProvider: ${providers}\n${BRAND.footer}`;
     }
     if (action === "status") {
-        const groupMode = process.env.AI_AUTO_CHAT_GROUPS === "true" ? "enabled by Railway variable" : "disabled (private chats only)";
+        const groupMode = process.env.AI_AUTO_CHAT_GROUPS === "false" ? "disabled (private chats only)" : "enabled";
         return `🤖 *AI Chatbot Status*\n\nStatus: ${config.aiChatbotEnabled ? "ON" : "OFF"}\nProvider(s): ${providers}\nGroup auto-replies: ${groupMode}\n\nUse ${prefix}chatbot on/off to change the setting.\n${BRAND.footer}`;
     }
     if (action === "on" && providers === "not configured") {
@@ -25,6 +25,10 @@ export const chatbot = async (sock, message, args) => {
     }
 
     const enabled = action === "on";
+    const explicitEnv = process.env.AI_AUTO_CHAT;
+    if ((explicitEnv === "true" && !enabled) || (explicitEnv === "false" && enabled)) {
+        return `⚙️ AI_AUTO_CHAT is explicitly set to ${explicitEnv} in Railway Variables, so it overrides this command. Change or clear that variable in Railway to use ${prefix}chatbot ${action}.`;
+    }
     if (!updateConfig({ aiChatbotEnabled: enabled })) {
         return "❌ Could not save the chatbot setting. Check Railway storage permissions and try again.";
     }

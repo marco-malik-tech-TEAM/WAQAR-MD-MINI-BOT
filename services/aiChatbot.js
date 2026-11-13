@@ -8,6 +8,8 @@ const pending = new Set();
 const MAX_CONVERSATIONS = 400;
 const MAX_HISTORY_MESSAGES = 12;
 
+export const isGroupAutoChatEnabled = () => process.env.AI_AUTO_CHAT_GROUPS !== "false";
+
 function conversationFor(key) {
     let history = conversations.get(key);
     if (!history) {
@@ -29,7 +31,7 @@ export async function handleAutoChat(sock, message, text) {
     const jid = message.key?.remoteJid || "";
     if (jid === "status@broadcast" || jid.endsWith("@newsletter")) return false;
     const isGroup = jid.endsWith("@g.us");
-    if (isGroup && process.env.AI_AUTO_CHAT_GROUPS !== "true") return false;
+    if (isGroup && !isGroupAutoChatEnabled()) return false;
     if (!isGroup && !["@s.whatsapp.net", "@lid", "@c.us"].some(suffix => jid.endsWith(suffix))) return false;
     if (!hasAIProvider()) return false;
 

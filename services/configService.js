@@ -42,16 +42,24 @@ export function loadConfig() {
         console.error("❌ Failed to load config.json:", err.message);
     }
 
-    // Merge defaults -> file config -> environment variables (highest priority)
+    const hasAIProviderKey = ["GEMINI_API_KEY", "OPENAI_API_KEY", "AI_API_KEY"]
+        .some(name => Boolean(String(process.env[name] || "").trim()));
+    const envAIChat = process.env.AI_AUTO_CHAT;
+
+    // Merge defaults -> file config -> explicit Railway AI_AUTO_CHAT override.
     return {
         ...DEFAULT_CONFIG,
         ...fileConfig,
         phone: process.env.PHONE || fileConfig.phone || DEFAULT_CONFIG.phone,
         ownerNumber: process.env.OWNER_NUMBER || fileConfig.ownerNumber || DEFAULT_CONFIG.ownerNumber,
         prefix: process.env.PREFIX || fileConfig.prefix || DEFAULT_CONFIG.prefix,
-        aiChatbotEnabled: typeof fileConfig.aiChatbotEnabled === "boolean"
-            ? fileConfig.aiChatbotEnabled
-            : process.env.AI_AUTO_CHAT === "true"
+        aiChatbotEnabled: envAIChat === "true"
+            ? true
+            : envAIChat === "false"
+                ? false
+                : typeof fileConfig.aiChatbotEnabled === "boolean"
+                    ? fileConfig.aiChatbotEnabled
+                    : hasAIProviderKey
     };
 }
 

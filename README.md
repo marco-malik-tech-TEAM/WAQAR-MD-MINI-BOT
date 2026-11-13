@@ -10,7 +10,7 @@
 
 ## AI chatbot setup
 
-The bot includes a no-command AI chat feature for private conversations. It is disabled by default. Set at least one provider key in Railway Variables, deploy, then send `.chatbot on` from the bot-owner account. Use `.chatbot status` to check the current state and `.chatbot off` to pause automatic replies. Plain messages in a private chat receive AI replies when enabled. Short conversation context is held in memory and is cleared when the bot restarts.
+The bot includes a no-command AI chat feature for private conversations and groups. Once at least one provider key is set in Railway Variables, automatic chat is on by default. Plain text messages in private chats and groups receive AI replies without a command. Use `.chatbot status` to check it and `.chatbot off` to pause replies; `.chatbot on` turns them back on. Short conversation context is held in memory and is cleared when the bot restarts. Group-wide replies can increase API usage and may create busy group chats. Set `AI_AUTO_CHAT_GROUPS=false` to limit automatic replies to private chats, or `AI_AUTO_CHAT=false` to disable automatic replies by default.
 
 Choose one provider configuration:
 
@@ -20,7 +20,7 @@ Choose one provider configuration:
 
 `AI_PROVIDER=auto` tries configured providers, preferring Gemini, then OpenAI, then the compatible endpoint. It can also be set to `gemini`, `openai`, or `custom`. Never commit API keys to GitHub. Add keys only through Railway's Variables panel. Each provider may have its own billing, quotas, and model availability.
 
-Group auto-replies are off by default to prevent unsolicited replies and group spam. Set `AI_AUTO_CHAT_GROUPS=true` in Railway Variables only if the bot should answer all ordinary text messages in groups too. Bot commands continue to work whether automatic chat is on or off.
+Group auto-replies are on by default when the chatbot is enabled, as requested. Bot commands continue to work alongside ordinary-chat replies. For group etiquette, set `AI_AUTO_CHAT_GROUPS=false` if needed.
 
 ## Media commands
 

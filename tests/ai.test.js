@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import axios from "axios";
 import { generateAIResponse, getAIProviderOrder } from "../services/aiProvider.js";
+import { isGroupAutoChatEnabled } from "../services/aiChatbot.js";
 import { commands } from "../commands/index.js";
 
 test("AI providers support Gemini, OpenAI, and an OpenAI-compatible custom endpoint", async () => {
@@ -50,4 +51,19 @@ test("AI providers support Gemini, OpenAI, and an OpenAI-compatible custom endpo
 test("chatbot owner toggle is registered among bot commands", () => {
     assert.equal(typeof commands.chatbot, "function");
     assert.equal(typeof commands.ai, "function");
+});
+
+test("group auto-replies are enabled by default and can be explicitly disabled", () => {
+    const previous = process.env.AI_AUTO_CHAT_GROUPS;
+    try {
+        delete process.env.AI_AUTO_CHAT_GROUPS;
+        assert.equal(isGroupAutoChatEnabled(), true);
+        process.env.AI_AUTO_CHAT_GROUPS = "false";
+        assert.equal(isGroupAutoChatEnabled(), false);
+        process.env.AI_AUTO_CHAT_GROUPS = "true";
+        assert.equal(isGroupAutoChatEnabled(), true);
+    } finally {
+        if (previous === undefined) delete process.env.AI_AUTO_CHAT_GROUPS;
+        else process.env.AI_AUTO_CHAT_GROUPS = previous;
+    }
 });
