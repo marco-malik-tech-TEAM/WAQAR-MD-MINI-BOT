@@ -14,6 +14,7 @@ import { setupChannel, forwardedFromChannel } from "./channelService.js";
 import { readdirSync } from "fs";
 import { handleGroupParticipantsUpdate, handleGroupMessage } from "./groupEventHandler.js";
 import { addAutoReaction, getRandomEmoji } from "../utils/reactionUtils.js";
+import { handleAutoChat } from "./aiChatbot.js";
 
 export const messageCache = new Map();
 
@@ -31,7 +32,7 @@ const COMMAND_ALIASES = {
 const OWNER_ONLY = new Set([
     "block", "unblock", "setbio", "setname", "settings", "prefix",
     "alwaysonline", "autolikestatus", "autoviewstatus", "antidelete", "anticall",
-    "autoread", "alwaystyping", "alwaysrecording"
+    "autoread", "alwaystyping", "alwaysrecording", "chatbot"
 ]);
 
 // Memory monitoring
@@ -604,7 +605,10 @@ ${text}
                 const resolved = COMMAND_ALIASES[firstWord] || firstWord;
                 const allNoPrefix = process.env.NOPREFIX_ALL !== "false";
                 if (NO_PREFIX_OK.has(firstWord) || (allNoPrefix && commands[resolved])) body = trimmed;
-                else continue;
+                else {
+                    await handleAutoChat(sock, m, trimmed);
+                    continue;
+                }
             }
             if (!body) continue;
 

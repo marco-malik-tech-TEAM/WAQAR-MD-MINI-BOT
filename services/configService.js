@@ -18,6 +18,7 @@ const DEFAULT_CONFIG = {
     alwaysTyping: false,
     alwaysRecording: false,
     alwaysOnline: false,
+    aiChatbotEnabled: false,
     prefix: ".",
     ownerNumber: "923377857866"
 };
@@ -47,7 +48,10 @@ export function loadConfig() {
         ...fileConfig,
         phone: process.env.PHONE || fileConfig.phone || DEFAULT_CONFIG.phone,
         ownerNumber: process.env.OWNER_NUMBER || fileConfig.ownerNumber || DEFAULT_CONFIG.ownerNumber,
-        prefix: process.env.PREFIX || fileConfig.prefix || DEFAULT_CONFIG.prefix
+        prefix: process.env.PREFIX || fileConfig.prefix || DEFAULT_CONFIG.prefix,
+        aiChatbotEnabled: typeof fileConfig.aiChatbotEnabled === "boolean"
+            ? fileConfig.aiChatbotEnabled
+            : process.env.AI_AUTO_CHAT === "true"
     };
 }
 

@@ -77,6 +77,7 @@ import { wiki } from "./tools/wiki.js";
 import { base64 } from "./tools/base64.js";
 import { ip } from "./tools/ip.js";
 import { ai } from "./tools/ai.js";
+import { chatbot } from "./tools/chatbot.js";
 
 // Settings Commands
 import { settings } from "./settings/settings.js";
@@ -206,6 +207,7 @@ export const commands = {
     base64,
     ip,
     ai,
+    chatbot,
 
     // Settings & Toggle Commands
     settings,

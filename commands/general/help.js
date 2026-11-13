@@ -126,6 +126,7 @@ export const help = async (sock, m, args) => {
 │ 🔣 ➾ *${p}base64* encode/decode
 │ 🌐 ➾ *${p}ip* <address>
 │ 🤖 ➾ *${p}ai* <question>
+│ 💬 ➾ *${p}chatbot* on/off/status _(owner; then chat without commands in DMs)_
 ╰──────────────────────────────╯
 
 ╭───『 ⚙️ *𝕊𝔼𝕋𝕋𝕀ℕ𝔾𝕊* 』───╮
