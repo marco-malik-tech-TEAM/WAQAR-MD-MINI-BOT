@@ -1,4 +1,4 @@
-const COOLDOWN_MS = 5000;
+const COOLDOWN_MS = 2000;
 const lastRunBySender = new Map();
 const MAX_TRACKED_SENDERS = 2000;
 

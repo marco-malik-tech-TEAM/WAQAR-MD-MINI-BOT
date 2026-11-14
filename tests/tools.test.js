@@ -55,7 +55,7 @@ test("muth can be retried after a short cooldown and sends at most one message p
         assert.match(second, /Wait \d+s/);
         assert.equal(outgoing.length, 1);
 
-        clock += 5001;
+        clock += 2001;
         const third = await muth(sock, message);
         assert.equal(third, undefined);
         assert.equal(outgoing.length, 2);

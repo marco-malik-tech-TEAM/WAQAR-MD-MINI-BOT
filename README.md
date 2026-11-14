@@ -29,7 +29,7 @@ Group auto-replies are on by default when the chatbot is enabled, as requested. 
 - `.movie <name>` looks up movie details and searches for an official trailer, then attempts to send that trailer as a video. It does not search for or distribute full movie files.
 - `.tiktok`, `.instagram`, and `.facebook` also accept links; social downloads depend on the upstream providers being available.
 - `.vv` is a privacy-limited recovery tool: reply to a View Once photo, video, or voice note that you sent yourself. It refuses regular media and anyone else's View Once media, and limits recovery to 32 MB.
-- `.muth` sends one playful reply per run and can be used again after a short per-user cooldown; it does not flood the chat with repeated messages.
+- `.muth` sends one playful reply per run and can be used again after a two-second per-user cooldown; it does not flood the chat with repeated messages.
 
 Only download or share media that you own or are authorized to use. Third-party extraction services can fail or change their interfaces, so the bot cannot guarantee that every public link will always download. `YT_COOKIES` is an optional yt-dlp cookies.txt path or content for YouTube sign-in challenges; protect it as a credential and do not commit it to GitHub.
 
