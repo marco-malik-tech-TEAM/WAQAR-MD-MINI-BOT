@@ -29,9 +29,9 @@ export const chatbot = async (sock, message, args) => {
     if ((explicitEnv === "true" && !enabled) || (explicitEnv === "false" && enabled)) {
         return `⚙️ AI_AUTO_CHAT is explicitly set to ${explicitEnv} in Railway Variables, so it overrides this command. Change or clear that variable in Railway to use ${prefix}chatbot ${action}.`;
     }
-    if (!updateConfig({ aiChatbotEnabled: enabled })) {
+    if (!updateConfig({ aiChatbotEnabled: enabled, aiChatbotManuallySet: true })) {
         return "❌ Could not save the chatbot setting. Check Railway storage permissions and try again.";
     }
     invalidateConfigCache();
-    return `✅ AI chatbot is now *${enabled ? "ON" : "OFF"}*.\n${enabled ? "It will answer plain text in private chats without a command." : "Automatic replies are paused."}\n\n${BRAND.footer}`;
+    return `✅ AI chatbot is now *${enabled ? "ON" : "OFF"}*.\n${enabled ? "It will answer ordinary text in private chats and groups without a command." : "Automatic replies are paused."}\n\n${BRAND.footer}`;
 };

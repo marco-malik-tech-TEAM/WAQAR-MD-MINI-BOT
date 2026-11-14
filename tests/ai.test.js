@@ -3,6 +3,7 @@ import assert from "node:assert/strict";
 import axios from "axios";
 import { generateAIResponse, getAIProviderOrder } from "../services/aiProvider.js";
 import { isGroupAutoChatEnabled } from "../services/aiChatbot.js";
+import { resolveAIChatbotEnabled } from "../services/configService.js";
 import { commands } from "../commands/index.js";
 
 test("AI providers support Gemini, OpenAI, and an OpenAI-compatible custom endpoint", async () => {
@@ -66,4 +67,11 @@ test("group auto-replies are enabled by default and can be explicitly disabled",
         if (previous === undefined) delete process.env.AI_AUTO_CHAT_GROUPS;
         else process.env.AI_AUTO_CHAT_GROUPS = previous;
     }
+});
+
+test("a provider key enables auto-chat despite legacy defaults, but explicit owner and Railway toggles win", () => {
+    assert.equal(resolveAIChatbotEnabled({ aiChatbotEnabled: false }, { GEMINI_API_KEY: "configured" }), true);
+    assert.equal(resolveAIChatbotEnabled({ aiChatbotEnabled: false, aiChatbotManuallySet: true }, { GEMINI_API_KEY: "configured" }), false);
+    assert.equal(resolveAIChatbotEnabled({ aiChatbotEnabled: true, aiChatbotManuallySet: true }, { AI_AUTO_CHAT: "false", OPENAI_API_KEY: "configured" }), false);
+    assert.equal(resolveAIChatbotEnabled({}, { AI_AUTO_CHAT: "true" }), true);
 });

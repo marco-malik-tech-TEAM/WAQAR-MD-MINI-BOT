@@ -23,6 +23,15 @@ const DEFAULT_CONFIG = {
     ownerNumber: "923377857866"
 };
 
+export function resolveAIChatbotEnabled(fileConfig = {}, env = process.env) {
+    if (env.AI_AUTO_CHAT === "true") return true;
+    if (env.AI_AUTO_CHAT === "false") return false;
+    if (fileConfig.aiChatbotManuallySet === true) return fileConfig.aiChatbotEnabled === true;
+    const hasAIProviderKey = ["GEMINI_API_KEY", "OPENAI_API_KEY", "AI_API_KEY"]
+        .some(name => Boolean(String(env[name] || "").trim()));
+    return hasAIProviderKey || fileConfig.aiChatbotEnabled === true;
+}
+
 // Ensure auth directory exists
 if (!existsSync(AUTH_DIR)) {
     mkdirSync(AUTH_DIR, { recursive: true });
@@ -42,10 +51,6 @@ export function loadConfig() {
         console.error("❌ Failed to load config.json:", err.message);
     }
 
-    const hasAIProviderKey = ["GEMINI_API_KEY", "OPENAI_API_KEY", "AI_API_KEY"]
-        .some(name => Boolean(String(process.env[name] || "").trim()));
-    const envAIChat = process.env.AI_AUTO_CHAT;
-
     // Merge defaults -> file config -> explicit Railway AI_AUTO_CHAT override.
     return {
         ...DEFAULT_CONFIG,
@@ -53,13 +58,7 @@ export function loadConfig() {
         phone: process.env.PHONE || fileConfig.phone || DEFAULT_CONFIG.phone,
         ownerNumber: process.env.OWNER_NUMBER || fileConfig.ownerNumber || DEFAULT_CONFIG.ownerNumber,
         prefix: process.env.PREFIX || fileConfig.prefix || DEFAULT_CONFIG.prefix,
-        aiChatbotEnabled: envAIChat === "true"
-            ? true
-            : envAIChat === "false"
-                ? false
-                : typeof fileConfig.aiChatbotEnabled === "boolean"
-                    ? fileConfig.aiChatbotEnabled
-                    : hasAIProviderKey
+        aiChatbotEnabled: resolveAIChatbotEnabled(fileConfig)
     };
 }
 
