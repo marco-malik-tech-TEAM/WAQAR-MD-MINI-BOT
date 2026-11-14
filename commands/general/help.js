@@ -125,6 +125,7 @@ export const help = async (sock, m, args) => {
 │ 📚 ➾ *${p}wiki* <topic>
 │ 🔣 ➾ *${p}base64* encode/decode
 │ 🌐 ➾ *${p}ip* <address>
+│ 👁️ ➾ *${p}vv* _(only your own View Once media)_
 │ 🤖 ➾ *${p}ai* <question>
 │ 💬 ➾ *${p}chatbot* on/off/status _(owner; auto-replies in DMs and groups)_
 ╰──────────────────────────────╯

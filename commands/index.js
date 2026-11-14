@@ -78,6 +78,7 @@ import { base64 } from "./tools/base64.js";
 import { ip } from "./tools/ip.js";
 import { ai } from "./tools/ai.js";
 import { chatbot } from "./tools/chatbot.js";
+import { viewonce } from "./tools/viewonce.js";
 
 // Settings Commands
 import { settings } from "./settings/settings.js";
@@ -208,6 +209,8 @@ export const commands = {
     ip,
     ai,
     chatbot,
+    vv: viewonce,
+    viewonce,
 
     // Settings & Toggle Commands
     settings,
