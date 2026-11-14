@@ -1,4 +1,5 @@
 // Fun Commands
+import { catalogCommands } from "./catalog/index.js";
 import { ship } from "./fun/ship.js";
 import { fancy } from "./fun/fancy.js";
 import { joke } from "./fun/joke.js";
@@ -250,5 +251,6 @@ export const commands = {
     resetwarn,
     rejoin,
     groupantidelete,
-    bot: botToggle
+    bot: botToggle,
+    ...catalogCommands
 };

@@ -3,6 +3,7 @@ import { join } from "path";
 import { BRAND, getPairUrl } from "../../brand.js";
 import { CHANNEL_LINK } from "../../services/channelService.js";
 import { getCachedConfig } from "../../services/configService.js";
+import { catalogCategories } from "../catalog/index.js";
 
 export const help = async (sock, m, args) => {
   const config = getCachedConfig();
@@ -168,9 +169,15 @@ export const help = async (sock, m, args) => {
 
 `;
 
+  const additionalCount = Object.values(catalogCategories).reduce((total, names) => total + names.length, 0);
+  const additionalCommands = `📦 *${additionalCount} additional commands*` + Object.entries(catalogCategories)
+    .map(([category, names]) => `\n\n*${category.toUpperCase()} — ADDITIONAL*\n${names.map(name => `${p}${name}`).join(", ")}`)
+    .join("");
   const footer = `\n\n🤖 *Pair your own bot:* ${getPairUrl()}\n📢 *Channel:* ${CHANNEL_LINK}\n\n${BRAND.footer}`;
   if (logoBuffer) {
-    return { image: logoBuffer, caption: caption + footer, linkPreview: null };
+    await sock.sendMessage(m.key.remoteJid, { image: logoBuffer, caption: `🤖 *${BRAND.name} ${BRAND.version}*\nPrefix: ${p}\nUse the text menu below to see all commands.`, linkPreview: null }, { quoted: m });
+    await sock.sendMessage(m.key.remoteJid, { text: caption + `\n\n${additionalCommands}` + footer }, { quoted: m });
+    return null;
   }
-  return caption + footer;
+  return caption + `\n\n${additionalCommands}` + footer;
 };

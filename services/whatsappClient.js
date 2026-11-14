@@ -32,7 +32,11 @@ const COMMAND_ALIASES = {
 const OWNER_ONLY = new Set([
     "block", "unblock", "setbio", "setname", "settings", "prefix",
     "alwaysonline", "autolikestatus", "autoviewstatus", "antidelete", "anticall",
-    "autoread", "alwaystyping", "alwaysrecording", "chatbot"
+    "autoread", "alwaystyping", "alwaysrecording", "chatbot",
+    "afk", "autoreact", "autostatus", "broadcast", "mode", "newsletter",
+    "pmblocker", "restart", "savestatus", "setbotname", "setbotpp",
+    "setmenuimage", "setnewsletter", "setprefix", "sudo", "suppress", "update",
+    "resetbalance", "resetcoin", "resetdi"
 ]);
 
 // Memory monitoring

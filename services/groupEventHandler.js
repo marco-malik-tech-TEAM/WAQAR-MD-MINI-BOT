@@ -3,6 +3,11 @@ import { makeWelcomeCard } from "./welcomeCard.js";
 import { loadGroupSettings, saveGroupSettings } from "./groupSettingsService.js";
 import { isAdmin, isBotAdmin, getGroupMetadata } from "../utils/groupUtils.js";
 import { getCachedConfig } from "./configService.js";
+import { downloadMediaMessage } from "@whiskeysockets/baileys";
+import { createCanvas, loadImage } from "@napi-rs/canvas";
+
+const recentGroupMessages = new Map();
+const autoStickerCooldown = new Map();
 
 /**
  * Handle Group Participants Update (Welcome/Goodbye)
@@ -193,8 +198,62 @@ export async function handleGroupMessage(sock, m) {
         }
     }
 
-    // 2. Antispam (basic placeholder for now)
-    // if (settings.antispam?.enabled) { ... }
+    const featureFlags = settings.features || {};
+    const needsAdminExemption = ["antibadword", "antigroupmention", "antigroupstatus", "antisticker", "antispam", "antitag"].some(flag => featureFlags[flag]);
+    const senderIsAdmin = needsAdminExemption ? await isAdmin(sock, remoteJid, sender).catch(() => false) : false;
+    const messageText = m.message.conversation || m.message.extendedTextMessage?.text || m.message.imageMessage?.caption || m.message.videoMessage?.caption || "";
+    const deleteAndWarn = async reason => {
+        if (await isBotAdmin(sock, remoteJid).catch(() => false)) {
+            await sock.sendMessage(remoteJid, { delete: m.key }).catch(() => {});
+        }
+        await sock.sendMessage(remoteJid, { text: `🛡️ @${sender.split("@")[0]}, ${reason}`, mentions: [sender] }).catch(() => {});
+        return true;
+    };
+
+    if (!senderIsAdmin && settings.features?.antibadword && messageText) {
+        const blockedWords = (settings.features.blockedWords || []).filter(word => typeof word === "string" && word.length >= 2 && word.length <= 40);
+        const words = (messageText.toLowerCase().match(/[\p{L}\p{N}_-]+/gu) || []);
+        if (blockedWords.some(word => words.includes(word.toLowerCase()))) {
+            return deleteAndWarn("your message matched this group's configured word filter.");
+        }
+    }
+
+    const mentionList = m.message.extendedTextMessage?.contextInfo?.mentionedJid || [];
+    if (!senderIsAdmin && settings.features?.antigroupmention && (mentionList.some(id => id.endsWith("@g.us")) || mentionList.length >= 10)) {
+        return deleteAndWarn("mass group mentions are disabled here.");
+    }
+    if (!senderIsAdmin && settings.features?.antitag && mentionList.length >= 5) {
+        return deleteAndWarn("mass tagging is limited in this group.");
+    }
+    if (!senderIsAdmin && settings.features?.antigroupstatus && m.message.groupStatusMentionMessage) {
+        return deleteAndWarn("group status mentions are disabled here.");
+    }
+    if (!senderIsAdmin && settings.features?.antisticker && m.message.stickerMessage) {
+        return deleteAndWarn("stickers are disabled by this group's admin setting.");
+    }
+
+    if (!senderIsAdmin && settings.features?.antispam) {
+        const key = `${remoteJid}:${sender}`; const now = Date.now();
+        const rows = (recentGroupMessages.get(key) || []).filter(time => now - time < 10000); rows.push(now); recentGroupMessages.set(key, rows);
+        if (rows.length >= 6) return deleteAndWarn("please slow down; the anti-spam limit is 5 messages per 10 seconds.");
+        if (recentGroupMessages.size > 2000) for (const [id, times] of recentGroupMessages) if (!times.some(time => now - time < 10000)) recentGroupMessages.delete(id);
+    }
+
+    if (settings.features?.autosticker && m.message.imageMessage && !messageText.trim().startsWith(getCachedConfig().prefix || ".")) {
+        const key = `${remoteJid}:${sender}`; const now = Date.now();
+        if (now - (autoStickerCooldown.get(key) || 0) > 15000) {
+            autoStickerCooldown.set(key, now);
+            try {
+                const buffer = await downloadMediaMessage(m, "buffer", {}, {});
+                if (Buffer.isBuffer(buffer) && buffer.length <= 5 * 1024 * 1024) {
+                    const image = await loadImage(buffer); const canvas = createCanvas(512, 512); const ctx = canvas.getContext("2d");
+                    const scale = Math.min(512 / image.width, 512 / image.height); const w = image.width * scale, h = image.height * scale;
+                    ctx.drawImage(image, (512 - w) / 2, (512 - h) / 2, w, h);
+                    await sock.sendMessage(remoteJid, { sticker: canvas.toBuffer("image/webp") });
+                }
+            } catch (error) { console.warn("[AutoSticker] Could not convert image:", error.message); }
+        }
+    }
 
     return false; // Continue processing
 }

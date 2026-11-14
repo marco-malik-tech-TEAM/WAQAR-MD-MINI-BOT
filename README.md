@@ -31,6 +31,10 @@ Group auto-replies are on by default when the chatbot is enabled, as requested. 
 - `.vv` is a privacy-limited recovery tool: reply to a View Once photo, video, or voice note that you sent yourself. It refuses regular media and anyone else's View Once media, and limits recovery to 32 MB.
 - `.muth` sends one playful reply per run and can be used again after a two-second per-user cooldown; it does not flood the chat with repeated messages.
 
+The attached reference menu contained 220 commands despite stating 552. The bot now registers 164 additional commands from the actual supplied list; existing commands and aliases were retained. Every added command has an individual module under `commands/catalog/`, and `.menu`/`.help` display the added commands by category. See [the full command catalog](docs/MENU_COMMANDS.md) for the exact list and feature limitations.
+
+New group moderation controls require a group admin. `.antibadword words word1,word2` sets a group's custom word list; anti-spam, anti-sticker, anti-tag and mass-mention checks run when enabled. Owner controls remain owner-only. Privacy-sensitive activity rankings are not calculated from archived chat history. Commands requiring unavailable services (including image generation, TTS, Zoom, Pinterest/Twitter extraction, remote restart/update or bulk broadcast) explain that they are not configured rather than claiming success. Local economy balances are game-only; mount `/app/data` as a Railway volume if they should persist across redeploys.
+
 Only download or share media that you own or are authorized to use. Third-party extraction services can fail or change their interfaces, so the bot cannot guarantee that every public link will always download. `YT_COOKIES` is an optional yt-dlp cookies.txt path or content for YouTube sign-in challenges; protect it as a credential and do not commit it to GitHub.
 
 ## Anti-delete
