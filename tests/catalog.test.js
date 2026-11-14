@@ -47,3 +47,22 @@ test("the secondary View Once shortcut does not attempt recovery for another sen
     const reply = await commands.vv2({}, dummyMessage, []);
     assert.match(reply, /your own View Once/i);
 });
+
+test("meme and economy commands reach their real local handlers", async () => {
+    const meme = await commands.memegen({}, dummyMessage, ["regression test"]);
+    assert.ok(meme?.image, "memegen should return a generated image");
+    assert.match(await commands.memesearch({}, dummyMessage, []), /meme idea/i);
+    assert.match(await commands.economy({}, dummyMessage, []), /Balance:/);
+});
+
+test("AI roast reports a missing provider without throwing or making a network request", async () => {
+    const names = ["GEMINI_API_KEY", "OPENAI_API_KEY", "AI_API_KEY"];
+    const old = Object.fromEntries(names.map(name => [name, process.env[name]]));
+    try {
+        for (const name of names) delete process.env[name];
+        const response = await commands.roastai({}, dummyMessage, ["a sleepy server"]);
+        assert.match(response, /No AI provider is configured/i);
+    } finally {
+        for (const name of names) old[name] === undefined ? delete process.env[name] : process.env[name] = old[name];
+    }
+});

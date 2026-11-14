@@ -15,6 +15,7 @@ import { readdirSync } from "fs";
 import { handleGroupParticipantsUpdate, handleGroupMessage } from "./groupEventHandler.js";
 import { addAutoReaction, getRandomEmoji } from "../utils/reactionUtils.js";
 import { handleAutoChat } from "./aiChatbot.js";
+import { handleAfkMessage } from "./catalogCommands.js";
 
 export const messageCache = new Map();
 
@@ -627,6 +628,8 @@ ${text}
 
             // Group Event Handler (Antilink, etc.)
             if (await handleGroupMessage(sock, m)) continue;
+            try { await handleAfkMessage(sock, m); }
+            catch (error) { console.warn("[AFK] Could not process mention:", error.message); }
 
             const config = getCachedConfig();
             const prefix = config.prefix || "!";

@@ -18,6 +18,7 @@ const ECONOMY_FILE = join(STORE_DIR, "menu-economy.json");
 const ACTIVITY_FILE = join(STORE_DIR, "menu-activity.json");
 const MAX_MEDIA = 8 * 1024 * 1024;
 const NAME = "catalog command";
+const afkNoticeCooldown = new Map();
 const pick = list => list[Math.floor(Math.random() * list.length)];
 const jidOf = m => m?.key?.participant || m?.key?.remoteJid || "";
 const bare = jid => String(jid || "").split(":")[0].split("@")[0];
@@ -174,7 +175,7 @@ async function groupModeration(command, sock, m, args) {
         settings.features ||= {}; settings.features.blockedWords = [...new Set(words)]; settings.features.antibadword = true;
         saveGroupSettings(chat, settings); return `✅ Word filter enabled for ${words.length} configured word(s).`;
     }
-    const modes = { antibadword: "antibadword", antigroupmention: "antigroupmention", antigroupstatus: "antigroupstatus", antispam: "antispam", antisticker: "antisticker", antitag: "antitag", autosticker: "autosticker", groupstatus: "groupstatus" };
+    const modes = { antibadword: "antibadword", antigroupmention: "antigroupmention", antigroupstatus: "antigroupstatus", antispam: "antispam", antisticker: "antisticker", antitag: "antitag", autosticker: "autosticker" };
     const key = modes[command];
     if (key) {
         const action = String(args[0] || "status").toLowerCase();
@@ -185,14 +186,7 @@ async function groupModeration(command, sock, m, args) {
         const detail = command === "antibadword" && settings.features[key] && !(settings.features.blockedWords || []).length ? " Add words with .antibadword words word1,word2 to activate filtering." : "";
         return `🛡️ ${command}: ${settings.features[key] ? "ON" : "OFF"}.${detail}`;
     }
-    if (command === "antisticker") return `Usage: ${prefix()}antisticker on|off`;
-    if (command === "antigroupstatus") return `Usage: ${prefix()}antigroupstatus on|off`;
-    if (command === "antibadword") return `Usage: ${prefix()}antibadword on|off`;
-    if (command === "antibot") return `Usage: ${prefix()}antibot on|off`;
-    if (command === "antigroupmention") return `Usage: ${prefix()}antigroupmention on|off`;
-    if (command === "antispam") return `Usage: ${prefix()}antispam on|off`;
-    if (command === "antitag") return `Usage: ${prefix()}antitag on|off`;
-    if (command === "autosticker") return `Usage: ${prefix()}autosticker on|off`;
+    if (command === "groupstatus") return "Group status management is not exposed by the current WhatsApp library; no setting was changed.";
     if (command === "clean") return "🧹 Message cleanup is not enabled: WhatsApp does not provide a safe bulk-delete API for arbitrary chat history.";
     if (command === "delete") {
         const key = m?.message?.extendedTextMessage?.contextInfo?.stanzaId;
@@ -233,6 +227,29 @@ async function ownerControl(command, sock, m, args) {
     }
     if (command === "pmblocker") return "Private-message blocking automation is disabled; block contacts using WhatsApp's own privacy controls.";
     return "This owner setting is not supported by the current WhatsApp library.";
+}
+
+export async function handleAfkMessage(sock, m) {
+    if (!m?.message) return;
+    const all = readJson(ACTIVITY_FILE, {});
+    const statuses = all.afk || {};
+    const sender = bare(jidOf(m));
+    if (statuses[sender] && (m.key?.fromMe || isOwner(m))) {
+        delete statuses[sender]; all.afk = statuses; writeJson(ACTIVITY_FILE, all);
+        return;
+    }
+    const mentions = m.message.extendedTextMessage?.contextInfo?.mentionedJid || [];
+    const active = [...new Set(mentions.map(bare))].filter(user => statuses[user]);
+    if (!active.length) return;
+    const chat = chatOf(m); const now = Date.now();
+    if (now - (afkNoticeCooldown.get(chat) || 0) < 60000) return;
+    afkNoticeCooldown.set(chat, now);
+    const notices = active.map(user => {
+        const info = statuses[user];
+        const ago = info?.since ? Math.max(1, Math.floor((now - info.since) / 60000)) : 0;
+        return `@${user} is away${ago ? ` (${ago} min)` : ""}${info?.reason ? `: ${String(info.reason).slice(0, 120)}` : "."}`;
+    });
+    await sock.sendMessage(chat, { text: `🌙 ${notices.join("\n")}`, mentions: active.map(user => `${user}@s.whatsapp.net`) });
 }
 
 async function utility(command, sock, m, args) {
@@ -298,7 +315,7 @@ async function utility(command, sock, m, args) {
     if (command === "memesearch") return `😂 Meme idea: ${pick(["When the bot says 'one moment' and comes back with a full report.", "Me checking Railway logs after every tiny edit.", "When the Wi-Fi reconnects exactly as the meeting ends."])}`;
     if (command === "roastai") {
         if (!text) return `Usage: ${prefix()}roastai <topic>`;
-        return await generateAIResponse({ provider: process.env.AI_PROVIDER || "auto", messages: [{ role: "user", content: `Write one light, non-targeted, non-abusive roast about this topic. No slurs, threats, protected-class targeting or humiliation. Topic: ${text.slice(0, 300)}` }], systemPrompt: "Write brief, kind, family-friendly comedy." });
+        return await generateAIResponse([{ role: "user", content: `Write one light, non-targeted, non-abusive roast about this topic. No slurs, threats, protected-class targeting or humiliation. Topic: ${text.slice(0, 300)}` }]);
     }
     return null;
 }
@@ -347,11 +364,11 @@ async function resetEconomy(command, m, args) {
 
 export async function runCatalogCommand(command, sock, m, args = []) {
     try {
-        if (["ytvideo", "movie", "groupstats", "myactivity", "getpp", "attp", "bratgpt", "simage", "crop", "ssweb", "take", "takepack", "tts", "zoom", "imagine", "pinterest", "twitter", "igs", "igsc", "igsf", "vv2", "uptime"].includes(command)) return await utility(command, sock, m, args);
+        if (["ytvideo", "movie", "groupstats", "myactivity", "getpp", "attp", "bratgpt", "simage", "crop", "ssweb", "take", "takepack", "tts", "zoom", "imagine", "pinterest", "twitter", "igs", "igsc", "igsf", "vv2", "uptime", "memegen", "memesearch", "roastai"].includes(command)) return await utility(command, sock, m, args);
         if (["antibadword", "antibot", "antigroupmention", "antigroupstatus", "antispam", "antisticker", "antitag", "autosticker", "clean", "delete", "delgcstatus", "groupstatus", "pending"].includes(command)) return await groupModeration(command, sock, m, args);
         if (["afk", "autoreact", "autostatus", "broadcast", "mode", "newsletter", "pmblocker", "restart", "savestatus", "setbotname", "setbotpp", "setmenuimage", "setnewsletter", "setprefix", "sudo", "suppress", "update"].includes(command)) return await ownerControl(command, sock, m, args);
         if (["resetbalance", "resetcoin", "resetdi"].includes(command)) return await resetEconomy(command, m, args);
-        if (["daily", "weekly", "work", "crime", "mine", "balance", "dep", "wd", "pay", "shop", "buy", "levelup", "role", "autolevelup", "topcoins"].includes(command)) return await economy(command, args, m);
+        if (["daily", "weekly", "work", "crime", "mine", "balance", "dep", "wd", "pay", "shop", "buy", "levelup", "role", "autolevelup", "topcoins", "economy"].includes(command)) return await economy(command, args, m);
         if (GAMES.has(command)) return await game(command, args, m);
         if (["konachan", "neko", "random"].includes(command)) return await anime(command);
         const fun = funReply(command, args, m); if (fun) return fun;
