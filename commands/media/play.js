@@ -1,7 +1,7 @@
 import yts from "yt-search";
 import axios from "axios";
 import { getCachedConfig } from "../../services/configService.js";
-import { downloadMedia, firstUrl, detectSite } from "../../utils/downloader.js";
+import { downloadMedia, downloadFailureHint, firstUrl, detectSite } from "../../utils/downloader.js";
 import { BRAND } from "../../brand.js";
 
 export const play = async (sock, m, args) => {
@@ -31,7 +31,7 @@ export const play = async (sock, m, args) => {
             await sock.sendMessage(jid, { audio: buffer, mimetype: "audio/mpeg", fileName: `${video.title}.mp3` }, { quoted: m });
         } catch (e) {
             console.error("Audio download failed:", e.message, e.details);
-            await sock.sendMessage(jid, { text: `❌ *Audio download failed.*\n\n💡 All servers are busy or YouTube blocked this server.\nAdmin tip: set YT_COOKIES env (see README).\n\n🔗 ${video.url}` }, { quoted: m });
+            await sock.sendMessage(jid, { text: `❌ *Audio download failed.*\n\n💡 ${downloadFailureHint(e)}\n\n🔗 ${video.url}` }, { quoted: m });
         }
     } catch (err) {
         console.error("Play error:", err.message);

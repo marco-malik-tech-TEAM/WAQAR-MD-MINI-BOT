@@ -106,6 +106,21 @@ export function ytdlp(url, kind = "video") {
 const first = (...v) => v.find(x => typeof x === "string" && x.startsWith("http"));
 const getJSON = async (url, opts = {}) => (await axios.get(url, { timeout: 45000, headers: { "User-Agent": UA }, ...opts })).data;
 
+/** Return a safe, actionable hint for common provider failures. */
+export function downloadFailureHint(error) {
+    const details = [...(Array.isArray(error?.details) ? error.details : []), error?.message || ""].join(" ");
+    if (/sign in to confirm|not a bot|cookies/i.test(details)) {
+        return "YouTube is requiring sign-in for this request. An admin can add a valid cookies.txt export as the private YT_COOKIES Railway variable; never commit cookies to GitHub.";
+    }
+    if (/\b403\b|forbidden/i.test(details)) {
+        return "The source or download provider returned HTTP 403 (access denied). This usually means the provider blocked this server or the source requires authorization; retry later or use a link you are authorized to access.";
+    }
+    if (/timed out|timeout/i.test(details)) {
+        return "The download provider timed out. Try again later or use a smaller/shorter media link.";
+    }
+    return "All available download providers failed. The source may be unavailable, restricted, or temporarily blocking this server.";
+}
+
 // ---------- Provider chains (each returns a direct media URL) ----------
 const ytAudioProviders = (u) => [
     async () => { const d = await getJSON(`https://api.siputzx.my.id/api/d/ytmp3?url=${encodeURIComponent(u)}`); return first(d?.data?.dl, d?.data?.url, d?.result?.download?.url); },

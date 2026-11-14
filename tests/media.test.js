@@ -3,8 +3,9 @@ import assert from "node:assert/strict";
 import { spawn } from "node:child_process";
 import { resolve } from "node:path";
 import { createCanvas } from "@napi-rs/canvas";
-import { detectSite, firstUrl, tiktokDownload } from "../utils/downloader.js";
+import { detectSite, downloadFailureHint, firstUrl, tiktokDownload } from "../utils/downloader.js";
 import { tiktok } from "../commands/media/social.js";
+import { isFullMovieRequest } from "../commands/media/movie.js";
 import { makeWelcomeCard } from "../services/welcomeCard.js";
 
 test("media URLs are classified for the user's YouTube, TikTok, Instagram, and Facebook routes", () => {
@@ -19,6 +20,19 @@ test("URL extraction trims trailing sentence punctuation without damaging query 
     assert.equal(firstUrl("video https://www.instagram.com/reel/ABC123/."), "https://www.instagram.com/reel/ABC123/");
     assert.equal(firstUrl("song https://youtu.be/abcdefghijk?t=12"), "https://youtu.be/abcdefghijk?t=12");
     assert.equal(firstUrl("no URL here"), undefined);
+});
+
+test("download failure hints distinguish YouTube sign-in challenges and HTTP 403", () => {
+    assert.match(downloadFailureHint({ details: ["Sign in to confirm you're not a bot"] }), /YT_COOKIES/);
+    assert.match(downloadFailureHint({ details: ["Request failed with status code 403"] }), /HTTP 403/);
+    assert.match(downloadFailureHint({ details: ["network timeout"] }), /timed out/i);
+});
+
+test("movie command blocks full-movie download requests but accepts trailer/movie-title searches", () => {
+    assert.equal(isFullMovieRequest("full movie Dune Part Two"), true);
+    assert.equal(isFullMovieRequest("Dune Part Two full movie"), true);
+    assert.equal(isFullMovieRequest("Dune Part Two official trailer"), false);
+    assert.equal(isFullMovieRequest("Full Metal Jacket"), false);
 });
 
 test("the TikTok social command can import its required downloader export", async () => {

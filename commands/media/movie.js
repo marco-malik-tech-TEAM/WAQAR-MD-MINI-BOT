@@ -1,10 +1,12 @@
 import axios from "axios";
 import yts from "yt-search";
 import { getCachedConfig } from "../../services/configService.js";
-import { downloadMedia } from "../../utils/downloader.js";
+import { downloadMedia, downloadFailureHint } from "../../utils/downloader.js";
 import { BRAND } from "../../brand.js";
 
 const OMDB_KEYS = [process.env.OMDB_KEY, "trilogy", "thewdb", "4a3b711b"].filter(Boolean);
+
+export const isFullMovieRequest = query => /^full\s+(?:movie|film)\b|\bfull\s+(?:movie|film)\b|(?:^|\s)full\s*$/i.test(String(query || ""));
 
 async function omdb(query) {
     for (const key of OMDB_KEYS) {
@@ -27,6 +29,9 @@ export const movie = async (sock, m, args) => {
     const jid = m.key.remoteJid;
     const query = args.join(" ").trim();
     if (!query) return `🎬 *MOVIE INFO + TRAILER*\n\n📝 Usage: ${p}movie <name>\n📌 Example: ${p}movie Avengers Endgame\n\n${BRAND.footer}`;
+    if (isFullMovieRequest(query)) {
+        return `❌ I can help find movie details and an official trailer, but I can't download or send full copyrighted movies. Try ${p}movie <title> for details and trailer information.`;
+    }
 
     const data = await omdb(query);
     const title = data?.Title || query;
@@ -46,6 +51,6 @@ export const movie = async (sock, m, args) => {
         await sock.sendMessage(jid, { video: buffer, mimetype: "video/mp4", caption: `🎞️ *${v.title}*\n\n${BRAND.footer}` }, { quoted: m });
     } catch (e) {
         console.error("Trailer download failed:", e.message, e.details);
-        return `❌ Trailer download failed. Try again later.`;
+        return `❌ Trailer download failed.\n\n💡 ${downloadFailureHint(e)}`;
     }
 };

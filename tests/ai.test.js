@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import axios from "axios";
-import { generateAIResponse, getAIProviderOrder } from "../services/aiProvider.js";
+import { AI_SYSTEM_PROMPT, generateAIResponse, getAIProviderOrder } from "../services/aiProvider.js";
 import { isGroupAutoChatEnabled } from "../services/aiChatbot.js";
 import { resolveAIChatbotEnabled } from "../services/configService.js";
 import { commands } from "../commands/index.js";
@@ -52,6 +52,13 @@ test("AI providers support Gemini, OpenAI, and an OpenAI-compatible custom endpo
 test("chatbot owner toggle is registered among bot commands", () => {
     assert.equal(typeof commands.chatbot, "function");
     assert.equal(typeof commands.ai, "function");
+});
+
+test("chatbot team context includes Marco Malik, Waqar Writes and Riyan without invented details", () => {
+    assert.match(AI_SYSTEM_PROMPT, /Marco Malik/);
+    assert.match(AI_SYSTEM_PROMPT, /Waqar Writes/);
+    assert.match(AI_SYSTEM_PROMPT, /Riyan/);
+    assert.match(AI_SYSTEM_PROMPT, /Do not invent Riyan/);
 });
 
 test("group auto-replies are enabled by default and can be explicitly disabled", () => {

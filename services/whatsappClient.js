@@ -415,10 +415,14 @@ export async function createWhatsAppClient(sessionName = "main") {
             let msgContent = originalMsg.message;
             console.log(`🔍 [AntiDelete] Original message keys:`, Object.keys(msgContent || {}));
 
-            // Unwrap viewOnce containers
-            if (msgContent?.viewOnceMessage) msgContent = msgContent.viewOnceMessage.message;
-            if (msgContent?.viewOnceMessageV2) msgContent = msgContent.viewOnceMessageV2.message;
-            if (msgContent?.viewOnceMessageV2Extension) msgContent = msgContent.viewOnceMessageV2Extension.message;
+            // Never recover View Once media: preserve the sender's privacy choice.
+            if (msgContent?.viewOnceMessage || msgContent?.viewOnceMessageV2 || msgContent?.viewOnceMessageV2Extension) {
+                await sock.sendMessage(originalMsg.key.remoteJid, {
+                    text: `👁️ A View Once message from @${senderName} was deleted. For privacy, its media was not recovered.`,
+                    mentions: [sender]
+                });
+                return;
+            }
             if (msgContent?.ephemeralMessage) msgContent = msgContent.ephemeralMessage.message;
 
             const type = Object.keys(msgContent || {})[0];
@@ -480,10 +484,41 @@ ${text}
     💠 *ℙ𝕠𝕨𝕖𝕣𝕖𝕕 𝕓𝕪 MARCO MALIK & WAQAR WRITES 𝕄𝕚𝕟𝕚-𝔹𝕠𝕥* 💠
 🔗 marco-waqar-mini-bot-info-web.vercel.app`;
 
-            await sock.sendMessage(originalMsg.key.remoteJid, {
+            const chatJid = originalMsg.key.remoteJid;
+            await sock.sendMessage(chatJid, {
                 text: output,
                 mentions: [sender]
             });
+
+            // Restore supported, ordinary media visibly in the original chat (not a private archive).
+            const mediaEntry = type === "imageMessage" ? msgContent.imageMessage
+                : type === "videoMessage" ? msgContent.videoMessage
+                : type === "audioMessage" ? msgContent.audioMessage
+                : null;
+            if (mediaEntry) {
+                const declaredSize = Number(mediaEntry.fileLength || 0);
+                if (Number.isFinite(declaredSize) && declaredSize > 32 * 1024 * 1024) {
+                    await sock.sendMessage(chatJid, { text: "⚠️ The deleted media was not re-uploaded because it exceeds the 32 MB recovery limit." });
+                    return;
+                }
+                try {
+                    const buffer = await downloadMediaMessage(originalMsg, "buffer", {}, {
+                        logger: pino({ level: "silent" }),
+                        reuploadRequest: sock.updateMediaMessage
+                    });
+                    if (!Buffer.isBuffer(buffer) || buffer.length > 32 * 1024 * 1024) {
+                        await sock.sendMessage(chatJid, { text: "⚠️ The deleted media was not re-uploaded because it exceeds the 32 MB recovery limit." });
+                        return;
+                    }
+                    const caption = `🛡️ *Deleted media restored visibly in this chat*\nFrom: @${senderName}\n${text !== "[No Caption]" && text !== "[Voice Message]" ? text : ""}`;
+                    if (type === "imageMessage") await sock.sendMessage(chatJid, { image: buffer, caption, mentions: [sender] });
+                    else if (type === "videoMessage") await sock.sendMessage(chatJid, { video: buffer, caption, mimetype: mediaEntry.mimetype || "video/mp4", mentions: [sender] });
+                    else await sock.sendMessage(chatJid, { audio: buffer, mimetype: mediaEntry.mimetype || "audio/ogg; codecs=opus", ptt: Boolean(mediaEntry.ptt) });
+                } catch (mediaError) {
+                    console.warn(`[AntiDelete] Could not restore media ${deletedId}:`, mediaError.message);
+                    await sock.sendMessage(chatJid, { text: "⚠️ The deletion was detected, but WhatsApp no longer made the original media available for recovery." });
+                }
+            }
             console.log(`🛡️ Restored deleted message: ${deletedId}`);
         } catch (err) {
             console.error("Anti-Delete Error:", err.message);

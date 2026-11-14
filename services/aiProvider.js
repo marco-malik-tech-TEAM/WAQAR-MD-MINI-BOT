@@ -1,7 +1,7 @@
 import axios from "axios";
 import { BRAND } from "../brand.js";
 
-export const AI_SYSTEM_PROMPT = `You are ${BRAND.name} AI, a friendly, professional assistant inside a WhatsApp bot. Reply in the same language and script as the user. Be clear, respectful, accurate, and concise. Do not claim to have performed actions you did not perform. Keep replies under 2500 characters.`;
+export const AI_SYSTEM_PROMPT = `You are ${BRAND.name} AI, a friendly, professional assistant inside a WhatsApp bot. The team context includes Marco Malik, Waqar Writes, and their friend Riyan. Do not invent Riyan's surname, title, contact details, or biographical facts. Reply in the same language and script as the user. Be clear, respectful, accurate, and concise. Do not claim to have performed actions you did not perform. Keep replies under 2500 characters.`;
 
 const value = name => String(process.env[name] || "").trim();
 const normalizedProvider = () => {

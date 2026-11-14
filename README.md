@@ -24,14 +24,18 @@ Group auto-replies are on by default when the chatbot is enabled, as requested. 
 
 ## Media commands
 
-- `.play <song name or YouTube link>` searches for the track and attempts to send an MP3. It uses yt-dlp first and then configured public provider endpoints; sign-in challenges, provider availability, source restrictions, or WhatsApp's media-size limits can prevent a download.
-- `.video <title or link>` attempts to send a video. Supported source routes include YouTube, TikTok, Instagram, and Facebook; external extractors/providers can change availability, and files that exceed the bot's attachment limits will fail.
-- `.movie <name>` looks up movie details and searches for an official trailer, then attempts to send that trailer as a video. It does not search for or distribute full movie files.
+- `.play <song name or YouTube link>` searches for the track and attempts to send an MP3. It uses yt-dlp first and then configured public provider endpoints; YouTube sign-in challenges, provider availability, source restrictions, or WhatsApp's media-size limits can prevent a download.
+- `.video <title or link>` attempts to send a video. Supported source routes include YouTube, TikTok, Instagram, and Facebook; HTTP 403 and YouTube sign-in failures now return an actionable explanation, but no extractor can guarantee access to restricted media.
+- `.movie <name>` looks up movie details and attempts to send a trailer. `.movie full <name>` and full-film requests are refused; the bot does not search for or distribute full copyrighted movies.
 - `.tiktok`, `.instagram`, and `.facebook` also accept links; social downloads depend on the upstream providers being available.
 - `.vv` is a privacy-limited recovery tool: reply to a View Once photo, video, or voice note that you sent yourself. It refuses regular media and anyone else's View Once media, and limits recovery to 32 MB.
 - `.muth` sends one playful reply per run and can be used again after a two-second per-user cooldown; it does not flood the chat with repeated messages.
 
 Only download or share media that you own or are authorized to use. Third-party extraction services can fail or change their interfaces, so the bot cannot guarantee that every public link will always download. `YT_COOKIES` is an optional yt-dlp cookies.txt path or content for YouTube sign-in challenges; protect it as a credential and do not commit it to GitHub.
+
+## Anti-delete
+
+When the owner enables anti-delete (and group anti-delete is enabled for a group), ordinary deleted text and supported image/video/voice media may be restored visibly in the original chat, with an explanatory notice. Media restoration is capped at 32 MB; WhatsApp may make deleted media unavailable before recovery. View Once media is never recovered. The bot does not secretly forward deleted content to a private archive.
 
 ## Environment variables
 

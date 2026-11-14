@@ -1,7 +1,7 @@
 import yts from "yt-search";
 import axios from "axios";
 import { getCachedConfig } from "../../services/configService.js";
-import { downloadMedia, firstUrl, detectSite } from "../../utils/downloader.js";
+import { downloadMedia, downloadFailureHint, firstUrl, detectSite } from "../../utils/downloader.js";
 import { BRAND } from "../../brand.js";
 
 export const video = async (sock, m, args) => {
@@ -36,7 +36,7 @@ export const video = async (sock, m, args) => {
             await sock.sendMessage(jid, { video: buffer, caption: `🎬 ${title}\n\n${BRAND.footer}`, mimetype: "video/mp4" }, { quoted: m });
         } catch (e) {
             console.error("Video download failed:", e.message, e.details);
-            await sock.sendMessage(jid, { text: `❌ *Video download failed.*\n\n💡 Servers busy / link blocked. Try again later.\n🔗 ${url}` }, { quoted: m });
+            await sock.sendMessage(jid, { text: `❌ *Video download failed.*\n\n💡 ${downloadFailureHint(e)}\n🔗 ${url}` }, { quoted: m });
         }
     } catch (err) {
         console.error("Video error:", err.message);
