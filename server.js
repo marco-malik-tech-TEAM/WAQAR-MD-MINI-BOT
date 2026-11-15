@@ -4,6 +4,7 @@ import { whatsappService } from "./services/whatsappService.js";
 import { createServer } from "http";
 import { initSocket } from "./services/socketService.js";
 import { cleanStaleSessions } from "./services/cleanupService.js";
+import { BRAND } from "./brand.js";
 
 const httpServer = createServer(app);
 initSocket(httpServer);
@@ -12,7 +13,7 @@ initSocket(httpServer);
 cleanStaleSessions();
 
 httpServer.listen(PORT, () => {
-    console.log(`🚀 MARCO MALIK & WAQAR WRITES MD running on port ${PORT}`);
+    console.log(`🚀 ${BRAND.name} running on port ${PORT}`);
 });
 
 // Initialize WhatsApp

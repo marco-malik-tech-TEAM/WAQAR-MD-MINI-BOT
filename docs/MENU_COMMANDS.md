@@ -200,6 +200,8 @@ Each command has its own module under `commands/catalog/`; shared runtime behavi
 
 ## Safety and integration notes
 
+- Status tools added separately from the 164 reference-menu commands: reply to a status with `.savestatus` or `.statusdl`; downloads go only to the linked account's own chat, use the 24-hour in-memory cache, and never recover View Once content. `.statusreply on|off|status` and `.setstatusreply <text>` configure optional owner-only replies to direct replies on the bot account's status.
+- Owner-only `.setbotname <name>` changes the menu title, `.setownername <name>` changes the displayed owner, and `.setmenuimage` accepts a regular attached/quoted image and normalizes it for the menu. Changing the menu title does not change the linked WhatsApp profile name.
 - New group moderation switches require a group admin. Owner controls are restricted to the configured bot owner.
 - `.antibadword words word1,word2` configures the group word list; anti-spam, anti-sticker, anti-tag, and mass-mention filters apply only when enabled by an admin.
 - Activity rankings do not archive message history. The bot intentionally avoids private chat-history tracking.

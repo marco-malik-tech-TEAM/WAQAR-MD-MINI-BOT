@@ -1,4 +1,4 @@
-# MARCO MALIK & WAQAR WRITES MD — WhatsApp Mini Bot
+# MARCO MALIK X — WhatsApp Mini Bot
 
 ## Railway deployment
 
@@ -28,10 +28,13 @@ Group auto-replies are on by default when the chatbot is enabled, as requested. 
 - `.video <title or link>` attempts to send a video. Supported source routes include YouTube, TikTok, Instagram, and Facebook; HTTP 403 and YouTube sign-in failures now return an actionable explanation, but no extractor can guarantee access to restricted media.
 - `.movie <name>` looks up movie details and attempts to send a trailer. `.movie full <name>` and full-film requests are refused; the bot does not search for or distribute full copyrighted movies.
 - `.tiktok`, `.instagram`, and `.facebook` also accept links; social downloads depend on the upstream providers being available.
+- `.savestatus` or `.statusdl`: reply directly to a status that the linked account has received while online. The saved text/photo/video/audio is sent to the linked account's own private chat; the in-memory cache expires after 24 hours, media is limited to 32 MB, and View Once content is never cached or recovered. Reacting to a status with the connected account also continues to save it.
+- `.statusreply status|on|off` controls optional automatic replies to people who directly reply to the connected account's status. Set the reply text with `.setstatusreply <text>`. This is off by default and owner-only.
+- `.setbotname <name>` changes the bot menu title, `.setownername <name>` changes the owner label, and `.setmenuimage` accepts an attached or quoted image. The actual WhatsApp profile name must still be changed in WhatsApp settings. These runtime settings and the menu image are stored on the service filesystem; Railway may replace that filesystem on redeploy/restart unless a persistent volume is mounted, so reapply the settings or configure persistent storage if needed.
 - `.vv` is a privacy-limited recovery tool: reply to a View Once photo, video, or voice note that you sent yourself. It refuses regular media and anyone else's View Once media, and limits recovery to 32 MB.
 - `.muth` sends one playful reply per run and can be used again after a two-second per-user cooldown; it does not flood the chat with repeated messages.
 
-The attached reference menu contained 220 commands despite stating 552. The bot now registers 164 additional commands from the actual supplied list; existing commands and aliases were retained. Every added command has an individual module under `commands/catalog/`, and `.menu`/`.help` display the added commands by category. See [the full command catalog](docs/MENU_COMMANDS.md) for the exact list and feature limitations.
+The attached reference menu contained 220 commands despite stating 552. The bot registers 164 additional commands from the actual supplied list; existing commands and aliases were retained. Every added command has an individual module under `commands/catalog/`. `.menu`/`.help` send the primary menu first, then readable category cards with one icon-prefixed command per line, split into manageable messages. See [the full command catalog](docs/MENU_COMMANDS.md) for the exact list and feature limitations.
 
 New group moderation controls require a group admin. `.antibadword words word1,word2` sets a group's custom word list; anti-spam, anti-sticker, anti-tag and mass-mention checks run when enabled. Owner controls remain owner-only. Privacy-sensitive activity rankings are not calculated from archived chat history. Commands requiring unavailable services (including image generation, TTS, Zoom, Pinterest/Twitter extraction, remote restart/update or bulk broadcast) explain that they are not configured rather than claiming success. Local economy balances are game-only; mount `/app/data` as a Railway volume if they should persist across redeploys.
 

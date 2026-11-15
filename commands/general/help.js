@@ -5,9 +5,40 @@ import { CHANNEL_LINK } from "../../services/channelService.js";
 import { getCachedConfig } from "../../services/configService.js";
 import { catalogCategories } from "../catalog/index.js";
 
+const CATEGORY_ICON = { General: "🧭", AI: "🤖", Admin: "🛡️", Owner: "👑", Media: "🎞️", Fun: "🎭", Games: "🎮", Economy: "💰", Anime: "👾", Textmaker: "🖋️" };
+const COMMAND_ICON = {
+  attp: "🖼️", bratgpt: "🟩", crop: "✂️", getpp: "👤", groupstats: "📊", myactivity: "🔒", simage: "🖼️", ssweb: "🌐", takepack: "📦", take: "🎭", tts: "🗣️", vv2: "👁️", zoom: "🎥", imagine: "🎨",
+  antibadword: "🤐", antibot: "🤖", antigroupmention: "🚫", antigroupstatus: "🛡️", antispam: "⛔", antisticker: "🚫", antitag: "🏷️", autosticker: "🎭", clean: "🧹", delete: "🗑️", pending: "⌛",
+  afk: "🌙", broadcast: "📢", mode: "⚙️", newsletter: "📰", savestatus: "💾", setbotname: "🏷️", setownername: "👑", setbotpp: "🖼️", setmenuimage: "🖼️", setprefix: "✏️", statusreply: "💬", setstatusreply: "📝",
+  igs: "📸", igsc: "📸", igsf: "📸", instagram: "📸", pinterest: "📌", twitter: "𝕏", ytvideo: "▶️", facebook: "📘", tiktok: "🎵",
+  memegen: "😂", memesearch: "🔎", gayrate: "📊", iqrate: "🧠", rizzrate: "✨", simprate: "💖", toxicrate: "🌱", howgay: "🏳️‍🌈", howdumb: "🧠", insult: "😄", compliment: "🌟", jail: "🔒", wanted: "📜", pies: "🥧", soulmate: "💞", marry: "💍", divorce: "📄", babyname: "👶", fortune: "🔮", horoscope: "✨", mood: "🌤️", profession: "🧭", character: "🎭", choose: "🎯", slap: "🖐️", kiss: "💋", hug: "🤗", pat: "🫳", cuddle: "🧸", poke: "👉", bite: "🧛", bonk: "🪄", punch: "🥊", yeet: "🚀", highfive: "🙌", handhold: "🤝", tickle: "🪶", feed: "🍪", wave: "👋", story: "📖", debate: "🗣️", caption: "📝",
+  bomb: "💣", bet: "🎲", horse: "🐎", slots: "🎰", tictactoe: "❌", fish: "🎣", hunt: "🏹", chop: "🪓", forage: "🌿", rpg: "🗺️", daily: "📅", weekly: "🗓️", work: "🧰", crime: "🕵️", mine: "⛏️", balance: "💰", shop: "🛍️", buy: "🛒", levelup: "⭐", role: "🎖️", resetbalance: "🔄", resetcoin: "🔄", resetdi: "🔄", konachan: "🌸", neko: "🐱", random: "🎲"
+};
+
+function commandIcon(name, category) {
+  if (COMMAND_ICON[name]) return COMMAND_ICON[name];
+  if (category === "Admin") return "🛡️";
+  if (category === "Owner") return "👑";
+  if (category === "Games") return "🎮";
+  if (category === "Economy") return "💰";
+  if (category === "Media") return "🎞️";
+  if (category === "Textmaker") return "✨";
+  if (category === "Anime") return "🌸";
+  if (category === "AI") return "🤖";
+  return "🔹";
+}
+
+export function formatCatalogCategory(category, names, prefix, part = 1, totalParts = 1) {
+  const title = `${category.toUpperCase()} COMMANDS${totalParts > 1 ? ` · ${part}/${totalParts}` : ""}`;
+  const rows = names.map(name => `│ ${commandIcon(name, category)} ➜ *${prefix}${name}*`).join("\n");
+  return `╭━━『 ${CATEGORY_ICON[category] || "📦"} *${title}* 』━━╮\n${rows}\n╰━━━━━━━━━━━━━━━━━━╯`;
+}
+
 export const help = async (sock, m, args) => {
   const config = getCachedConfig();
   const p = config.prefix || "!";
+  const displayName = config.menuTitle || BRAND.name;
+  const ownerDisplayName = config.menuOwnerName || "Marco Malik";
 
   // Load Logo securely
   let logoBuffer = null;
@@ -24,11 +55,11 @@ export const help = async (sock, m, args) => {
   const now = new Date();
   const formattedDate = `${String(now.getDate()).padStart(2, '0')}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getFullYear()).slice(-2)}`;
 
-  const caption = `╭───『 🤖 *${BRAND.name} ${BRAND.version}* 』───╮
+  const caption = `╭───『 🤖 *${displayName} ${BRAND.version}* 』───╮
 │
 │ ✨ *Prefix:* ${p}  _(also . ! or no prefix for help)_
 │ 📅 *Date:* ${formattedDate}
-│ 👑 *Creators:* Marco Malik & Waqar Writes
+│ 👑 *Owner:* ${ownerDisplayName}
 │ 🌐 *Website:* ${BRAND.website}
 ╰──────────────────────────────╯
 
@@ -109,6 +140,7 @@ export const help = async (sock, m, args) => {
 
 ╭───『 👤 *𝕊𝕋𝔸𝕋𝕌𝕊* 』───╮
 │ 🕵️ ➾ *${p}status* <@user/num>
+│ 💾 ➾ Reply to a viewed status: *${p}savestatus* / *${p}statusdl*
 │ 📝 ➾ *${p}setbio* <text>
 │ ✏️ ➾ *${p}setname* <name>
 ╰──────────────────────────────╯
@@ -140,6 +172,9 @@ export const help = async (sock, m, args) => {
 │ 🛡️ ➾ *${p}antidelete* _(DMs only)_
 │ 📵 ➾ *${p}anticall*
 │ ✔️ ➾ *${p}autoread*
+│ 🏷️ ➾ *${p}setbotname* / *${p}setownername*
+│ 🖼️ ➾ Send/reply image with *${p}setmenuimage*
+│ 💬 ➾ *${p}statusreply* on/off/status; *${p}setstatusreply* <text>
 ╰──────────────────────────────╯
 
 ╭───『 👥 *𝔾ℝ𝕆𝕌ℙ 𝕄𝔸ℕ𝔸𝔾𝔼𝕄𝔼ℕ𝕋* 』───╮
@@ -170,14 +205,19 @@ export const help = async (sock, m, args) => {
 `;
 
   const additionalCount = Object.values(catalogCategories).reduce((total, names) => total + names.length, 0);
-  const additionalCommands = `📦 *${additionalCount} additional commands*` + Object.entries(catalogCategories)
-    .map(([category, names]) => `\n\n*${category.toUpperCase()} — ADDITIONAL*\n${names.map(name => `${p}${name}`).join(", ")}`)
-    .join("");
-  const footer = `\n\n🤖 *Pair your own bot:* ${getPairUrl()}\n📢 *Channel:* ${CHANNEL_LINK}\n\n${BRAND.footer}`;
+  const footer = `\n\n📦 *${additionalCount} additional commands*\n🤖 *Pair your own bot:* ${getPairUrl()}\n📢 *Channel:* ${CHANNEL_LINK}\n\n💠 *Powered by ${displayName}*`;
   if (logoBuffer) {
-    await sock.sendMessage(m.key.remoteJid, { image: logoBuffer, caption: `🤖 *${BRAND.name} ${BRAND.version}*\nPrefix: ${p}\nUse the text menu below to see all commands.`, linkPreview: null }, { quoted: m });
-    await sock.sendMessage(m.key.remoteJid, { text: caption + `\n\n${additionalCommands}` + footer }, { quoted: m });
-    return null;
+    await sock.sendMessage(m.key.remoteJid, { image: logoBuffer, caption: `🤖 *${displayName} ${BRAND.version}*`, linkPreview: null }, { quoted: m });
   }
-  return caption + `\n\n${additionalCommands}` + footer;
+  await sock.sendMessage(m.key.remoteJid, { text: caption + footer }, { quoted: m });
+  for (const [category, names] of Object.entries(catalogCategories)) {
+    const chunkSize = 28;
+    const totalParts = Math.ceil(names.length / chunkSize);
+    for (let offset = 0; offset < names.length; offset += chunkSize) {
+      const part = Math.floor(offset / chunkSize) + 1;
+      const chunk = names.slice(offset, offset + chunkSize);
+      await sock.sendMessage(m.key.remoteJid, { text: formatCatalogCategory(category, chunk, p, part, totalParts) }, { quoted: m });
+    }
+  }
+  return null;
 };

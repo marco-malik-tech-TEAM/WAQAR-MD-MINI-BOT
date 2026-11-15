@@ -61,8 +61,12 @@ import { waifu } from "./media/waifu.js";
 
 // Status Commands
 import { status } from "./status/profile.js";
+import { statusDownload } from "./status/download.js";
 import { setbio } from "./status/setbio.js";
 import { setname } from "./status/setname.js";
+import { setownername } from "./settings/identity.js";
+import { statusreply } from "./settings/statusreply.js";
+import { setstatusreply } from "./settings/setstatusreply.js";
 
 // Tool Commands
 import { calc } from "./tools/calc.js";
@@ -252,5 +256,11 @@ export const commands = {
     rejoin,
     groupantidelete,
     bot: botToggle,
-    ...catalogCommands
+    ...catalogCommands,
+    savestatus: statusDownload,
+    statusdl: statusDownload,
+    statusdownload: statusDownload,
+    setownername,
+    statusreply,
+    setstatusreply
 };

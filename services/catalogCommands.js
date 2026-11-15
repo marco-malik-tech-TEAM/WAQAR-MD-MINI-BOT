@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, mkdirSync, existsSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, existsSync, renameSync, unlinkSync } from "node:fs";
 import { join } from "node:path";
 import { isIP } from "node:net";
 import axios from "axios";
@@ -12,6 +12,7 @@ import { video } from "../commands/media/video.js";
 import { movie } from "../commands/media/movie.js";
 import { instagram } from "../commands/media/social.js";
 import { generateAIResponse } from "./aiProvider.js";
+import { saveRepliedStatus } from "./statusSaver.js";
 
 const STORE_DIR = join(process.cwd(), "data");
 const ECONOMY_FILE = join(STORE_DIR, "menu-economy.json");
@@ -206,9 +207,35 @@ async function ownerControl(command, sock, m, args) {
         if (!arg || arg.length > 3 || /\s/.test(arg)) return `Usage: ${prefix()}setprefix <1–3 characters>`;
         updateConfig({ prefix: arg }); invalidateConfigCache(); return `✅ Prefix updated to ${arg}`;
     }
-    if (command === "setbotname") return "Bot display name is controlled by the WhatsApp profile; change it from the linked account's profile settings.";
+    if (command === "setbotname") {
+        if (!arg || arg.length > 40 || /[\r\n\u0000-\u001f]/.test(arg)) return `Usage: ${prefix()}setbotname <menu title, up to 40 characters>`;
+        updateConfig({ menuTitle: arg }); invalidateConfigCache(); return `✅ Bot menu title updated to *${arg}*. The actual WhatsApp profile name must still be changed in WhatsApp settings.`;
+    }
+    if (command === "setownername") {
+        if (!arg || arg.length > 50 || /[\r\n\u0000-\u001f]/.test(arg)) return `Usage: ${prefix()}setownername <display name, up to 50 characters>`;
+        updateConfig({ menuOwnerName: arg }); invalidateConfigCache(); return `✅ Menu owner display name updated to *${arg}*.`;
+    }
     if (command === "setbotpp") return "Reply to an image and use WhatsApp profile settings to change the bot photo; this library build does not expose a profile-photo update method.";
-    if (command === "setmenuimage") return "Menu image changes are not available through chat to avoid replacing server files remotely.";
+    if (command === "setmenuimage") {
+        const directImage = m?.message?.imageMessage;
+        const quoted = m?.message?.extendedTextMessage?.contextInfo?.quotedMessage;
+        const quotedImage = quoted?.imageMessage || quoted?.ephemeralMessage?.message?.imageMessage;
+        if (!directImage && !quotedImage) return `Send an image with ${prefix()}setmenuimage as its caption, or reply to an image with ${prefix()}setmenuimage.`;
+        let buffer;
+        try { buffer = directImage ? await downloadMediaMessage(m, "buffer", {}, {}) : await mediaBuffer(m); }
+        catch { return "❌ Could not read that image. Send or quote a regular image (not View Once) and retry."; }
+        if (!buffer || buffer.length > 8 * 1024 * 1024) return "❌ Menu image must be a supported image no larger than 8 MB.";
+        let image;
+        try { image = await loadImage(buffer); } catch { return "❌ The attached file is not a valid image."; }
+        const canvas = createCanvas(900, 500); const ctx = canvas.getContext("2d");
+        ctx.fillStyle = "#0f172a"; ctx.fillRect(0, 0, 900, 500);
+        const scale = Math.max(900 / image.width, 500 / image.height); const width = image.width * scale, height = image.height * scale;
+        ctx.drawImage(image, (900 - width) / 2, (500 - height) / 2, width, height);
+        const dir = join(process.cwd(), "assets"); const target = join(dir, "menu.jpeg"); const temp = join(dir, `.menu-${process.pid}-${Date.now()}.tmp`);
+        try { mkdirSync(dir, { recursive: true }); writeFileSync(temp, canvas.toBuffer("image/jpeg", 85)); renameSync(temp, target); }
+        catch (error) { try { unlinkSync(temp); } catch {} return `❌ Could not save menu image: ${error.message}`; }
+        return "✅ Menu image updated. Run .menu to preview it.";
+    }
     if (command === "setnewsletter") return "Newsletter target changes are disabled unless the official channel integration is configured by the owner.";
     if (command === "newsletter") return "Newsletter posting is disabled: the bot does not have an authorized newsletter publishing endpoint.";
     if (command === "broadcast") return "Broadcast is disabled to prevent unsolicited bulk messaging. Send a message directly or use WhatsApp's opted-in broadcast lists.";
@@ -217,7 +244,18 @@ async function ownerControl(command, sock, m, args) {
     if (command === "sudo") return "Additional sudo accounts cannot be added through chat; configure owner access through Railway's OWNER_NUMBER variable.";
     if (command === "suppress") return "Usage: .suppress status — message suppression is not enabled for this bot.";
     if (command === "mode") return `Current mode: ${config.mode || "public"}. This command does not change access policy.`;
-    if (command === "savestatus") return "Status saving is governed by the existing status-reaction feature and WhatsApp availability.";
+    if (command === "savestatus" || command === "statusdl" || command === "statusdownload") return await saveRepliedStatus(sock, m);
+    if (command === "statusreply") {
+        const action = (args[0] || "status").toLowerCase();
+        if (action === "status") return `Status reply: ${config.statusReplyEnabled ? "ON" : "OFF"}\nReply text: ${config.statusReplyText || "(not set)"}`;
+        if (!["on", "off"].includes(action)) return `Usage: ${prefix()}statusreply on|off|status`;
+        updateConfig({ statusReplyEnabled: action === "on" }); invalidateConfigCache();
+        return `✅ Automatic replies to direct replies on your WhatsApp status are ${action.toUpperCase()}.`;
+    }
+    if (command === "setstatusreply") {
+        if (!arg || arg.length > 500 || /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(arg)) return `Usage: ${prefix()}setstatusreply <text, max 500 characters>`;
+        updateConfig({ statusReplyText: arg }); invalidateConfigCache(); return "✅ Custom status-reply text saved. Enable it with .statusreply on.";
+    }
     if (command === "autoreact") return `Usage: ${prefix()}autoreact on|off. Auto-reaction is not enabled by this build.`;
     if (command === "autostatus") return `Usage: ${prefix()}autostatus on|off. Automatic status posting is disabled.`;
     if (command === "afk") {
@@ -366,7 +404,7 @@ export async function runCatalogCommand(command, sock, m, args = []) {
     try {
         if (["ytvideo", "movie", "groupstats", "myactivity", "getpp", "attp", "bratgpt", "simage", "crop", "ssweb", "take", "takepack", "tts", "zoom", "imagine", "pinterest", "twitter", "igs", "igsc", "igsf", "vv2", "uptime", "memegen", "memesearch", "roastai"].includes(command)) return await utility(command, sock, m, args);
         if (["antibadword", "antibot", "antigroupmention", "antigroupstatus", "antispam", "antisticker", "antitag", "autosticker", "clean", "delete", "delgcstatus", "groupstatus", "pending"].includes(command)) return await groupModeration(command, sock, m, args);
-        if (["afk", "autoreact", "autostatus", "broadcast", "mode", "newsletter", "pmblocker", "restart", "savestatus", "setbotname", "setbotpp", "setmenuimage", "setnewsletter", "setprefix", "sudo", "suppress", "update"].includes(command)) return await ownerControl(command, sock, m, args);
+        if (["afk", "autoreact", "autostatus", "broadcast", "mode", "newsletter", "pmblocker", "restart", "savestatus", "setbotname", "setownername", "setbotpp", "setmenuimage", "setnewsletter", "setprefix", "setstatusreply", "statusreply", "sudo", "suppress", "update"].includes(command)) return await ownerControl(command, sock, m, args);
         if (["resetbalance", "resetcoin", "resetdi"].includes(command)) return await resetEconomy(command, m, args);
         if (["daily", "weekly", "work", "crime", "mine", "balance", "dep", "wd", "pay", "shop", "buy", "levelup", "role", "autolevelup", "topcoins", "economy"].includes(command)) return await economy(command, args, m);
         if (GAMES.has(command)) return await game(command, args, m);
@@ -383,4 +421,9 @@ export async function runCatalogCommand(command, sock, m, args = []) {
         console.warn(`[Catalog] .${command} failed:`, error.message);
         return `❌ .${command} could not complete: ${String(error.message || "service unavailable").slice(0, 180)}`;
     }
+}
+
+export async function runStatusDownloadCommand(sock, m) {
+    if (!isOwner(m)) return "🚫 Status downloads are available only to the bot owner.";
+    return saveRepliedStatus(sock, m);
 }

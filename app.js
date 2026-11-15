@@ -15,7 +15,7 @@ app.use(express.json());
 
 // Health check
 app.get("/health", (req, res) => {
-    res.json({ status: "OK", service: "MARCO MALIK & WAQAR WRITES MD" });
+    res.json({ status: "OK", service: "MARCO MALIK X" });
 });
 
 // Open the pairing website from the Railway domain root.

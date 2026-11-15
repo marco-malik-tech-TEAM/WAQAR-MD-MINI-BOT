@@ -20,7 +20,11 @@ const DEFAULT_CONFIG = {
     alwaysOnline: false,
     aiChatbotEnabled: false,
     prefix: ".",
-    ownerNumber: "923377857866"
+    ownerNumber: "923377857866",
+    menuTitle: "MARCO MALIK X",
+    menuOwnerName: "Marco Malik",
+    statusReplyEnabled: false,
+    statusReplyText: "Thanks for replying to my status! — MARCO MALIK X"
 };
 
 export function resolveAIChatbotEnabled(fileConfig = {}, env = process.env) {

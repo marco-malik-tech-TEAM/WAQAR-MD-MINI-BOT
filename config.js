@@ -8,7 +8,7 @@ export const botConfig = {
     prefix: ".",
 
     // Bot name displayed in messages
-    botName: "MARCO MALIK & WAQAR WRITES MD",
+    botName: "MARCO MALIK X",
 
     // Default session expiry in days
     sessionExpiryDays: 3,

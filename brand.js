@@ -3,15 +3,15 @@ import { readFileSync, existsSync } from "fs";
 import { join } from "path";
 
 export const BRAND = {
-    name: "MARCO MALIK & WAQAR WRITES MD",
-    short: "MARCO MALIK & WAQAR WRITES",
+    name: "MARCO MALIK X",
+    short: "MARCO MALIK X",
     version: "V1.0",
     website: "https://marco-waqar-mini-bot-info-web.vercel.app",
     owners: [
         { name: "Marco Malik", role: "Developer", age: 19, country: "Pakistan", city: "Rajanpur (District Rajanpur)", number: "923377857866" },
         { name: "Waqar Writes", role: "Developer", age: 21, country: "Pakistan", city: "Karachi", number: "923293245445" }
     ],
-    footer: "💠 *Powered by MARCO MALIK & WAQAR WRITES MD*\n🌐 https://marco-waqar-mini-bot-info-web.vercel.app"
+    footer: "💠 *Powered by MARCO MALIK X*\n🌐 https://marco-waqar-mini-bot-info-web.vercel.app"
 };
 
 export const OWNER_NUMBERS = BRAND.owners.map(o => o.number);

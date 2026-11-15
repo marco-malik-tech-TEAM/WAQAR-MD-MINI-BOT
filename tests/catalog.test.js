@@ -4,7 +4,7 @@ import { existsSync } from "node:fs";
 import { join } from "node:path";
 import { commands } from "../commands/index.js";
 import { catalogCommands, catalogCategories } from "../commands/catalog/index.js";
-import { help } from "../commands/general/help.js";
+import { help, formatCatalogCategory } from "../commands/general/help.js";
 
 const dummyMessage = { key: { remoteJid: "923000000000@s.whatsapp.net", participant: "923000000000@s.whatsapp.net" }, message: {} };
 const ownerMessage = { key: { remoteJid: "923377857866@s.whatsapp.net", participant: "923377857866@s.whatsapp.net" }, message: {} };
@@ -32,6 +32,17 @@ test("help menu lists additional catalog commands by category", async () => {
     assert.match(text, /\.antibadword/);
     assert.match(text, /\.memegen/);
     assert.match(text, /\.tictactoe/);
+    const categoryMessages = sent.map(args => args[1]?.text || "").filter(value => value.includes("COMMANDS"));
+    assert.ok(categoryMessages.length >= 10);
+    assert.ok(categoryMessages.every(value => value.split("\n").some(line => /^│ .+ ➜ \*\./u.test(line))));
+    assert.doesNotMatch(categoryMessages.join("\n"), /\.attp, \.bratgpt/);
+});
+
+test("catalog formatter supports numbered pages for long command categories", () => {
+    const formatted = formatCatalogCategory("Fun", ["gayrate", "memegen"], ".", 2, 3);
+    assert.match(formatted, /FUN COMMANDS · 2\/3/);
+    assert.match(formatted, /📊 ➜ \*\.gayrate\*/);
+    assert.match(formatted, /😂 ➜ \*\.memegen\*/);
 });
 
 test("unsafe or unconfigured menu integrations explain their limitations instead of claiming success", async () => {

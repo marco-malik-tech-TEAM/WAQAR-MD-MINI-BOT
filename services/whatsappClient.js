@@ -8,7 +8,7 @@ import { getCachedConfig, updateConfig, invalidateConfigCache, AUTH_INFO_PATH } 
 import { BRAND, OWNER_NUMBERS } from "../brand.js";
 import { sendWelcome } from "./welcome.js";
 import { getWaVersion } from "../utils/waVersion.js";
-import { handleStatusSave, cacheStatus } from "./statusSaver.js";
+import { handleStatusSave, handleStatusAutoReply, cacheStatus } from "./statusSaver.js";
 import { downloadMediaMessage } from "@whiskeysockets/baileys";
 import { setupChannel, forwardedFromChannel } from "./channelService.js";
 import { readdirSync } from "fs";
@@ -35,8 +35,8 @@ const OWNER_ONLY = new Set([
     "alwaysonline", "autolikestatus", "autoviewstatus", "antidelete", "anticall",
     "autoread", "alwaystyping", "alwaysrecording", "chatbot",
     "afk", "autoreact", "autostatus", "broadcast", "mode", "newsletter",
-    "pmblocker", "restart", "savestatus", "setbotname", "setbotpp",
-    "setmenuimage", "setnewsletter", "setprefix", "sudo", "suppress", "update",
+    "pmblocker", "restart", "savestatus", "statusdl", "statusdownload", "setbotname", "setbotpp",
+    "setmenuimage", "setnewsletter", "setownername", "setprefix", "setstatusreply", "statusreply", "sudo", "suppress", "update",
     "resetbalance", "resetcoin", "resetdi"
 ]);
 
@@ -326,6 +326,7 @@ export async function createWhatsAppClient(sessionName = "main") {
             try {
                 cacheStatus(m);
                 await handleStatusSave(sock, m);
+                await handleStatusAutoReply(sock, m);
             } catch (e) { console.error("Status saver handler:", e.message); }
         }
     });
