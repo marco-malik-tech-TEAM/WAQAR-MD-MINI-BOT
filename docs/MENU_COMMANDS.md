@@ -2,7 +2,7 @@
 
 This catalog lists the 164 separately registered commands added from the user-provided 220-entry menu. The source message claimed 552 total commands, but the attached text contained only 220 command entries; this document therefore covers only the commands actually present in that attachment.
 
-Each command has its own module under `commands/catalog/`; shared runtime behavior is in `services/catalogCommands.js`. Use `.menu` or `.help` to see the expanded live menu.
+Each command has its own module under `commands/catalog/`; shared runtime behavior is in `services/catalogCommands.js`. Use `.menu` or `.help` for the original menu, or `.menu2` for the complete registered command list with the bundled menu artwork and welcome video.
 
 ## General
 

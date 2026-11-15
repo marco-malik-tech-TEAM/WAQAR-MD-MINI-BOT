@@ -638,7 +638,7 @@ ${text}
             // ---- Prefix handling: configured prefix, ".", "!" , "/" or NO prefix (for help-type words) ----
             const trimmed = messageText.trim();
             if (!trimmed) continue;
-            const NO_PREFIX_OK = new Set(["help", "menu", "allmenu", "commands", "cmds", "owner", "creator", "ping", "alive", "pair"]);
+            const NO_PREFIX_OK = new Set(["help", "menu", "menu2", "allmenu", "commands", "cmds", "owner", "creator", "ping", "alive", "pair"]);
             let body = null;
             for (const pf of [...new Set([prefix, ".", "!", "/"])]) {
                 if (pf && trimmed.startsWith(pf)) { body = trimmed.slice(pf.length).trim(); break; }

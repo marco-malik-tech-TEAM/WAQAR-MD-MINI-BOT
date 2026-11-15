@@ -5,7 +5,7 @@ import { CHANNEL_LINK } from "../../services/channelService.js";
 import { getCachedConfig } from "../../services/configService.js";
 import { catalogCategories } from "../catalog/index.js";
 
-const CATEGORY_ICON = { General: "🧭", AI: "🤖", Admin: "🛡️", Owner: "👑", Media: "🎞️", Fun: "🎭", Games: "🎮", Economy: "💰", Anime: "👾", Textmaker: "🖋️" };
+const CATEGORY_ICON = { General: "🧭", AI: "🤖", Admin: "🛡️", Owner: "👑", Media: "🎞️", Fun: "🎭", Games: "🎮", Economy: "💰", Anime: "👾", Textmaker: "🖋️", Status: "👤", Tools: "🛠️", Settings: "⚙️", "Group Management": "👥" };
 const COMMAND_ICON = {
   attp: "🖼️", bratgpt: "🟩", crop: "✂️", getpp: "👤", groupstats: "📊", myactivity: "🔒", simage: "🖼️", ssweb: "🌐", takepack: "📦", take: "🎭", tts: "🗣️", vv2: "👁️", zoom: "🎥", imagine: "🎨",
   antibadword: "🤐", antibot: "🤖", antigroupmention: "🚫", antigroupstatus: "🛡️", antispam: "⛔", antisticker: "🚫", antitag: "🏷️", autosticker: "🎭", clean: "🧹", delete: "🗑️", pending: "⌛",
@@ -25,6 +25,10 @@ function commandIcon(name, category) {
   if (category === "Textmaker") return "✨";
   if (category === "Anime") return "🌸";
   if (category === "AI") return "🤖";
+  if (category === "Status") return "👤";
+  if (category === "Tools") return "🛠️";
+  if (category === "Settings") return "⚙️";
+  if (category === "Group Management") return "👥";
   return "🔹";
 }
 
@@ -115,6 +119,7 @@ export const help = async (sock, m, args) => {
 │ 🚫 ➾ *${p}block* <@user>
 │ ✅ ➾ *${p}unblock* <number>
 │ ℹ️ ➾ *${p}help* / *menu*
+│ 🆕 ➾ *${p}menu2* _(all commands + welcome video)_
 │ 🔗 ➾ *${p}pair* <number> _(link your own WhatsApp)_
 │ 💾 ➾ React to any status → auto-saved to your chat
 │ 💎 ➾ *${p}creator*

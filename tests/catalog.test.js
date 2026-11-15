@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { commands } from "../commands/index.js";
 import { catalogCommands, catalogCategories } from "../commands/catalog/index.js";
 import { help, formatCatalogCategory } from "../commands/general/help.js";
+import { menu2 } from "../commands/general/menu2.js";
 
 const dummyMessage = { key: { remoteJid: "923000000000@s.whatsapp.net", participant: "923000000000@s.whatsapp.net" }, message: {} };
 const ownerMessage = { key: { remoteJid: "923377857866@s.whatsapp.net", participant: "923377857866@s.whatsapp.net" }, message: {} };
@@ -43,6 +44,20 @@ test("catalog formatter supports numbered pages for long command categories", ()
     assert.match(formatted, /FUN COMMANDS · 2\/3/);
     assert.match(formatted, /📊 ➜ \*\.gayrate\*/);
     assert.match(formatted, /😂 ➜ \*\.memegen\*/);
+});
+
+test("Menu 2 includes menu artwork, the bundled welcome video and every registered command once", async () => {
+    assert.equal(commands.menu2, menu2);
+    const sent = [];
+    await menu2({ sendMessage: async (...args) => sent.push(args) }, dummyMessage);
+    const payloads = sent.map(args => args[1] || {});
+    assert.ok(payloads.some(payload => payload.image), "menu image should be attached");
+    assert.ok(payloads.some(payload => payload.video), "welcome video should be attached");
+    const rows = payloads.flatMap(payload => String(payload.text || "").split("\n").map(line => line.match(/➜ \*\.([^*]+)\*/)?.[1]).filter(Boolean));
+    const listed = new Set(rows);
+    assert.equal(rows.length, listed.size, "each menu entry should appear once");
+    for (const name of Object.keys(commands)) assert.ok(listed.has(name), `Menu 2 must include .${name}`);
+    assert.ok(listed.has("menu"), "the original .menu alias should be listed");
 });
 
 test("unsafe or unconfigured menu integrations explain their limitations instead of claiming success", async () => {

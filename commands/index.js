@@ -34,6 +34,7 @@ import { dateidea } from "./fun/dateidea.js";
 
 // General Commands
 import { help } from "./general/help.js";
+import { menu2 } from "./general/menu2.js";
 import { ping } from "./general/ping.js";
 import { botstats } from "./general/botstats.js";
 import { owner } from "./general/owner.js";
@@ -174,6 +175,7 @@ export const commands = {
 
     // General Commands
     help,
+    menu2,
     ping,
     botstats,
     owner,
