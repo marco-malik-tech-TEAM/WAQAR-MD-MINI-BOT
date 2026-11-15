@@ -8,6 +8,10 @@
 4. Attach a persistent volume at `/app/sessions_active` for web-paired accounts. If separately using `auth_info/`, attach another volume at `/app/auth_info`.
 5. Railway provides `PORT` automatically. The start command is `npm start`.
 
+## Menu design
+
+The original `.menu` remains available. `.menu2` uses boxed category headers and one plain `│ ➜ .command` line per entry. It currently lists all 281 registered commands and 39 supported aliases exactly once, with the existing menu artwork and welcome video attached. The complete copy-ready template literal is in [MENU2_TEMPLATE.js](MENU2_TEMPLATE.js); edit `MENU_CORE_CATEGORIES` in `commands/general/menu2-template.js` to reorganize core commands and run `node scripts/generate-menu2-template.mjs` to regenerate the template after changes. Menu 2 sends category-boundary chunks sized for WhatsApp.
+
 ## AI chatbot setup
 
 The bot includes a no-command AI chat feature for private conversations and groups. Once at least one provider key is set in Railway Variables, automatic chat is on by default. Plain text messages in private chats and groups receive AI replies without a command. Use `.chatbot status` to check it and `.chatbot off` to pause replies; `.chatbot on` turns them back on. Short conversation context is held in memory and is cleared when the bot restarts. Group-wide replies can increase API usage and may create busy group chats. Set `AI_AUTO_CHAT_GROUPS=false` to limit automatic replies to private chats, or `AI_AUTO_CHAT=false` to disable automatic replies by default.
