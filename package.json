@@ -6,6 +6,7 @@
   "type": "module",
   "scripts": {
     "test": "node --test tests/*.test.js",
+    "audit:commands": "node scripts/audit-commands.mjs",
     "dev": "nodemon --ignore auth_info/ --ignore sessions/ --expose-gc server.js",
     "start": "node --expose-gc --max-old-space-size=460 server.js"
   },

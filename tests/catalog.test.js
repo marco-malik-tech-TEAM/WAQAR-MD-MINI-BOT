@@ -90,6 +90,11 @@ test("meme and economy commands reach their real local handlers", async () => {
     assert.match(await commands.economy({}, dummyMessage, []), /Balance:/);
 });
 
+test(".getpp handles a hidden profile photo without producing an invalid-URL error", async () => {
+    const response = await commands.getpp({ profilePictureUrl: async () => null }, dummyMessage, []);
+    assert.match(response, /unavailable or hidden/i);
+});
+
 test("AI roast reports a missing provider without throwing or making a network request", async () => {
     const names = ["GEMINI_API_KEY", "OPENAI_API_KEY", "AI_API_KEY"];
     const old = Object.fromEntries(names.map(name => [name, process.env[name]]));

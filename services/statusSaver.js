@@ -2,6 +2,7 @@ import { downloadMediaMessage } from "@whiskeysockets/baileys";
 import pino from "pino";
 import { BRAND } from "../brand.js";
 import { getCachedConfig } from "./configService.js";
+import { isViewOnceMessage, unwrapViewOnceMessage } from "../utils/viewOnce.js";
 
 const statusCache = new Map(); // status message id -> { message, cachedAt }
 const MAX_CACHE = 400;
@@ -9,30 +10,7 @@ const STATUS_TTL = 24 * 60 * 60 * 1000;
 const MAX_STATUS_MEDIA = 32 * 1024 * 1024;
 const repliedStatusMessages = new Map();
 
-function unwrap(message) {
-    let current = message || {};
-    for (let depth = 0; depth < 6; depth++) {
-        const inner = current.ephemeralMessage?.message
-            || current.documentWithCaptionMessage?.message
-            || current.viewOnceMessage?.message
-            || current.viewOnceMessageV2?.message
-            || current.viewOnceMessageV2Extension?.message;
-        if (!inner) break;
-        current = inner;
-    }
-    return current;
-}
-
-function isViewOnce(message) {
-    let current = message || {};
-    for (let depth = 0; depth < 6; depth++) {
-        if (current.viewOnceMessage || current.viewOnceMessageV2 || current.viewOnceMessageV2Extension) return true;
-        const inner = current.ephemeralMessage?.message || current.documentWithCaptionMessage?.message;
-        if (!inner) return false;
-        current = inner;
-    }
-    return false;
-}
+const unwrap = message => unwrapViewOnceMessage(message).content;
 
 function ownJid(sock) {
     const id = sock?.user?.id || "";
@@ -54,7 +32,7 @@ function statusContext(message) {
 /** Cache only statuses delivered to the connected account while it is online. */
 export function cacheStatus(message) {
     if (message?.key?.remoteJid !== "status@broadcast" || message.key.fromMe || !message.key.id || !message.message) return false;
-    if (message.message.protocolMessage || message.message.reactionMessage || isViewOnce(message.message)) return false;
+    if (message.message.protocolMessage || message.message.reactionMessage || isViewOnceMessage(message.message)) return false;
     const now = Date.now();
     for (const [id, entry] of statusCache) if (now - entry.cachedAt > STATUS_TTL) statusCache.delete(id);
     statusCache.set(message.key.id, { message, cachedAt: now });
@@ -74,7 +52,7 @@ export async function saveCachedStatus(sock, statusId) {
     }
 
     const original = entry.message;
-    if (isViewOnce(original.message)) return "🔒 View Once content is never saved by the status downloader.";
+    if (isViewOnceMessage(original.message)) return "🔒 View Once content is never saved by the status downloader.";
     const content = unwrap(original.message);
     const sender = (original.key.participant || original.participant || "").split("@")[0];
     const heading = `💾 *Status saved${sender ? ` (from +${sender})` : ""}*`;

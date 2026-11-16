@@ -26,46 +26,55 @@ export async function fetchBuffer(url, minBytes = 10 * 1024) {
     return buf;
 }
 
-/** Run yt-dlp (works for YouTube, TikTok, Instagram, Facebook, Twitter...) */
+export function getYtDlpBinaryCandidates() {
+    const configured = process.env.YT_DLP_PATH?.trim();
+    const candidates = [configured, path.resolve(".venv/bin/yt-dlp"), path.resolve("./bin/yt-dlp"), "yt-dlp"];
+    return candidates.filter((candidate, index) => candidate && candidates.indexOf(candidate) === index);
+}
+
+/** Run yt-dlp (works for YouTube, TikTok, Instagram, Facebook, Twitter...). */
 export function ytdlp(url, kind = "video") {
     return new Promise((resolve, reject) => {
         const id = randomBytes(6).toString("hex");
         const base = path.join(os.tmpdir(), `dl_${id}`);
         const out = `${base}.%(ext)s`;
         const common = [
-            "--no-playlist", "--no-warnings", "--geo-bypass", "--force-ipv4",
-            "--socket-timeout", "30", "--retries", "3", "--no-check-certificates", "--max-filesize", "90M",
-            "--extractor-args", "youtube:player_client=tv,ios,web_safari,android",
-            "--user-agent", UA,
-            "-o", out
+            "--no-playlist", "--no-warnings", "--force-ipv4",
+            "--socket-timeout", "30", "--retries", "3", "--fragment-retries", "3",
+            "--max-filesize", "90M", "-o", out
         ];
-        // Optional cookies (fixes "Sign in to confirm you're not a bot"): set YT_COOKIES env = path or raw cookies.txt content
-        let cookieFile = null;
+        // YT_COOKIES may be a private file path or private cookies.txt content.
         if (process.env.YT_COOKIES) {
             try {
-                const v = process.env.YT_COOKIES;
-                if (fs.existsSync(v)) cookieFile = v;
-                else { cookieFile = `${base}.cookies.txt`; fs.writeFileSync(cookieFile, v); }
+                const value = String(process.env.YT_COOKIES);
+                const isPath = !/[\r\n]/.test(value) && value.length < 4096 && fs.existsSync(value);
+                const cookieFile = isPath ? value : `${base}.cookies.txt`;
+                if (!isPath) fs.writeFileSync(cookieFile, value, { mode: 0o600 });
                 common.push("--cookies", cookieFile);
-            } catch { /* ignore */ }
+            } catch { /* A missing/invalid cookie setting must not disable public extraction attempts. */ }
         }
         const fmt = kind === "audio"
             ? ["-f", "bestaudio[ext=m4a]/bestaudio/best", "-x", "--audio-format", "mp3", "--audio-quality", "5"]
-            : ["-f", "best[ext=mp4][filesize<90M]/best[ext=mp4]/bestvideo[ext=mp4][height<=720]+bestaudio[ext=m4a]/best", "--merge-output-format", "mp4"];
+            : ["-f", "best[ext=mp4][filesize<90M]/best[ext=mp4][filesize_approx<90M]/bestvideo[ext=mp4][height<=720][filesize<85M]+bestaudio[ext=m4a][filesize<10M]/bestvideo[height<=480]+bestaudio/best[height<=480]/best", "--merge-output-format", "mp4"];
 
-        const bins = [path.resolve("./bin/yt-dlp"), "yt-dlp"];
-        const tryBin = (i) => {
-            if (i >= bins.length) return reject(new Error("yt-dlp not available"));
+        const bins = getYtDlpBinaryCandidates();
+        const tryBin = i => {
+            if (i >= bins.length) return reject(new Error("yt-dlp is unavailable: install it or set YT_DLP_PATH."));
             let err = "";
             let child;
-            try { child = spawn(bins[i], [...fmt, ...common, url]); } catch (e) { return tryBin(i + 1); }
+            try { child = spawn(bins[i], [...fmt, ...common, url]); }
+            catch { return tryBin(i + 1); }
             let completed = false;
             let timer;
             const cleanup = () => {
-                try { fs.readdirSync(os.tmpdir()).filter(f => f.startsWith(`dl_${id}`)).forEach(f => { try { fs.unlinkSync(path.join(os.tmpdir(), f)); } catch { } }); } catch { }
+                try {
+                    fs.readdirSync(os.tmpdir()).filter(file => file.startsWith(`dl_${id}`)).forEach(file => {
+                        try { fs.unlinkSync(path.join(os.tmpdir(), file)); } catch { }
+                    });
+                } catch { }
             };
             child.stdout?.resume();
-            child.stderr.on("data", d => { err += d.toString(); });
+            child.stderr?.on("data", data => { err += data.toString(); });
             child.once("error", () => {
                 if (completed) return;
                 completed = true;
@@ -73,23 +82,26 @@ export function ytdlp(url, kind = "video") {
                 cleanup();
                 tryBin(i + 1);
             });
-            child.once("close", (code) => {
+            child.once("close", code => {
                 if (completed) return;
                 completed = true;
                 clearTimeout(timer);
                 const dir = os.tmpdir();
-                const file = fs.readdirSync(dir).find(f => f.startsWith(`dl_${id}.`) && !f.endsWith(".txt") && !f.endsWith(".part"));
+                const file = fs.readdirSync(dir).find(name => name.startsWith(`dl_${id}.`) && !name.endsWith(".txt") && !name.endsWith(".part"));
                 if (code === 0 && file) {
                     const full = path.join(dir, file);
                     try {
                         if (fs.statSync(full).size > MAX_BYTES) throw new Error("Downloaded file exceeds WhatsApp's 95 MB limit.");
-                        const buf = fs.readFileSync(full);
+                        const buffer = fs.readFileSync(full);
                         cleanup();
-                        return resolve(buf);
-                    } catch (e) { cleanup(); return reject(e); }
+                        return resolve(buffer);
+                    } catch (error) {
+                        cleanup();
+                        return reject(error);
+                    }
                 }
                 cleanup();
-                reject(new Error(`yt-dlp: ${(err.split("\n").filter(Boolean).pop() || "failed").slice(0, 200)}`));
+                reject(new Error(`yt-dlp: ${(err.split("\n").filter(Boolean).pop() || `process exited with code ${code}`).slice(0, 200)}`));
             });
             timer = setTimeout(() => {
                 if (completed) return;
@@ -193,6 +205,14 @@ export const detectSite = (u = "") => {
     if (/(facebook\.com|fb\.watch|fb\.com)/i.test(u)) return "facebook";
     return "generic";
 };
+
+/** Preserve a supplied YouTube URL, or let yt-dlp search if metadata search is unavailable. */
+export function buildYouTubeTarget(query, link = firstUrl(query)) {
+    if (link && detectSite(link) === "youtube") return link;
+    const text = String(query || "").trim();
+    return text ? `ytsearch1:${text}` : null;
+}
+
 export const firstUrl = (s = "") => {
     const match = s.match(/https?:\/\/[^\s]+/i);
     return match?.[0]?.replace(/[),.!?]+$/g, "");

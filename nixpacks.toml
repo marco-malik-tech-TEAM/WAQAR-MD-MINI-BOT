@@ -5,7 +5,12 @@
 nixPkgs = ["python3", "ffmpeg", "nodejs_20"]
 
 [phases.build]
-cmds = ["npm install"]
+cmds = [
+  "npm ci",
+  "python3 -m venv .venv",
+  ".venv/bin/python -m pip install --upgrade pip",
+  ".venv/bin/python -m pip install --no-cache-dir 'yt-dlp[default]==2026.10.26'"
+]
 
 [start]
 cmd = "npm start"

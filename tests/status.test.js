@@ -27,6 +27,8 @@ test("status downloader requires replying to a status and refuses View Once cont
     assert.match(noQuote, /Reply to a viewed WhatsApp status/i);
     const viewOnce = { key: { remoteJid: "status@broadcast", participant: owner, id: `${statusId}-viewonce` }, message: { viewOnceMessageV2: { message: { imageMessage: { caption: "private" } } } } };
     assert.equal(cacheStatus(viewOnce), false);
+    const flaggedViewOnce = { key: { remoteJid: "status@broadcast", participant: owner, id: `${statusId}-flagged` }, message: { videoMessage: { viewOnce: true } } };
+    assert.equal(cacheStatus(flaggedViewOnce), false);
 });
 
 test("status downloader command alias is registered and owner-protected", async () => {

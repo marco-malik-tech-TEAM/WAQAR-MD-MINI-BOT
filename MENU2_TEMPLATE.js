@@ -168,6 +168,7 @@ export const MENU_TEMPLATE = `┌━━━━━━━━━━━━━━━�
 │ ➜ .mp3
 │ ➜ .audio
 │ ➜ .ytmp3
+│ ➜ .naat
 │ ➜ .ytmp4
 │ ➜ .mp4
 │ ➜ .yt

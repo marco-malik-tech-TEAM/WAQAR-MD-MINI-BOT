@@ -17,6 +17,8 @@ import { handleGroupParticipantsUpdate, handleGroupMessage } from "./groupEventH
 import { addAutoReaction, getRandomEmoji } from "../utils/reactionUtils.js";
 import { handleAutoChat } from "./aiChatbot.js";
 import { handleAfkMessage } from "./catalogCommands.js";
+import { recordMessageOwnership } from "./messageOwnershipCache.js";
+import { isViewOnceMessage } from "../utils/viewOnce.js";
 
 export const messageCache = new Map();
 
@@ -355,6 +357,13 @@ export async function createWhatsAppClient(sessionName = "main") {
         for (const m of messages) {
             if (!m.message) continue;
 
+            // Keep only sender metadata for quote verification; never retain View Once payloads.
+            recordMessageOwnership(m, sock.user?.id);
+            if (isViewOnceMessage(m.message)) {
+                console.log(`🔒 [Cache] Skipped View Once content ${String(m.key?.id || "").slice(0, 10)}...`);
+                continue;
+            }
+
             // Skip protocol messages (delete notifications, read receipts, etc.)
             if (m.message.protocolMessage) continue;
             if (m.message.reactionMessage) continue;
@@ -367,8 +376,7 @@ export async function createWhatsAppClient(sessionName = "main") {
             const validTypes = [
                 'conversation', 'extendedTextMessage', 'imageMessage',
                 'videoMessage', 'audioMessage', 'documentMessage',
-                'stickerMessage', 'contactMessage', 'locationMessage',
-                'viewOnceMessage', 'viewOnceMessageV2', 'ephemeralMessage'
+                'stickerMessage', 'contactMessage', 'locationMessage', 'ephemeralMessage'
             ];
 
             if (validTypes.includes(msgType)) {
@@ -413,7 +421,7 @@ export async function createWhatsAppClient(sessionName = "main") {
             console.log(`🔍 [AntiDelete] Original message keys:`, Object.keys(msgContent || {}));
 
             // Never recover View Once media: preserve the sender's privacy choice.
-            if (msgContent?.viewOnceMessage || msgContent?.viewOnceMessageV2 || msgContent?.viewOnceMessageV2Extension) {
+            if (isViewOnceMessage(msgContent)) {
                 await sock.sendMessage(originalMsg.key.remoteJid, {
                     text: `👁️ A View Once message from @${senderName} was deleted. For privacy, its media was not recovered.`,
                     mentions: [sender]

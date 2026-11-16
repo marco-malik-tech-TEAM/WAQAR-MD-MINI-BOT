@@ -1,5 +1,7 @@
 import { getCachedConfig } from "../../services/configService.js";
 
+const diceEmojis = ["⚀", "⚁", "⚂", "⚃", "⚄", "⚅"];
+
 export const dice = async (sock, m, args) => {
     const config = getCachedConfig();
     const p = config.prefix || "!";

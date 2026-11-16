@@ -302,8 +302,14 @@ async function utility(command, sock, m, args) {
     }
     if (command === "myactivity") return "🔒 This bot does not archive or score private chat history. Your activity command is privacy-limited and no historical usage data is stored.";
     if (command === "getpp") {
-        const target = mention(m); const url = await sock.profilePictureUrl(target, "image");
-        const u = new URL(url); if (u.protocol !== "https:" || !(u.hostname === "whatsapp.net" || u.hostname.endsWith(".whatsapp.net"))) throw new Error("WhatsApp profile photo is unavailable or hidden by privacy settings.");
+        const target = mention(m);
+        if (!target) return `Reply to a user or mention them with ${prefix()}getpp.`;
+        let url;
+        try { url = await sock.profilePictureUrl(target, "image"); } catch { return "That profile photo is unavailable or hidden by WhatsApp privacy settings."; }
+        if (typeof url !== "string" || !url) return "That profile photo is unavailable or hidden by WhatsApp privacy settings.";
+        let u;
+        try { u = new URL(url); } catch { return "WhatsApp did not provide a valid profile-photo link."; }
+        if (u.protocol !== "https:" || !(u.hostname === "whatsapp.net" || u.hostname.endsWith(".whatsapp.net"))) return "WhatsApp did not provide a valid profile-photo link.";
         const r = await axios.get(url, { responseType: "arraybuffer", timeout: 8000, maxContentLength: MAX_MEDIA, maxRedirects: 0 });
         return { image: Buffer.from(r.data), caption: `Profile photo for @${bare(target)}`, mentions: [target] };
     }

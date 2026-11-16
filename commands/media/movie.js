@@ -1,7 +1,7 @@
 import axios from "axios";
 import yts from "yt-search";
 import { getCachedConfig } from "../../services/configService.js";
-import { downloadMedia, downloadFailureHint } from "../../utils/downloader.js";
+import { downloadMedia, downloadFailureHint, buildYouTubeTarget } from "../../utils/downloader.js";
 import { BRAND } from "../../brand.js";
 
 const OMDB_KEYS = [process.env.OMDB_KEY, "trilogy", "thewdb", "4a3b711b"].filter(Boolean);
@@ -36,19 +36,21 @@ export const movie = async (sock, m, args) => {
     const data = await omdb(query);
     const title = data?.Title || query;
     if (data) {
-        const msg = `🎬 *MOVIE INFO*\n\n📌 *Title:* ${data.Title}\n📅 *Released:* ${data.Released}\n⏱️ *Runtime:* ${data.Runtime}\n🎭 *Genre:* ${data.Genre}\n🎬 *Director:* ${data.Director}\n⭐ *Rating:* ${data.imdbRating} (${data.imdbVotes} votes)\n🏆 *Awards:* ${data.Awards}\n\n📝 *PLOT*\n${data.Plot}\n\n_Sending official trailer..._ ⏳`;
+        const msg = `🎬 *MOVIE INFO*\n\n📌 *Title:* ${data.Title}\n📅 *Released:* ${data.Released}\n⏱️ *Runtime:* ${data.Runtime}\n🎭 *Genre:* ${data.Genre}\n🎬 *Director:* ${data.Director}\n⭐ *Rating:* ${data.imdbRating} (${data.imdbVotes} votes)\n🏆 *Awards:* ${data.Awards}\n\n📝 *PLOT*\n${data.Plot}\n\n_Searching for a trailer..._ ⏳`;
         let poster = null;
         if (data.Poster && data.Poster !== "N/A") { try { poster = Buffer.from((await axios.get(data.Poster, { responseType: "arraybuffer", timeout: 10000 })).data); } catch { } }
         await sock.sendMessage(jid, poster ? { image: poster, caption: msg } : { text: msg }, { quoted: m });
     } else {
-        await sock.sendMessage(jid, { text: `⚠️ Movie details not found on IMDb for "${query}". Searching trailer... ⏳` }, { quoted: m });
+        await sock.sendMessage(jid, { text: `⚠️ Movie details not found on IMDb for "${query}". Searching for a trailer... ⏳` }, { quoted: m });
     }
 
     try {
-        const v = (await yts(`${title} official trailer`)).videos?.[0];
-        if (!v) return `❌ Trailer not found.`;
-        const { buffer } = await downloadMedia(v.url, { site: "youtube", kind: "video" });
-        await sock.sendMessage(jid, { video: buffer, mimetype: "video/mp4", caption: `🎞️ *${v.title}*\n\n${BRAND.footer}` }, { quoted: m });
+        let trailer;
+        try { trailer = (await yts(`${title} official trailer`)).videos?.[0]; } catch { /* Try yt-dlp's own YouTube search next. */ }
+        const target = trailer?.url || buildYouTubeTarget(`${title} official trailer`, null);
+        const { buffer } = await downloadMedia(target, { site: "youtube", kind: "video" });
+        const caption = trailer?.title || `${title} — trailer search result`;
+        await sock.sendMessage(jid, { video: buffer, mimetype: "video/mp4", caption: `🎞️ *${caption}*\n\n${BRAND.footer}` }, { quoted: m });
     } catch (e) {
         console.error("Trailer download failed:", e.message, e.details);
         return `❌ Trailer download failed.\n\n💡 ${downloadFailureHint(e)}`;
