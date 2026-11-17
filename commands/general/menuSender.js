@@ -3,8 +3,6 @@ import { CHANNEL_LINK } from "../../services/channelService.js";
 import { getCachedConfig } from "../../services/configService.js";
 import { MENU_TEMPLATE } from "../../MENU2_TEMPLATE.js";
 
-const MEDIA_CAPTION_LIMIT = 1024;
-
 export function buildUnifiedMenuText(label = "MENU") {
     const config = getCachedConfig();
     const title = config.menuTitle || BRAND.name;
@@ -26,21 +24,26 @@ export function buildUnifiedMenuText(label = "MENU") {
     return lines.join("\n");
 }
 
-function menuMedia(label) {
+function menuPreview(label) {
     const isMenu2 = /^MENU\s*2$/i.test(label);
-    const media = isMenu2 ? getAsset("welcome-video.mp4") : getAsset("menu.jpeg") || getAsset("logo.png");
-    if (!media) return null;
+    const thumbnail = isMenu2 ? getAsset("menu2-preview.jpg") : getAsset("menu.jpeg") || getAsset("logo.png");
+    if (!thumbnail) return undefined;
     const config = getCachedConfig();
-    const caption = [
-        `🤖 ${config.menuTitle || BRAND.name} · ${label}`,
-        "Complete command list is in the next message.",
-        "Use the leading dot (.) before every command."
-    ].join("\n");
-    if (caption.length > MEDIA_CAPTION_LIMIT) throw new Error("Menu media caption exceeds WhatsApp's caption limit.");
-    return isMenu2 ? { video: media, caption } : { image: media, caption };
+    const pairUrl = getPairUrl();
+    const videoUrl = isMenu2 && pairUrl ? `${pairUrl.replace(/\/pair\/?$/i, "")}/media/menu2.mp4` : undefined;
+    return {
+        title: `${config.menuTitle || BRAND.name} · ${label}`,
+        body: "Complete command menu · use the dot prefix",
+        mediaType: isMenu2 ? 2 : 1,
+        ...(videoUrl ? { mediaUrl: videoUrl } : {}),
+        thumbnail,
+        sourceUrl: videoUrl || pairUrl || BRAND.website,
+        renderLargerThumbnail: true,
+        showAdAttribution: false
+    };
 }
 
-/** Send actual menu media followed by one complete, untruncated command-list message. */
+/** Send the complete menu and its image/video preview together in one WhatsApp message. */
 export async function sendUnifiedMenu(sock, message, label = "MENU") {
     const destination = message?.key?.remoteJid;
     if (!destination) return "Could not determine which chat should receive the menu.";
@@ -55,9 +58,10 @@ export async function sendUnifiedMenu(sock, message, label = "MENU") {
     }
 
     try {
-        const media = menuMedia(label);
-        if (media) await sock.sendMessage(destination, media, message ? { quoted: message } : undefined);
-        await sock.sendMessage(destination, { text, linkPreview: null });
+        const externalAdReply = menuPreview(label);
+        const payload = { text, linkPreview: null };
+        if (externalAdReply) payload.contextInfo = { externalAdReply };
+        await sock.sendMessage(destination, payload, message ? { quoted: message } : undefined);
     } finally {
         try {
             await sock.sendPresenceUpdate?.("paused", destination);

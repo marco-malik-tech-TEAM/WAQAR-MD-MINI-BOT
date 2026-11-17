@@ -18,6 +18,11 @@ app.get("/health", (req, res) => {
     res.json({ status: "OK", service: "MARCO MALIK X" });
 });
 
+// Public media URL used by the single-message Menu 2 video preview card.
+app.get("/media/menu2.mp4", (req, res) => {
+    res.type("mp4").sendFile(join(process.cwd(), "assets", "welcome-video.mp4"));
+});
+
 // Open the pairing website from the Railway domain root.
 app.get("/", (req, res) => {
     res.redirect(302, "/pair");

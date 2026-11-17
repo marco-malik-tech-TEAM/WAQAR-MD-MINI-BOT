@@ -27,12 +27,11 @@ test("all 164 commands from the supplied menu have individual files and dispatch
     }
 });
 
-test("Menu 1 sends the actual artwork followed by one complete command-list message", async () => {
+test("Menu 1 sends the complete command list and its image preview in one message", async () => {
     const sent = [];
     await help({ sendMessage: async (...args) => sent.push(args) }, dummyMessage, []);
-    assert.equal(sent.length, 2, "Menu 1 sends one media message and one full-list message");
-    const media = sent[0][1];
-    const payload = sent[1][1];
+    assert.equal(sent.length, 1, "Menu 1 must send one WhatsApp message");
+    const payload = sent[0][1];
     const text = payload.text;
     assert.match(text, /MENU 1/);
     assert.ok(text.includes(MENU_TEMPLATE), "Menu 1 must include the exact complete command template");
@@ -40,10 +39,8 @@ test("Menu 1 sends the actual artwork followed by one complete command-list mess
     assert.match(text, /\.memegen/);
     assert.match(text, /\.tictactoe/);
     assert.match(text, /🌐 Info: https:\/\/marco-waqar-mini-bot-info-web\.vercel\.app/);
-    assert.ok(media.image?.length > 0, "Menu 1 must send the actual menu image");
-    assert.ok(media.caption?.includes("Complete command list"));
-    assert.ok(media.caption.length <= 1024, "media caption must remain within WhatsApp's caption limit");
-    assert.equal(media.video, undefined);
+    assert.ok(payload.contextInfo?.externalAdReply?.thumbnail, "Menu 1 image must appear in the same message");
+    assert.equal(payload.contextInfo.externalAdReply.mediaType, 1);
     assert.doesNotMatch(text, /Prefix: [!/]|no prefix/i);
 });
 
@@ -54,17 +51,20 @@ test("catalog formatter supports numbered pages for long command categories", ()
     assert.match(formatted, /😂 ➜ \*\.memegen\*/);
 });
 
-test("Menu 2 sends the actual welcome video and lists every registered command and alias", async () => {
+test("Menu 2 sends every command and alias with the video preview in one message", async () => {
     assert.equal(commands.menu2, menu2);
     const sent = [];
+    const previousPublicUrl = process.env.PUBLIC_URL;
+    process.env.PUBLIC_URL = "https://menu-test.example";
     await menu2({ sendMessage: async (...args) => sent.push(args) }, dummyMessage);
-    assert.equal(sent.length, 2, "Menu 2 sends one video message and one full-list message");
-    const media = sent[0][1] || {};
-    const payload = sent[1][1] || {};
-    assert.ok(media.video?.length > 0, "Menu 2 must send the actual welcome video");
-    assert.ok(media.caption?.includes("Complete command list"));
-    assert.ok(media.caption.length <= 1024, "video caption must remain within WhatsApp's caption limit");
-    assert.equal(media.image, undefined);
+    if (previousPublicUrl === undefined) delete process.env.PUBLIC_URL;
+    else process.env.PUBLIC_URL = previousPublicUrl;
+    assert.equal(sent.length, 1, "Menu 2 must send one WhatsApp message");
+    const payload = sent[0][1] || {};
+    assert.ok(payload.contextInfo?.externalAdReply?.thumbnail, "Menu 2 video poster must appear in the same message");
+    assert.equal(payload.contextInfo.externalAdReply.mediaType, 2);
+    assert.equal(payload.contextInfo.externalAdReply.mediaUrl, "https://menu-test.example/media/menu2.mp4");
+    assert.equal(payload.video, undefined, "the full list and video preview stay in one message");
     const rows = String(payload.text || "").split("\n").map(line => line.match(/^│ ➜ \.([a-z0-9_]+)$/)?.[1]).filter(Boolean);
     const listed = new Set(rows);
     assert.equal(rows.length, listed.size, "each menu entry should appear once");
