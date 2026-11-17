@@ -85,6 +85,7 @@ import { ip } from "./tools/ip.js";
 import { ai } from "./tools/ai.js";
 import { chatbot } from "./tools/chatbot.js";
 import { viewonce } from "./tools/viewonce.js";
+import { vvCommand } from "./tools/vv.js";
 
 // Settings Commands
 import { settings } from "./settings/settings.js";
@@ -216,7 +217,7 @@ export const commands = {
     ip,
     ai,
     chatbot,
-    vv: viewonce,
+    vv: vvCommand,
     viewonce,
 
     // Settings & Toggle Commands

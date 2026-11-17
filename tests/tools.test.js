@@ -2,6 +2,7 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { commands } from "../commands/index.js";
 import { recoverViewOnce, unwrapViewOnceMessage, viewonce } from "../commands/tools/viewonce.js";
+import { vvCommand } from "../commands/tools/vv.js";
 import { clearMessageOwnershipCache, getCachedMessageOwner, recordMessageOwnership } from "../services/messageOwnershipCache.js";
 import { muth } from "../commands/fun/muth.js";
 import { dice } from "../commands/fun/dice.js";
@@ -10,6 +11,7 @@ const botJid = "999@s.whatsapp.net";
 
 test(".vv is registered and unwraps nested View Once wrappers and embedded flags", () => {
     assert.equal(typeof commands.vv, "function");
+    assert.equal(commands.vv, vvCommand);
     assert.equal(typeof commands.viewonce, "function");
     const payload = { imageMessage: { mimetype: "image/jpeg" } };
     const result = unwrapViewOnceMessage({ ephemeralMessage: { message: { viewOnceMessageV2: { message: payload } } } });
