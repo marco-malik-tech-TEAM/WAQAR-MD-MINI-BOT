@@ -25,8 +25,6 @@ ${BRAND.short} — Team of Professional Developers.
 _Build • Innovate • Automate_
 MD Bot | Mini Bot | Custom Bot
 
-🌐 *Website:* ${BRAND.website}
-
 ${BRAND.footer}`;
     const img = getAsset("creator.jpeg");
     if (img) return { image: img, caption, linkPreview: null };

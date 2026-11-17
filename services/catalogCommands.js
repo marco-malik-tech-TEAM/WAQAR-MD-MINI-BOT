@@ -204,8 +204,7 @@ async function ownerControl(command, sock, m, args) {
     if (!isOwner(m)) return "🚫 Owner-only command.";
     const config = getCachedConfig(); const arg = args.join(" ").trim();
     if (command === "setprefix") {
-        if (!arg || arg.length > 3 || /\s/.test(arg)) return `Usage: ${prefix()}setprefix <1–3 characters>`;
-        updateConfig({ prefix: arg }); invalidateConfigCache(); return `✅ Prefix updated to ${arg}`;
+        return "The command prefix is fixed to a leading dot (.). Prefix changes are disabled.";
     }
     if (command === "setbotname") {
         if (!arg || arg.length > 40 || /[\r\n\u0000-\u001f]/.test(arg)) return `Usage: ${prefix()}setbotname <menu title, up to 40 characters>`;
@@ -256,7 +255,14 @@ async function ownerControl(command, sock, m, args) {
         if (!arg || arg.length > 500 || /[\u0000-\u0008\u000b\u000c\u000e-\u001f]/.test(arg)) return `Usage: ${prefix()}setstatusreply <text, max 500 characters>`;
         updateConfig({ statusReplyText: arg }); invalidateConfigCache(); return "✅ Custom status-reply text saved. Enable it with .statusreply on.";
     }
-    if (command === "autoreact") return `Usage: ${prefix()}autoreact on|off. Auto-reaction is not enabled by this build.`;
+    if (command === "autoreact") {
+        const action = String(args[0] || "status").toLowerCase();
+        if (!["on", "off", "status"].includes(action)) return `Usage: ${prefix()}autoreact on|off|status`;
+        if (action === "status") return `👍 Automatic reactions are ${config.autoReactEnabled ? "ON" : "OFF"}.`;
+        updateConfig({ autoReactEnabled: action === "on" });
+        invalidateConfigCache();
+        return `✅ Automatic reactions are now ${action.toUpperCase()}.`;
+    }
     if (command === "autostatus") return `Usage: ${prefix()}autostatus on|off. Automatic status posting is disabled.`;
     if (command === "afk") {
         const all = readJson(ACTIVITY_FILE, {}); const user = bare(jidOf(m));
@@ -365,12 +371,65 @@ async function utility(command, sock, m, args) {
 }
 
 const GAMES = new Set(["bomb", "bet", "horse", "slots", "coinflip", "tictactoe", "fish", "hunt", "chop", "forage", "rpg", "rpginv", "rpgshop", "rpgbuy", "sellloot", "guessnumber", "hangman", "quiz", "roulette", "hotseat", "roastbattle", "debate"]);
+const ticTacToeGames = new Map();
+
+function tttBoard(board) {
+    const cell = (index) => board[index] || String(index + 1);
+    return `${cell(0)} │ ${cell(1)} │ ${cell(2)}\n──┼───┼──\n${cell(3)} │ ${cell(4)} │ ${cell(5)}\n──┼───┼──\n${cell(6)} │ ${cell(7)} │ ${cell(8)}`;
+}
+
+function tttWinner(board) {
+    const lines = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+    for (const [a,b,c] of lines) if (board[a] && board[a] === board[b] && board[a] === board[c]) return board[a];
+    return board.every(Boolean) ? "draw" : null;
+}
+
+function playTicTacToe(args, m) {
+    const chat = m?.key?.remoteJid;
+    const sender = m?.key?.participant || chat;
+    if (!chat?.endsWith("@g.us")) return "❌ Tic-Tac-Toe is a two-player group game. Run it in a group chat.";
+    for (const [key, game] of ticTacToeGames) if (Date.now() - game.updatedAt > 30 * 60 * 1000) ticTacToeGames.delete(key);
+
+    const action = String(args[0] || "").toLowerCase();
+    let game = ticTacToeGames.get(chat);
+    if (["start", "new"].includes(action) || !action) {
+        if (game && game.players.length < 2 && Date.now() - game.updatedAt < 30 * 60 * 1000) return "A Tic-Tac-Toe game is already waiting. Another member can use .tictactoe join.";
+        game = { board: Array(9).fill(""), players: [sender], updatedAt: Date.now(), turn: 0 };
+        ticTacToeGames.set(chat, game);
+        return `❌⭕ *TIC-TAC-TOE*\n${tttBoard(game.board)}\n\n${sender} starts as X. A second member: .tictactoe join`;
+    }
+    if (!game) return "No game is active. Start one with .tictactoe start.";
+    if (action === "join") {
+        if (game.players.length >= 2) return "This game already has two players.";
+        if (game.players[0] === sender) return "A different group member must join as O.";
+        game.players.push(sender); game.updatedAt = Date.now();
+        return `❌⭕ ${sender} joined as O. X moves first. Use .tictactoe <1-9>.\n${tttBoard(game.board)}`;
+    }
+    if (game.players.length < 2) return "Waiting for a second group member. Join with .tictactoe join.";
+    const cell = Number(action) - 1;
+    if (!Number.isInteger(cell) || cell < 0 || cell > 8) return "Choose a board cell from 1 to 9 with .tictactoe <1-9>.";
+    if (game.players[game.turn] !== sender) return `It is ${game.turn === 0 ? "X" : "O"}'s turn.`;
+    if (game.board[cell]) return "That cell is already taken. Choose an empty number.";
+    const mark = game.turn === 0 ? "X" : "O";
+    game.board[cell] = mark; game.updatedAt = Date.now();
+    const result = tttWinner(game.board);
+    if (result) {
+        ticTacToeGames.delete(chat);
+        return `❌⭕ ${result === "draw" ? "It's a draw!" : `${mark} wins!`}\n${tttBoard(game.board)}\n\nStart another round with .tictactoe start.`;
+    }
+    game.turn = 1 - game.turn;
+    return `❌⭕ ${mark} played. Next: ${game.turn === 0 ? "X" : "O"}.\n${tttBoard(game.board)}`;
+}
+
 async function game(command, args, m) {
     if (command === "coinflip") return `🪙 ${pick(["Heads", "Tails"])}!`;
     if (command === "dice") return `🎲 ${1 + Math.floor(Math.random() * 6)}`;
     if (command === "slots") return `🎰 ${pick(["🍒 🍋 🍒", "⭐ ⭐ ⭐", "🍋 🍋 🍇", "7️⃣ 7️⃣ 7️⃣"])} (no real money or wagering).`;
-    if (command === "bet" || command === "roulette" || command === "bomb" || command === "horse") return "🎮 This is a chat-only, no-stakes bot. Betting, wagering, and explosive/prank payloads are disabled.";
-    if (command === "tictactoe") return "❌⭕ Tic-tac-toe is currently single-message only. Challenge a friend and draw a 3×3 grid in chat.";
+    if (command === "bomb") return `💣 Safe bomb round: ${pick(["You defused the pretend bomb!", "You found the harmless timer and escaped!", "The cartoon bomb turned into confetti!"])} No real-world instructions or stakes.`;
+    if (command === "bet") return `🎲 Practice round: ${pick(["You win the pretend round!", "The house wins this imaginary round.", "It's a friendly draw."])} No money or coins were placed.`;
+    if (command === "horse") return `🏇 Race results: ${pick(["Thunder", "Comet", "Sunny"])} finishes first, followed by ${pick(["Comet", "Sunny", "Thunder"])}. Fictional race; no wagering.`;
+    if (command === "roulette") return `🎡 The wheel lands on ${pick(["red", "black", "green"])}. No wagers or real money.`;
+    if (command === "tictactoe") return playTicTacToe(args, m);
     if (command === "guessnumber") return `🔢 Guess a number from 1 to 10: ${pick(["3", "6", "8", "2", "9"])} (example round; start your own guess).`;
     if (command === "hangman") return "🎮 Hangman word: _ _ _ _ (4 letters). Reply in chat to play; this lightweight mode does not persist turns.";
     if (command === "quiz") return `🧠 Quick quiz: Which planet is known as the Red Planet?\nA) Venus  B) Mars  C) Jupiter\nAnswer: ${prefix()}quiz answer <choice>`;

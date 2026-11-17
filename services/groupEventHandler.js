@@ -149,11 +149,13 @@ export async function handleGroupMessage(sock, m) {
 
         if (hasUrl) {
             // Whitelist check: Skip antilink for official domains
-            const whitelist = [
-                "marco-waqar-mini-bot-info-web.vercel.app",
-                "wa.me/923377857866",
-                "wa.me/923293245445"
-            ];
+            const configuredPublicUrl = process.env.PUBLIC_URL || process.env.RAILWAY_PUBLIC_DOMAIN || process.env.RAILWAY_STATIC_URL || "";
+            let publicHost = "";
+            try {
+                const candidate = /^[a-z][a-z\d+.-]*:\/\//i.test(configuredPublicUrl) ? configuredPublicUrl : `https://${configuredPublicUrl}`;
+                publicHost = new URL(candidate).hostname.toLowerCase();
+            } catch { /* An invalid optional public domain is simply not whitelisted. */ }
+            const whitelist = [publicHost, "wa.me/923377857866", "wa.me/923293245445"].filter(Boolean);
 
             const isWhitelisted = whitelist.some(domain => msgText.includes(domain));
             if (isWhitelisted) {

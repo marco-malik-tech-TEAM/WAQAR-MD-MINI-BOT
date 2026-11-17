@@ -27,18 +27,20 @@ test("all 164 commands from the supplied menu have individual files and dispatch
     }
 });
 
-test("help menu lists additional catalog commands by category", async () => {
+test("Menu 1 sends the entire catalog in one message with no separate menu fragments", async () => {
     const sent = [];
-    const result = await help({ sendMessage: async (...args) => sent.push(args) }, dummyMessage, []);
-    const text = typeof result === "string" ? result : sent.map(args => args[1]?.text || args[1]?.caption || "").join("\n");
-    assert.match(text, /164 additional commands/);
+    await help({ sendMessage: async (...args) => sent.push(args) }, dummyMessage, []);
+    assert.equal(sent.length, 1, "Menu 1 must be a single WhatsApp message");
+    const payload = sent[0][1];
+    const text = payload.text;
+    assert.match(text, /MENU 1/);
+    assert.ok(text.includes(MENU_TEMPLATE), "Menu 1 must include the exact complete command template");
     assert.match(text, /\.antibadword/);
     assert.match(text, /\.memegen/);
     assert.match(text, /\.tictactoe/);
-    const categoryMessages = sent.map(args => args[1]?.text || "").filter(value => value.includes("COMMANDS"));
-    assert.ok(categoryMessages.length >= 10);
-    assert.ok(categoryMessages.every(value => value.split("\n").some(line => /^│ .+ ➜ \*\./u.test(line))));
-    assert.doesNotMatch(categoryMessages.join("\n"), /\.attp, \.bratgpt/);
+    assert.match(text, /🌐 Info: https:\/\/marco-waqar-mini-bot-info-web\.vercel\.app/);
+    assert.ok(payload.contextInfo?.externalAdReply?.thumbnail, "menu image should be an inline preview in the same message");
+    assert.doesNotMatch(text, /Prefix: [!/]|no prefix/i);
 });
 
 test("catalog formatter supports numbered pages for long command categories", () => {
@@ -48,14 +50,15 @@ test("catalog formatter supports numbered pages for long command categories", ()
     assert.match(formatted, /😂 ➜ \*\.memegen\*/);
 });
 
-test("Menu 2 includes menu artwork, the bundled welcome video and every registered command once", async () => {
+test("Menu 2 sends every registered command and alias once in one message with the inline artwork", async () => {
     assert.equal(commands.menu2, menu2);
     const sent = [];
     await menu2({ sendMessage: async (...args) => sent.push(args) }, dummyMessage);
-    const payloads = sent.map(args => args[1] || {});
-    assert.ok(payloads.some(payload => payload.image), "menu image should be attached");
-    assert.ok(payloads.some(payload => payload.video), "welcome video should be attached");
-    const rows = payloads.flatMap(payload => String(payload.text || "").split("\n").map(line => line.match(/^│ ➜ \.([a-z0-9_]+)$/)?.[1]).filter(Boolean));
+    assert.equal(sent.length, 1, "Menu 2 must not send its image, video, and command list as separate messages");
+    const payload = sent[0][1] || {};
+    assert.ok(payload.contextInfo?.externalAdReply?.thumbnail, "menu image should appear as an inline preview");
+    assert.equal(payload.video, undefined, "the welcome video remains on the pairing welcome event, not a separate menu message");
+    const rows = String(payload.text || "").split("\n").map(line => line.match(/^│ ➜ \.([a-z0-9_]+)$/)?.[1]).filter(Boolean);
     const listed = new Set(rows);
     assert.equal(rows.length, listed.size, "each menu entry should appear once");
     for (const name of Object.keys(commands)) assert.ok(listed.has(name), `Menu 2 must include .${name}`);
@@ -67,6 +70,8 @@ test("Menu 2 includes menu artwork, the bundled welcome video and every register
     assert.match(text, /┌━━━━━━━━━━━━━━━━━━━━┐\n│ 🎮 GAMES COMMAND\n└━━━━━━━━━━━━━━━━━━━━┘/);
     assert.ok(text.split("\n\n").every(section => section.split("\n").slice(3).every(line => /^│ ➜ \.([a-z0-9_]+)$/u.test(line))));
     assert.doesNotMatch(text, /,|\*|•/u);
+    assert.match(payload.text, /MENU 2/);
+    assert.ok(payload.text.length < 60000, "complete menu fits in a single WhatsApp text message");
 });
 
 test("unsafe or unconfigured menu integrations explain their limitations instead of claiming success", async () => {

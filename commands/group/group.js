@@ -449,9 +449,7 @@ If you really want to leave, type:
     ╚══════════════════════════════════╝
 
     MARCO MALIK & WAQAR WRITES MD is leaving this group.
-    Thanks for having me! 
-
-    🔗 marco-waqar-mini-bot-info-web.vercel.app`
+    Thanks for having me!`
         });
 
         await sock.groupLeave(remoteJid);

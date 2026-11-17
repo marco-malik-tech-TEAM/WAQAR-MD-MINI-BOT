@@ -6,33 +6,62 @@ import { BRAND } from "../../brand.js";
 const UA = "Mozilla/5.0 (Linux; Android 13) AppleWebKit/537.36 Chrome/124 Mobile Safari/537.36";
 const MAX = 95 * 1024 * 1024;
 
-async function aptoide(q) {
-    const { data } = await axios.get(`https://ws75.aptoide.com/api/7/apps/search`, { params: { query: q, limit: 1 }, timeout: 30000, headers: { "User-Agent": UA } });
-    const a = data?.datalist?.list?.[0];
-    if (!a) return null;
-    return { name: a.name, pkg: a.package, ver: a.file?.vername, size: a.file?.filesize || a.size, url: a.file?.path || a.file?.path_alt, icon: a.icon, downloads: a.stats?.downloads };
+async function aptoide(query) {
+    const { data } = await axios.get("https://ws75.aptoide.com/api/7/apps/search", {
+        params: { query, limit: 1 }, timeout: 30000, headers: { "User-Agent": UA }
+    });
+    const app = data?.datalist?.list?.[0];
+    if (!app) return null;
+    return {
+        name: app.name,
+        pkg: app.package,
+        version: app.file?.vername,
+        size: app.file?.filesize || app.size,
+        url: app.file?.path || app.file?.path_alt,
+        downloads: app.stats?.downloads
+    };
+}
+
+function appSummary(app) {
+    const mb = app.size ? `${(app.size / 1024 / 1024).toFixed(1)} MB` : "size not reported";
+    return `📦 *${app.name}*\n🆔 Package: ${app.pkg || "-"}\n🏷️ Version: ${app.version || "-"}\n💾 Size: ${mb}\n⬇️ Downloads: ${app.downloads ?? "-"}`;
 }
 
 export const apk = async (sock, m, args) => {
-    const p = getCachedConfig().prefix || ".";
-    const jid = m.key.remoteJid;
-    const q = args.join(" ").trim();
-    if (!q) return `📦 *APK DOWNLOADER*\n\n📝 Usage: ${p}apk <app name or package>\n📌 Example: ${p}apk whatsapp\n📌 Example: ${p}apk com.instagram.android`;
+    const prefix = getCachedConfig().prefix || ".";
+    const query = args.join(" ").trim();
+    if (!query) return `📦 *APK SEARCH*\n\nUsage: ${prefix}apk <app name or package>\nExample: ${prefix}apk whatsapp`;
 
-    await sock.sendMessage(jid, { text: `🔍 Searching *${q}*... ⏳` }, { quoted: m });
     try {
-        let app = await aptoide(q);
-        if (!app?.url) return `❌ App not found. Try the exact name or package id.`;
-        const mb = app.size ? (app.size / 1024 / 1024).toFixed(1) : "?";
-        const info = `📦 *APK FOUND*\n\n📱 *Name:* ${app.name}\n🆔 *Package:* ${app.pkg}\n🏷️ *Version:* ${app.ver || "-"}\n💾 *Size:* ${mb} MB\n⬇️ *Downloads:* ${app.downloads ?? "-"}\n\n_Downloading APK... please wait_ ⏳`;
-        let icon; try { if (app.icon) icon = Buffer.from((await axios.get(app.icon, { responseType: "arraybuffer", timeout: 10000 })).data); } catch { }
-        await sock.sendMessage(jid, icon ? { image: icon, caption: info } : { text: info }, { quoted: m });
+        const app = await aptoide(query);
+        if (!app?.url) return "❌ No APK result was found. Try the exact app name or Android package ID.";
 
-        if (app.size && app.size > MAX) return `⚠️ File is ${mb} MB — too large for WhatsApp (limit ~95 MB).\n🔗 Direct link: ${app.url}`;
-        const buffer = await fetchBuffer(app.url, 100 * 1024);
-        await sock.sendMessage(jid, { document: buffer, mimetype: "application/vnd.android.package-archive", fileName: `${app.name}-${app.ver || ""}.apk`.replace(/\s+/g, "_"), caption: `✅ *${app.name}*\n\n💠 *Powered by ${BRAND.name}*` }, { quoted: m });
-    } catch (e) {
-        console.error("APK error:", e.message);
-        return `❌ APK download failed: ${e.message.slice(0, 100)}`;
+        let source;
+        try { source = new URL(app.url); }
+        catch { return "❌ The app provider returned an invalid download link. Try again later."; }
+        if (source.protocol !== "https:") return "❌ The app provider returned an insecure download link, so it was not opened.";
+
+        const summary = appSummary(app);
+        if (Number(app.size) > MAX) {
+            return `${summary}\n\n⚠️ This APK exceeds WhatsApp's 95 MB attachment limit, so it cannot be sent in chat.\n🔗 Official provider download: ${source.href}`;
+        }
+
+        const buffer = await fetchBuffer(source.href, 100 * 1024);
+        if (!buffer?.length) return "❌ The provider returned an empty APK file. Please retry later.";
+        if (buffer.length > MAX) {
+            return `${summary}\n\n⚠️ The downloaded file is larger than WhatsApp's 95 MB attachment limit.\n🔗 Official provider download: ${source.href}`;
+        }
+
+        const safeName = `${app.name || "app"}-${app.version || "latest"}.apk`.replace(/[^a-zA-Z0-9._-]+/g, "_").slice(0, 120);
+        await sock.sendMessage(m.key.remoteJid, {
+            document: buffer,
+            mimetype: "application/vnd.android.package-archive",
+            fileName: safeName,
+            caption: `${summary}\n\n✅ APK downloaded from the provider.\n💠 Powered by ${BRAND.name}`
+        }, { quoted: m });
+        return null;
+    } catch (error) {
+        console.error("APK error:", error.message);
+        return "❌ The APK provider or download server is temporarily unavailable. Please retry later or search the app name again.";
     }
 };

@@ -8,7 +8,7 @@ const SYSTEM = `You are ${BRAND.name} AI, a friendly, smart assistant inside a W
 
 const CREATOR_RE = /(who\s+(made|created|built|developed|owns?)|your\s+(creator|developer|owner|maker)|kisne\s+(banaya|bnaya|banaya\s+hai)|kis\s*ne\s+bana|kon\s+hai\s+(aapka|apka|tumhara|tera)\s+(developer|owner|creator)|developer\s+kon|banane\s*wala|بنایا|ڈویلپر|کس نے)/i;
 
-const creatorReply = () => `🤖 Main *${BRAND.name} AI* hun.\n\n👨‍💻 Mujhe *Marco Malik* (19 saal, Rajanpur) aur *Waqar Writes* (21 saal, Karachi) ne banaya hai — Pakistan se. 🇵🇰\n\n🌐 ${BRAND.website}`;
+const creatorReply = () => `🤖 Main *${BRAND.name} AI* hun.\n\n👨‍💻 Mujhe *Marco Malik* aur *Waqar Writes* ne banaya hai — Pakistan se. 🇵🇰`;
 
 async function askPollinations(question) {
     const { data } = await axios.post("https://text.pollinations.ai/openai", {

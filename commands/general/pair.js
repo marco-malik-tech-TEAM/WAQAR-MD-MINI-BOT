@@ -1,5 +1,5 @@
 import { startPairing } from "../../services/pairingService.js";
-import { BRAND } from "../../brand.js";
+import { getPairUrl } from "../../brand.js";
 
 const lastUse = new Map();
 
@@ -8,7 +8,8 @@ export const pair = async (sock, m, args) => {
     const number = (args.join("").replace(/\D/g, "") || "");
 
     if (number.length < 10 || number.length > 15) {
-        return `🔗 *PAIR YOUR WHATSAPP*\n\n📝 Usage: .pair <your number with country code>\n📌 Example: .pair 923001234567\n\n🌐 Or use the website: ${BRAND.website}\n\n_You get an 8-digit code → WhatsApp > Linked Devices > Link with phone number._`;
+        const pairUrl = getPairUrl();
+        return `🔗 *PAIR YOUR WHATSAPP*\n\n📝 Usage: .pair <your number with country code>\n📌 Example: .pair 923001234567\n${pairUrl ? `\n🌐 Pairing page: ${pairUrl}\n` : ""}\n_You get an 8-digit code → WhatsApp > Linked Devices → Link with phone number instead._`;
     }
 
     const now = Date.now();

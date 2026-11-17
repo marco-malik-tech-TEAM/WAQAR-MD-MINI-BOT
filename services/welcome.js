@@ -21,8 +21,6 @@ export const buildWelcomeText = (prefix = ".") => `╭─━─━━━━━�
 👤 *Marco Malik* — 19 • Rajanpur, Pakistan 🇵🇰
 👤 *Waqar Writes* — 21 • Karachi, Pakistan 🇵🇰
 
-🌐 *Website:* ${BRAND.website}
-
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 👇 *Type* ${prefix}help *to see all commands!*
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;

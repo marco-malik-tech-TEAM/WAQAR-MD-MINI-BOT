@@ -19,6 +19,7 @@ const DEFAULT_CONFIG = {
     alwaysRecording: false,
     alwaysOnline: false,
     aiChatbotEnabled: false,
+    autoReactEnabled: false,
     prefix: ".",
     ownerNumber: "923377857866",
     menuTitle: "MARCO MALIK X",
@@ -61,7 +62,9 @@ export function loadConfig() {
         ...fileConfig,
         phone: process.env.PHONE || fileConfig.phone || DEFAULT_CONFIG.phone,
         ownerNumber: process.env.OWNER_NUMBER || fileConfig.ownerNumber || DEFAULT_CONFIG.ownerNumber,
-        prefix: process.env.PREFIX || fileConfig.prefix || DEFAULT_CONFIG.prefix,
+        // This bot deliberately accepts only dot-prefixed commands.
+        prefix: ".",
+        autoReactEnabled: fileConfig.autoReactEnabled === true,
         aiChatbotEnabled: resolveAIChatbotEnabled(fileConfig)
     };
 }

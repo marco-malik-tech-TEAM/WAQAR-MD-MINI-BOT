@@ -32,6 +32,7 @@ app.get("/api/status", (req, res) => {
         connected: !!(client && client.user),
         phone: config.phone || null,
         name: config.name || null,
+        autoReactEnabled: config.autoReactEnabled === true,
         settings: {
             alwaysOnline: config.alwaysOnline,
             autoLikeStatus: config.autoLikeStatus,
@@ -52,7 +53,7 @@ app.post("/api/settings", (req, res) => {
             "alwaysOnline", "autoLikeStatus", "autoViewStatus",
             "antiDelete", "antiCall", "autoReadMessages",
             "alwaysTyping", "alwaysRecording", "antiViewOnce",
-            "antiRemove", "prefix", "ownerNumber"
+            "antiRemove", "ownerNumber"
         ];
 
         const updates = {};

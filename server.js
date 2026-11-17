@@ -4,7 +4,7 @@ import { whatsappService } from "./services/whatsappService.js";
 import { createServer } from "http";
 import { initSocket } from "./services/socketService.js";
 import { cleanStaleSessions } from "./services/cleanupService.js";
-import { BRAND } from "./brand.js";
+import { BRAND, getPairUrl } from "./brand.js";
 
 const httpServer = createServer(app);
 initSocket(httpServer);
@@ -14,6 +14,8 @@ cleanStaleSessions();
 
 httpServer.listen(PORT, () => {
     console.log(`🚀 ${BRAND.name} running on port ${PORT}`);
+    const pairingUrl = getPairUrl();
+    console.log(pairingUrl ? `🔗 Pairing page: ${pairingUrl}` : "🔗 Pairing page URL unavailable; configure a Railway public domain or PUBLIC_URL.");
 });
 
 // Initialize WhatsApp

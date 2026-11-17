@@ -8,8 +8,7 @@
         "baileys",
         "automation"
     ],
-    "logo": "https://marco-waqar-mini-bot-info-web.vercel.app/logo.png",
-    "repository": "https://marco-waqar-mini-bot-info-web.vercel.app",
+    "repository": "https://github.com/marco-malik-tech-TEAM/WAQAR-MD-MINI-BOT",
     "success_url": "/",
     "stack": "heroku-24",
     "env": {

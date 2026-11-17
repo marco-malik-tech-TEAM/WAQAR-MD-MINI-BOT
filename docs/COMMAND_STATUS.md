@@ -1,8 +1,8 @@
 # Command handler smoke audit
 
-Generated at 2026-11-16T02:56:21.900Z by `node scripts/audit-commands.mjs`.
+Generated at 2026-11-17T01:59:41.882Z by `node scripts/audit-commands.mjs`.
 
-Registered handlers: **281** (267 passed, 14 conditional, 0 failed). Supported aliases: **40** (40 target checks passed). JavaScript files under `commands/`: **248**; individual catalog wrappers: **164**.
+Registered handlers: **281** (267 passed, 14 conditional, 0 failed). Supported aliases: **40** (40 target checks passed). JavaScript files under `commands/`: **249**; individual catalog wrappers: **164**.
 
 > Scope: each handler was invoked once with no arguments using a mocked WhatsApp socket and disabled network calls. Deliberate animation delays were fast-forwarded. PASS means the local handler completed without an uncaught exception. CONDITIONAL means the result indicates an unavailable provider, missing configuration, permissions, or input needed for a real run. FAIL means an uncaught exception or timeout. This smoke run does not certify live APIs, credentials, media access, or every command-specific input. No WhatsApp message or third-party request was sent by this audit.
 
@@ -30,7 +30,7 @@ Registered handlers: **281** (267 passed, 14 conditional, 0 failed). Supported a
 | `.antispam` | PASS | 🛡️ antispam: OFF. |
 | `.antisticker` | PASS | 🛡️ antisticker: OFF. |
 | `.antitag` | PASS | 🛡️ antitag: OFF. |
-| `.apk` | PASS | 📦 *APK DOWNLOADER* 📝 Usage: .apk <app name or package> 📌 Example: .apk whatsapp 📌 Example: .apk com.instagram.android |
+| `.apk` | PASS | 📦 *APK SEARCH* Usage: .apk <app name or package> Example: .apk whatsapp |
 | `.arena` | PASS | handler completed |
 | `.attp` | PASS | Usage: .attp <text> |
 | `.autolevelup` | PASS | ℹ️ Automatic level-up is disabled to keep balances predictable; use .levelup when you choose. |
@@ -44,11 +44,11 @@ Registered handlers: **281** (267 passed, 14 conditional, 0 failed). Supported a
 | `.balance` | PASS | 💰 Balance: 0 coins ⭐ XP: 0 🎒 Items: 0 🎖️ Role: Newcomer |
 | `.base64` | PASS | ╔══════════════════════════════════╗ ║ 🔣 *𝔹𝔸𝕊𝔼𝟞𝟜* 🔣 ║ ╚══════════════════════════════════╝ *Usage:* • *.base64 encode* <text> • *.base64 decode* <encoded text> *Example:* • |
 | `.bestie` | PASS | 🤝 @[number redacted] has been nominated as today's bestie! |
-| `.bet` | PASS | 🎮 This is a chat-only, no-stakes bot. Betting, wagering, and explosive/prank payloads are disabled. |
+| `.bet` | PASS | 🎲 Practice round: You win the pretend round! No money or coins were placed. |
 | `.bite` | PASS | 🧛 A pretend cartoon nibble for @[number redacted]. |
 | `.blackpink` | PASS | handler completed |
 | `.block` | PASS | ╔══════════════════════════════════╗ ║ ❓ *ℍ𝔼𝕃ℙ* ❓ ║ ╚══════════════════════════════════╝ 📝 *𝕌𝕤𝕒𝕘𝕖 𝕚𝕟 𝔾𝕣𝕠𝕦𝕡𝕤:* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ • Mention: *.block  |
-| `.bomb` | PASS | 🎮 This is a chat-only, no-stakes bot. Betting, wagering, and explosive/prank payloads are disabled. |
+| `.bomb` | PASS | 💣 Safe bomb round: The cartoon bomb turned into confetti! No real-world instructions or stakes. |
 | `.bonk` | PASS | 🪄 A soft cartoon bonk with a foam mallet for @[number redacted]. |
 | `.bot` | PASS | *Status:* ✅ Active *Usage:* .bot on/off |
 | `.botstats` | PASS | ╔══════════════════════════════════╗ ║ 📊 *MARCO MALIK & WAQAR WRITES 𝔹𝕆𝕋 𝕊𝕋𝔸𝕋𝕊* 📊 ║ ╚══════════════════════════════════╝ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 🖥️ *𝕊𝕐𝕊𝕋� |
@@ -58,25 +58,25 @@ Registered handlers: **281** (267 passed, 14 conditional, 0 failed). Supported a
 | `.calc` | PASS | ╔══════════════════════════════════╗ ║ 🔢 *MARCO MALIK & WAQAR WRITES ℂ𝔸𝕃ℂ𝕌𝕃𝔸𝕋𝕆ℝ* 🔢 ║ ╚══════════════════════════════════╝ 📝 *𝕌𝕤𝕒𝕘𝕖:* .calc [expression] 📌 *𝔼𝕩𝕒𝕞� |
 | `.caption` | PASS | 📝 Caption idea: “Keep it simple, keep it kind.” |
 | `.chai` | PASS | handler completed |
-| `.character` | PASS | 🎭 Your chat character today: The Friendly Comedian. |
-| `.chatbot` | PASS | 🤖 *AI Chatbot Status* Status: ON Provider(s): openai Group auto-replies: enabled Use .chatbot on/off to change the setting. 💠 *Powered by MARCO MALIK X* 🌐 https://marco-waqar-mi |
-| `.choose` | PASS | 🎯 I choose: option A. |
-| `.chop` | PASS | 🌿 You found a pinecone. (role-play only; no real stakes). |
+| `.character` | PASS | 🎭 Your chat character today: The Calm Strategist. |
+| `.chatbot` | PASS | 🤖 *AI Chatbot Status* Status: ON Provider(s): openai Group auto-replies: enabled Use .chatbot on/off to change the setting. 💠 *Powered by MARCO MALIK X* |
+| `.choose` | PASS | 🎯 I choose: option B. |
+| `.chop` | PASS | 🌿 You found a smooth stone. (role-play only; no real stakes). |
 | `.clean` | PASS | 🧹 Message cleanup is not enabled: WhatsApp does not provide a safe bulk-delete API for arbitrary chat history. |
 | `.coinflip` | PASS | ╔══════════════════════════════════╗ ║ 🪙 *ℂ𝕆𝕀ℕ 𝔽𝕃𝕀ℙ* 🪙 ║ ╚══════════════════════════════════╝ 🪙 *Flipping...* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 🦅 *TAILS!* 🦅 ━━━━━━━━━━━━ |
 | `.compatibility` | PASS | ╔══════════════════════════════════╗ ║ 💞 *ℂ𝕆𝕄ℙ𝔸𝕋𝕀𝔹𝕀𝕃𝕀𝕋𝕐* 💞 ║ ╚══════════════════════════════════╝ *Usage:* .compatibility <name1> & <name2> *Examples:* • *.compatibili |
-| `.compliment` | PASS | ╔══════════════════════════════════╗ ║ 🌟 *ℂ𝕆𝕄ℙ𝕃𝕀𝕄𝔼ℕ𝕋* 🌟 ║ ╚══════════════════════════════════╝ You're the human version of a standing ovation 👏 ━━━━━━━━━━━━━━━━━━━━━━━━━━ |
+| `.compliment` | PASS | ╔══════════════════════════════════╗ ║ 🌟 *ℂ𝕆𝕄ℙ𝕃𝕀𝕄𝔼ℕ𝕋* 🌟 ║ ╚══════════════════════════════════╝ Your potential is scarier than a horror movie 🚀 ━━━━━━━━━━━━━━━━━━━━━━━━━━━ |
 | `.confess` | PASS | ╔══════════════════════════════════╗ ║ 🤫 *𝔸ℕ𝕆ℕ ℂ𝕆ℕ𝔽𝔼𝕊𝕊* 🤫 ║ ╚══════════════════════════════════╝ *Usage:* .confess <your confession> 💡 Your confession will be sent anonym |
 | `.crash` | PASS | handler completed |
 | `.creator` | PASS | handler completed |
-| `.crime` | PASS | ✅ Crime complete: +31 coins and +10 XP. Balance: 31. |
+| `.crime` | PASS | ✅ Crime complete: +10 coins and +10 XP. Balance: 10. |
 | `.crop` | PASS | Reply to an image with .crop. |
 | `.crush` | PASS | ╔══════════════════════════════════╗ ║ 💘 *ℂℝ𝕌𝕊ℍ 𝔾𝕌𝕀𝔻𝔼* 💘 ║ ╚══════════════════════════════════╝ Choose your stage, king 👑 🎯 *.crush approach* _How to approach her & make |
 | `.cuddle` | PASS | 🧸 A cozy fictional cuddle for @[number redacted] — only if welcome. |
-| `.daily` | PASS | ✅ Daily complete: +100 coins and +10 XP. Balance: 131. |
-| `.dare` | PASS | ╔══════════════════════════════════╗ ║ 😈 *𝕋ℝ𝕌𝕋ℍ 𝕆ℝ 𝔻𝔸ℝ𝔼* 😈 ║ ║ ━━ *𝔻𝔸ℝ𝔼* ━━ ║ ╚══════════════════════════════════╝ 🔥 *𝕐𝕆𝕌ℝ ℂℍ𝔸𝕃𝕃𝔼ℕ𝔾𝔼:* ⚡ Tell the group your m |
-| `.dateidea` | PASS | ╔══════════════════════════════════╗ ║ 💑 *𝔻𝔸𝕋𝔼 𝕀𝔻𝔼𝔸* 💑 ║ ╚══════════════════════════════════╝ 🎯 *Arcade / bowling night 🎳* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 💰 *Budget |
-| `.debate` | PASS | 🗣️ Debate topic: Are books better than films? |
+| `.daily` | PASS | ✅ Daily complete: +100 coins and +10 XP. Balance: 110. |
+| `.dare` | PASS | ╔══════════════════════════════════╗ ║ 😈 *𝕋ℝ𝕌𝕋ℍ 𝕆ℝ 𝔻𝔸ℝ𝔼* 😈 ║ ║ ━━ *𝔻𝔸ℝ𝔼* ━━ ║ ╚══════════════════════════════════╝ 🔥 *𝕐𝕆𝕌ℝ ℂℍ𝔸𝕃𝕃𝔼ℕ𝔾𝔼:* ⚡ Do 20 push-ups and re |
+| `.dateidea` | PASS | ╔══════════════════════════════════╗ ║ 💑 *𝔻𝔸𝕋𝔼 𝕀𝔻𝔼𝔸* 💑 ║ ╚══════════════════════════════════╝ 🎯 *Sunrise breakfast date 🌄* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 💰 *Budget |
+| `.debate` | PASS | 🗣️ Debate topic: Should cities prioritize parks or transit? |
 | `.define` | PASS | ╔══════════════════════════════════╗ ║ 📖 *𝔻𝕀ℂ𝕋𝕀𝕆ℕ𝔸ℝ𝕐* 📖 ║ ╚══════════════════════════════════╝ *Usage:* .define <word> *Example:* .define serendipity |
 | `.delete` | PASS | Reply to a message with .delete. |
 | `.delgcstatus` | PASS | Group status deletion is not supported by WhatsApp's official message controls. |
@@ -84,32 +84,32 @@ Registered handlers: **281** (267 passed, 14 conditional, 0 failed). Supported a
 | `.dep` | PASS | Usage: .dep <amount> (1–1,000,000) |
 | `.detective` | PASS | handler completed |
 | `.devil` | PASS | handler completed |
-| `.dice` | PASS | ╔══════════════════════════════════╗ ║ 🎲 *𝔻𝕀ℂ𝔼 ℝ𝕆𝕃𝕃* 🎲 ║ ╚══════════════════════════════════╝ 🎲 Die 1: ⚁ *2* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 💯 *Total:* 2 ━━━━━━━━━━━━━ |
+| `.dice` | PASS | ╔══════════════════════════════════╗ ║ 🎲 *𝔻𝕀ℂ𝔼 ℝ𝕆𝕃𝕃* 🎲 ║ ╚══════════════════════════════════╝ 🎲 Die 1: ⚅ *6* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 💯 *Total:* 6 ━━━━━━━━━━━━━ |
 | `.divorce` | PASS | 📄 The imaginary sitcom duo has agreed to share the remote. |
-| `.economy` | PASS | 💰 Balance: 131 coins ⭐ XP: 20 🎒 Items: 0 🎖️ Role: Newcomer |
+| `.economy` | PASS | 💰 Balance: 110 coins ⭐ XP: 20 🎒 Items: 0 🎖️ Role: Newcomer |
 | `.enemy` | PASS | 🤺 @[number redacted] is your friendly rival in a completely imaginary story. |
-| `.facebook` | PASS | 📘 *Facebook DOWNLOADER* 📝 Usage: .facebook <link> 📌 Example: .facebook https://www.facebook.com/watch?v=xxxx 💠 *Powered by MARCO MALIK X* 🌐 https://marco-waqar-mini-bot-info-w |
-| `.fact` | PASS | ╔══════════════════════════════════╗ ║ 🧠 *MARCO MALIK & WAQAR WRITES 𝔽𝔸ℂ𝕋 ℤ𝕆ℕ𝔼* 🧠 ║ ╚══════════════════════════════════╝ 💡 *𝔻𝕚𝕕 𝕪𝕠𝕦 𝕜𝕟𝕠𝕨?* Bananas are berries, bu |
+| `.facebook` | PASS | 📘 *Facebook DOWNLOADER* 📝 Usage: .facebook <link> 📌 Example: .facebook https://www.facebook.com/watch?v=xxxx 💠 *Powered by MARCO MALIK X* |
+| `.fact` | PASS | ╔══════════════════════════════════╗ ║ 🧠 *MARCO MALIK & WAQAR WRITES 𝔽𝔸ℂ𝕋 ℤ𝕆ℕ𝔼* 🧠 ║ ╚══════════════════════════════════╝ 💡 *𝔻𝕚𝕕 𝕪𝕠𝕦 𝕜𝕟𝕠𝕨?* Wombat poop is cube-sha |
 | `.fancy` | PASS | ╔══════════════════════════════════╗ ║ ✨ *𝔽𝔸ℕℂ𝕐 𝕋𝔼𝕏𝕋 𝕄𝔸𝕂𝔼ℝ* ✨ ║ ╚══════════════════════════════════╝ 📝 *𝕌𝕤𝕒𝕘𝕖:* .fancy [your text] 📌 *𝔼𝕩𝕒𝕞𝕡𝕝𝕖:* .fancy MARC |
 | `.feed` | PASS | 🍪 A virtual cookie for @[number redacted]. |
 | `.fire` | PASS | handler completed |
 | `.fish` | PASS | 🌿 You found a pinecone. (role-play only; no real stakes). |
-| `.flirt` | PASS | ╔══════════════════════════════════╗ ║ 💘 *𝔽𝕃𝕀ℝ𝕋 𝔸𝕊𝕊𝕀𝕊𝕋𝔸ℕ𝕋* 💘 ║ ╚══════════════════════════════════╝ ✉️ *Message to send her:* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ _"Hey |
-| `.forage` | PASS | 🌿 You collected a few berries. (role-play only; no real stakes). |
-| `.fortune` | PASS | 🔮 Take a break and drink some water. (for entertainment only) |
-| `.gayrate` | PASS | 🏳️‍🌈 Fun rating for @[number redacted]: 43% (just a joke; no assumptions about anyone). |
+| `.flirt` | PASS | ╔══════════════════════════════════╗ ║ 💘 *𝔽𝕃𝕀ℝ𝕋 𝔸𝕊𝕊𝕀𝕊𝕋𝔸ℕ𝕋* 💘 ║ ╚══════════════════════════════════╝ ✉️ *Message to send her:* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ _"I h |
+| `.forage` | PASS | 🌿 You spotted a colorful bird. (role-play only; no real stakes). |
+| `.fortune` | PASS | 🔮 Your next idea deserves a try. (for entertainment only) |
+| `.gayrate` | PASS | 🏳️‍🌈 Fun rating for @[number redacted]: 71% (just a joke; no assumptions about anyone). |
 | `.getpp` | CONDITIONAL | That profile photo is unavailable or hidden by WhatsApp privacy settings. |
 | `.github` | PASS | ╔══════════════════════════════════╗ ║ 🐙 *𝔾𝕀𝕋ℍ𝕌𝔹 𝕃𝕆𝕆𝕂𝕌ℙ* 🐙 ║ ╚══════════════════════════════════╝ *Usage:* .github <username> *Example:* .github torvalds |
 | `.glitch` | PASS | handler completed |
 | `.goodbye` | PASS | ╔══════════════════════════════════╗ ║ 👋 *𝔾𝕆𝕆𝔻𝔹𝕐𝔼 𝕊𝕐𝕊𝕋𝔼𝕄* 👋 ║ ╚══════════════════════════════════╝ *Status:* ❌ Disabled *Current message:* ╔═════════════════════════ |
-| `.goodmorning` | PASS | ╔══════════════════════════════════╗ ║ 🌅 *𝔾𝕆𝕆𝔻 𝕄𝕆ℝℕ𝕀ℕ𝔾* 🌅 ║ ╚══════════════════════════════════╝ 💌 *Send this to your babe:* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ _"Every m |
+| `.goodmorning` | PASS | ╔══════════════════════════════════╗ ║ 🌅 *𝔾𝕆𝕆𝔻 𝕄𝕆ℝℕ𝕀ℕ𝔾* 🌅 ║ ╚══════════════════════════════════╝ 💌 *Send this to your babe:* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ _"Hey gor |
 | `.goodnight` | PASS | ╔══════════════════════════════════╗ ║ 🌙 *𝔾𝕆𝕆𝔻 ℕ𝕀𝔾ℍ𝕋* 🌙 ║ ╚══════════════════════════════════╝ 💌 *Send this to your babe:* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ _"One more d |
 | `.groupantidelete` | PASS | ╔══════════════════════════════════╗ ║ 🛡️ *𝔾ℝ𝕆𝕌ℙ 𝔸ℕ𝕋𝕀-𝔻𝔼𝕃𝔼𝕋𝔼* 🛡️ ║ ╚══════════════════════════════════╝ *Status:* ❌ Disabled ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ *Comma |
 | `.groupinfo` | PASS | ╔══════════════════════════════════╗ ║ 📊 *𝔾ℝ𝕆𝕌ℙ 𝕀ℕ𝔽𝕆* 📊 ║ ╚══════════════════════════════════╝ 📛 *Name:* Offline Audit 🆔 *ID:* [number redacted]@g.us 📝 *Description:* _N |
 | `.grouplink` | PASS | ╔══════════════════════════════════╗ ║ 🔗 *𝔾ℝ𝕆𝕌ℙ 𝕃𝕀ℕ𝕂* 🔗 ║ ╚══════════════════════════════════╝ https://chat.whatsapp.com/offline-code Share this link to invite people! |
 | `.groupstats` | PASS | 📊 *Offline Audit* Members: 2 Admins: 2 Created: Not provided |
 | `.groupstatus` | PASS | Group status management is not exposed by the current WhatsApp library; no setting was changed. |
-| `.guessnumber` | PASS | 🔢 Guess a number from 1 to 10: 6 (example round; start your own guess). |
+| `.guessnumber` | PASS | 🔢 Guess a number from 1 to 10: 2 (example round; start your own guess). |
 | `.hack` | PASS | handler completed |
 | `.hacker` | PASS | handler completed |
 | `.handhold` | PASS | 🤝 A friendly virtual handhold for @[number redacted]. |
@@ -118,24 +118,24 @@ Registered handlers: **281** (267 passed, 14 conditional, 0 failed). Supported a
 | `.hidetag` | PASS | handler completed |
 | `.highfive` | PASS | 🙌 High-five, @[number redacted]! |
 | `.horoscope` | PASS | ✨ Horoscope-style note: focus on one small goal today, and make time to rest. For entertainment only. |
-| `.horse` | PASS | 🎮 This is a chat-only, no-stakes bot. Betting, wagering, and explosive/prank payloads are disabled. |
+| `.horse` | PASS | 🏇 Race results: Comet finishes first, followed by Thunder. Fictional race; no wagering. |
 | `.hotseat` | PASS | 🔥 Hot seat: What small thing always makes you smile? |
 | `.howdumb` | PASS | 🧠 Nobody's intelligence can be measured by a chat command. Let's keep it kind. |
 | `.howgay` | PASS | 🏳️‍🌈 Identity is personal and cannot be measured by a bot. Try .rate for a harmless random score. |
 | `.hug` | PASS | 🤗 A virtual hug for @[number redacted] — only if welcome. |
-| `.hunt` | PASS | 🌿 You collected a few berries. (role-play only; no real stakes). |
+| `.hunt` | PASS | 🌿 You found a pinecone. (role-play only; no real stakes). |
 | `.ice` | PASS | handler completed |
-| `.igs` | PASS | 📸 *Instagram DOWNLOADER* 📝 Usage: .instagram <link> 📌 Example: .instagram https://www.instagram.com/reel/xxxx 💠 *Powered by MARCO MALIK X* 🌐 https://marco-waqar-mini-bot-info- |
-| `.igsc` | PASS | 📸 *Instagram DOWNLOADER* 📝 Usage: .instagram <link> 📌 Example: .instagram https://www.instagram.com/reel/xxxx 💠 *Powered by MARCO MALIK X* 🌐 https://marco-waqar-mini-bot-info- |
-| `.igsf` | PASS | 📸 *Instagram DOWNLOADER* 📝 Usage: .instagram <link> 📌 Example: .instagram https://www.instagram.com/reel/xxxx 💠 *Powered by MARCO MALIK X* 🌐 https://marco-waqar-mini-bot-info- |
+| `.igs` | PASS | 📸 *Instagram DOWNLOADER* 📝 Usage: .instagram <link> 📌 Example: .instagram https://www.instagram.com/reel/xxxx 💠 *Powered by MARCO MALIK X* |
+| `.igsc` | PASS | 📸 *Instagram DOWNLOADER* 📝 Usage: .instagram <link> 📌 Example: .instagram https://www.instagram.com/reel/xxxx 💠 *Powered by MARCO MALIK X* |
+| `.igsf` | PASS | 📸 *Instagram DOWNLOADER* 📝 Usage: .instagram <link> 📌 Example: .instagram https://www.instagram.com/reel/xxxx 💠 *Powered by MARCO MALIK X* |
 | `.imagine` | CONDITIONAL | Image generation is not configured for this bot. No image request was sent or billed. |
 | `.impressive` | PASS | handler completed |
-| `.instagram` | PASS | 📸 *Instagram DOWNLOADER* 📝 Usage: .instagram <link> 📌 Example: .instagram https://www.instagram.com/reel/xxxx 💠 *Powered by MARCO MALIK X* 🌐 https://marco-waqar-mini-bot-info- |
+| `.instagram` | PASS | 📸 *Instagram DOWNLOADER* 📝 Usage: .instagram <link> 📌 Example: .instagram https://www.instagram.com/reel/xxxx 💠 *Powered by MARCO MALIK X* |
 | `.insult` | PASS | 😄 Friendly roast for @[number redacted]: your Wi-Fi has more commitment than your plans. Just a joke! |
 | `.ip` | PASS | ╔══════════════════════════════════╗ ║ 🌐 *𝕀ℙ 𝕃𝕆𝕆𝕂𝕌ℙ* 🌐 ║ ╚══════════════════════════════════╝ *Usage:* .ip <address or domain> *Example:* • *.ip 8.8.8.8* • *.ip google.com* |
-| `.iqrate` | PASS | 🧠 @[number redacted]'s quiz-energy today: 84% — for fun only. |
+| `.iqrate` | PASS | 🧠 @[number redacted]'s quiz-energy today: 71% — for fun only. |
 | `.jail` | PASS | 🔒 @[number redacted] has been sentenced to one minute of good vibes. (Role-play only.) |
-| `.joke` | PASS | ╔══════════════════════════════════╗ ║ 😂 *MARCO MALIK & WAQAR WRITES 𝕁𝕆𝕂𝔼 𝕋𝕀𝕄𝔼* 😂 ║ ╚══════════════════════════════════╝ What do you call a fake noodle? An impasta! ━━━━━ |
+| `.joke` | PASS | ╔══════════════════════════════════╗ ║ 😂 *MARCO MALIK & WAQAR WRITES 𝕁𝕆𝕂𝔼 𝕋𝕀𝕄𝔼* 😂 ║ ╚══════════════════════════════════╝ Why did the math book look so sad? Because it had |
 | `.kick` | PASS | ╔══════════════════════════════════╗ ║ 🦶 *𝕂𝕀ℂ𝕂 𝕄𝔼𝕄𝔹𝔼ℝ* 🦶 ║ ╚══════════════════════════════════╝ *Usage:* .kick @user *Alt:* Reply to a message with .kick |
 | `.kiss` | PASS | 💋 A virtual friendly kiss sent to @[number redacted] — use only if welcome. |
 | `.konachan` | CONDITIONAL | ❌ .konachan could not complete: Offline command audit: external network disabled.; log: [Catalog] .konachan failed: Offline command audit: external network disabled. |
@@ -150,16 +150,16 @@ Registered handlers: **281** (267 passed, 14 conditional, 0 failed). Supported a
 | `.matrix` | PASS | handler completed |
 | `.meme` | CONDITIONAL | ❌ *Failed to fetch meme* _Try again in a moment!_ 🔄; log: ❌ Meme error: Offline command audit: external network disabled. |
 | `.memegen` | PASS | handler completed |
-| `.memesearch` | PASS | 😂 Meme idea: When the Wi-Fi reconnects exactly as the meeting ends. |
+| `.memesearch` | PASS | 😂 Meme idea: When the bot says 'one moment' and comes back with a full report. |
 | `.mentionking` | PASS | 👑 Mention leaderboard needs stored activity data; it is not collected by this bot yet. |
 | `.menu2` | PASS | handler completed |
 | `.metallic` | PASS | handler completed |
 | `.mine` | PASS | ⏳ You can use .mine again after the cooldown. |
 | `.mode` | PASS | 🚫 Owner-only command. |
-| `.mood` | PASS | 🌤️ Mood check: focused. |
+| `.mood` | PASS | 🌤️ Mood check: curious. |
 | `.mostactive` | CONDITIONAL | 🔒 Activity rankings are unavailable because the bot does not archive group chat history. |
 | `.mostquiet` | CONDITIONAL | 🔒 Activity rankings are unavailable because the bot does not archive group chat history. |
-| `.movie` | PASS | 🎬 *MOVIE INFO + TRAILER* 📝 Usage: .movie <name> 📌 Example: .movie Avengers Endgame 💠 *Powered by MARCO MALIK X* 🌐 https://marco-waqar-mini-bot-info-web.vercel.app |
+| `.movie` | PASS | 🎬 *MOVIE INFO + TRAILER* 📝 Usage: .movie <name> 📌 Example: .movie Avengers Endgame 💠 *Powered by MARCO MALIK X* |
 | `.mute` | PASS | ╔══════════════════════════════════╗ ║ 🔇 *𝔾ℝ𝕆𝕌ℙ 𝕄𝕌𝕋𝔼𝔻* 🔇 ║ ╚══════════════════════════════════╝ 🔒 *Group is now closed.* Only admins can send messages. Use *.unmute* to  |
 | `.muth` | PASS | handler completed |
 | `.myactivity` | PASS | 🔒 This bot does not archive or score private chat history. Your activity command is privacy-limited and no historical usage data is stored. |
@@ -167,33 +167,33 @@ Registered handlers: **281** (267 passed, 14 conditional, 0 failed). Supported a
 | `.neon` | PASS | handler completed |
 | `.news` | PASS | ╔══════════════════════════════════╗ ║ 📰 *ℕ𝔼𝕎𝕊 𝕌ℕ𝔸𝕍𝔸𝕀𝕃𝔸𝔹𝕃𝔼* 📰 ║ ╚══════════════════════════════════╝ ⚠️ Unable to fetch live headlines. ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ |
 | `.newsletter` | PASS | 🚫 Owner-only command. |
-| `.nhie` | PASS | 🙋 Never have I ever: laughed at my own joke |
+| `.nhie` | PASS | 🙋 Never have I ever: started a hobby and bought all the gear first |
 | `.nightowl` | CONDITIONAL | 🔒 Night-owl rankings are unavailable because the bot does not archive chat timestamps. |
 | `.owner` | PASS | handler completed |
-| `.pair` | PASS | 🔗 *PAIR YOUR WHATSAPP* 📝 Usage: .pair <your number with country code> 📌 Example: .pair [number redacted] 🌐 Or use the website: https://marco-waqar-mini-bot-info-web.vercel.app  |
-| `.password` | PASS | ╔══════════════════════════════════╗ ║ 🔐 *ℙ𝔸𝕊𝕊𝕎𝕆ℝ𝔻 𝔾𝔼ℕ* 🔐 ║ ╚══════════════════════════════════╝ 🔑 *Your Password:* ```?&m[7^T!:VK3^j)j``` ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ |
+| `.pair` | PASS | 🔗 *PAIR YOUR WHATSAPP* 📝 Usage: .pair <your number with country code> 📌 Example: .pair [number redacted] _You get an 8-digit code → WhatsApp > Linked Devices → Link with phone n |
+| `.password` | PASS | ╔══════════════════════════════════╗ ║ 🔐 *ℙ𝔸𝕊𝕊𝕎𝕆ℝ𝔻 𝔾𝔼ℕ* 🔐 ║ ╚══════════════════════════════════╝ 🔑 *Your Password:* ```<}V-M5w!I(?6jrux``` ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ |
 | `.pat` | PASS | 🫳 A gentle, virtual pat for @[number redacted]. |
 | `.pay` | PASS | Usage: .pay <amount> (1–1,000,000) |
 | `.pending` | PASS | Pending join requests are not exposed consistently by the current WhatsApp library. |
-| `.pick` | PASS | 🎲 Random pick: B. |
-| `.pickup` | PASS | ╔══════════════════════════════════╗ ║ 💘 *ℙ𝕀ℂ𝕂𝕌ℙ 𝕃𝕀ℕ𝔼* 💘 ║ ╚══════════════════════════════════╝ Is your name Netflix? Because I could watch you for hours. 📺 ━━━━━━━━━━━━━━ |
+| `.pick` | PASS | 🎲 Random pick: A. |
+| `.pickup` | PASS | ╔══════════════════════════════════╗ ║ 💘 *ℙ𝕀ℂ𝕂𝕌ℙ 𝕃𝕀ℕ𝔼* 💘 ║ ╚══════════════════════════════════╝ Do you have a map? I keep getting lost in your eyes. 🗺️ ━━━━━━━━━━━━━━━━━━━ |
 | `.pies` | PASS | 🥧 A pretend pie gently lands near @[number redacted]. No real-world action. |
 | `.ping` | PASS | ╔══════════════════════════════════╗ ║ 🏓 *ℙ𝕆ℕ𝔾!* 🏓 ║ ╚══════════════════════════════════╝ ⚡ *ℝ𝕖𝕤𝕡𝕠𝕟𝕤𝕖 𝕋𝕚𝕞𝕖:* 0ms 🟢 *𝕊𝕥𝕒𝕥𝕦𝕤:* Bot is online! ━━━━━━━━━━━━━━━━━━ |
 | `.pinterest` | PASS | This source is not supported by the configured downloader. Use .instagram or .video with a public link; private or restricted posts cannot be fetched. |
-| `.play` | PASS | 🎵 *MUSIC / MP3 DOWNLOADER* 📝 Usage: .play <song name or YouTube link> 📌 Example: .play Light Jesus 💠 *Powered by MARCO MALIK X* 🌐 https://marco-waqar-mini-bot-info-web.vercel. |
+| `.play` | PASS | 🎵 *MUSIC / MP3 DOWNLOADER* 📝 Usage: .play <song name or YouTube link> 📌 Example: .play Light Jesus 💠 *Powered by MARCO MALIK X* |
 | `.pmblocker` | PASS | 🚫 Owner-only command. |
 | `.poke` | PASS | 👉 A light, imaginary poke for @[number redacted]. |
 | `.poll` | PASS | ╔══════════════════════════════════╗ ║ 📊 *ℂℝ𝔼𝔸𝕋𝔼 ℙ𝕆𝕃𝕃* 📊 ║ ╚══════════════════════════════════╝ *Usage:* .poll Question \| Option1 \| Option2 \| ... *Example:* .poll Best pro |
-| `.prefix` | PASS | ╔══════════════════════════════════╗ ║ ⚙️ *𝔹𝕆𝕋 ℙℝ𝔼𝔽𝕀𝕏* ⚙️ ║ ╚══════════════════════════════════╝ *Current Prefix:* . ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ 💡 *ℍ𝕆𝕎 𝕋𝕆 ℂℍ𝔸ℕ� |
-| `.profession` | PASS | 🧭 Today's imaginary profession: planet explorer. |
+| `.prefix` | PASS | ⚙️ *BOT COMMAND PREFIX* Current and required prefix: *.* Every command must start with a dot, for example: *.menu* or *.ping*. Commands without the leading dot are not executed. Pr |
+| `.profession` | PASS | 🧭 Today's imaginary profession: puzzle designer. |
 | `.promote` | PASS | ╔══════════════════════════════════╗ ║ 👑 *ℙℝ𝕆𝕄𝕆𝕋𝔼 𝕋𝕆 𝔸𝔻𝕄𝕀ℕ* 👑 ║ ╚══════════════════════════════════╝ *Usage:* .promote @user *Alt:* Reply to a message with .promote |
 | `.punch` | PASS | 🥊 A pretend pillow-punch sound effect for @[number redacted]; no real violence. |
 | `.purple` | PASS | handler completed |
 | `.qr` | PASS | ╔══════════════════════════════════╗ ║ 📱 *ℚℝ ℂ𝕆𝔻𝔼 𝕄𝔸𝕂𝔼ℝ* 📱 ║ ╚══════════════════════════════════╝ 📝 *𝕌𝕤𝕒𝕘𝕖:* .qr [text/link] 📌 *𝔼𝕩𝕒𝕞𝕡𝕝𝕖:* .qr https://example |
 | `.quiz` | PASS | 🧠 Quick quiz: Which planet is known as the Red Planet? A) Venus B) Mars C) Jupiter Answer: .quiz answer <choice> |
-| `.quote` | PASS | ╔══════════════════════════════════╗ ║ 💫 *𝕄𝕆𝕋𝕀𝕍𝔸𝕋𝕀𝕆ℕ* 💫 ║ ╚══════════════════════════════════╝ _"The only person you are destined to become is the person you decide to b |
+| `.quote` | PASS | ╔══════════════════════════════════╗ ║ 💫 *𝕄𝕆𝕋𝕀𝕍𝔸𝕋𝕀𝕆ℕ* 💫 ║ ╚══════════════════════════════════╝ _"The mind is everything. What you think you become."_ ━━━━━━━━━━━━━━━━━━━ |
 | `.random` | CONDITIONAL | ❌ .random could not complete: Offline command audit: external network disabled.; log: [Catalog] .random failed: Offline command audit: external network disabled. |
-| `.rate` | PASS | ╔══════════════════════════════════╗ ║ ⭐ *ℝ𝔸𝕋𝔼 𝕄𝔼* ⭐ ║ ╚══════════════════════════════════╝ 🎯 *Target:* you 🏷️ *Title:* Absolute Legend 🏆 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ |
+| `.rate` | PASS | ╔══════════════════════════════════╗ ║ ⭐ *ℝ𝔸𝕋𝔼 𝕄𝔼* ⭐ ║ ╚══════════════════════════════════╝ 🎯 *Target:* you 🏷️ *Title:* Vibe Check Passed ✅ ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ |
 | `.rejoin` | PASS | ╔══════════════════════════════════╗ ║ 🔄 *ℝ𝔼𝕁𝕆𝕀ℕ 𝔾ℝ𝕆𝕌ℙ* 🔄 ║ ╚════════════════════╚════════════╝ *Usage:* !rejoin <group_id> *How to find ID:* Check the bot logs or use !gr |
 | `.resetbalance` | PASS | 🚫 Owner-only command. |
 | `.resetcoin` | PASS | 🚫 Owner-only command. |
@@ -201,14 +201,14 @@ Registered handlers: **281** (267 passed, 14 conditional, 0 failed). Supported a
 | `.resetwarn` | PASS | *Usage:* .resetwarn @user |
 | `.restart` | PASS | 🚫 Owner-only command. |
 | `.revoke` | PASS | ❌ Failed to revoke: sock.groupRevokeInvite is not a function |
-| `.riddle` | PASS | ╔══════════════════════════════════╗ ║ 🧩 *ℝ𝕀𝔻𝔻𝕃𝔼 𝕋𝕀𝕄𝔼* 🧩 ║ ╚══════════════════════════════════╝ ❓ *What gets sharper the more you use it?* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ |
-| `.rizzrate` | PASS | ✨ Rizz score for @[number redacted]: 58% (totally random). |
-| `.roast` | PASS | ╔══════════════════════════════════╗ ║ 🔥 *ℝ𝕆𝔸𝕊𝕋𝔼𝔻* 🔥 ║ ╚══════════════════════════════════╝ You're the human version of a dead pixel 📺 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ _ |
+| `.riddle` | PASS | ╔══════════════════════════════════╗ ║ 🧩 *ℝ𝕀𝔻𝔻𝕃𝔼 𝕋𝕀𝕄𝔼* 🧩 ║ ╚══════════════════════════════════╝ ❓ *What has words but never speaks?* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ � |
+| `.rizzrate` | PASS | ✨ Rizz score for @[number redacted]: 96% (totally random). |
+| `.roast` | PASS | ╔══════════════════════════════════╗ ║ 🔥 *ℝ𝕆𝔸𝕊𝕋𝔼𝔻* 🔥 ║ ╚══════════════════════════════════╝ You're the reason shampoo has instructions 🧴 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ |
 | `.roastai` | PASS | Usage: .roastai <topic> |
 | `.roastbattle` | PASS | 🎭 Keep it friendly: each participant may share one consensual, non-targeted joke. No slurs, threats, or harassment. |
 | `.roastoftheday` | PASS | 🔥 Friendly roast of the day: my calendar needs a calendar to keep track of itself. |
 | `.role` | PASS | 🎖️ Your role is Newcomer. Roles are cosmetic and have no real-world status. |
-| `.roulette` | PASS | 🎮 This is a chat-only, no-stakes bot. Betting, wagering, and explosive/prank payloads are disabled. |
+| `.roulette` | PASS | 🎡 The wheel lands on green. No wagers or real money. |
 | `.rpg` | PASS | 🗺️ You reach a fork in a fictional trail. Choose: north (forest), east (river), or west (village). No purchases or real-world actions. |
 | `.rpgbuy` | PASS | This roleplay build does not support trading or purchases between members. |
 | `.rpginv` | PASS | 🎒 RPG inventory is empty. Use .rpg to begin a local, no-stakes story. |
@@ -234,9 +234,9 @@ Registered handlers: **281** (267 passed, 14 conditional, 0 failed). Supported a
 | `.ship` | PASS | handler completed |
 | `.shop` | PASS | 🛍️ Shop: 🎣 Fishing Rod — 50 coins; 🧭 Compass — 75 coins; 🧰 Tool Kit — 100 coins. Use .buy <item>. |
 | `.simage` | PASS | Reply to an image with .simage. |
-| `.simprate` | PASS | 💖 Friendship-energy score for @[number redacted]: 12%. |
+| `.simprate` | PASS | 💖 Friendship-energy score for @[number redacted]: 71%. |
 | `.slap` | PASS | 🖐️ A gentle, imaginary high-five for @[number redacted]. |
-| `.slots` | PASS | 🎰 🍋 🍋 🍇 (no real money or wagering). |
+| `.slots` | PASS | 🎰 🍒 🍋 🍒 (no real money or wagering). |
 | `.snow` | PASS | handler completed |
 | `.soulmate` | PASS | 💞 @[number redacted] gets a fictional soulmate badge today. |
 | `.spam` | PASS | handler completed |
@@ -256,13 +256,13 @@ Registered handlers: **281** (267 passed, 14 conditional, 0 failed). Supported a
 | `.takepack` | PASS | Reply to supported media/sticker with .takepack. |
 | `.thunder` | PASS | handler completed |
 | `.tickle` | PASS | 🪶 A pretend feather tickle for @[number redacted] — stop if unwelcome. |
-| `.tictactoe` | PASS | ❌⭕ Tic-tac-toe is currently single-message only. Challenge a friend and draw a 3×3 grid in chat. |
+| `.tictactoe` | PASS | ❌⭕ *TIC-TAC-TOE* 1 │ 2 │ 3 ──┼───┼── 4 │ 5 │ 6 ──┼───┼── 7 │ 8 │ [number redacted]@s.whatsapp.net starts as X. A second member: .tictactoe join |
 | `.tiktok` | PASS | 🎵 *TIKTOK DOWNLOADER* 📝 Usage: .tiktok <link> 📌 Example: .tiktok https://vt.tiktok.com/xxxx |
 | `.topcoins` | PASS | 🏆 Top coins are not shown because the bot stores only your own local balance and does not publish a global leaderboard. |
-| `.toxicrate` | PASS | 🌱 Kindness meter for @[number redacted]: 84% — take it lightly. |
+| `.toxicrate` | PASS | 🌱 Kindness meter for @[number redacted]: 12% — take it lightly. |
 | `.translate` | PASS | ╔══════════════════════════════════╗ ║ 🌐 *𝕋𝔼ℝ𝕏𝕌𝕏 𝕋ℝ𝔸ℕ𝕊𝕃𝔸𝕋𝕆ℝ* 🌐 ║ ╚══════════════════════════════════╝ 📝 *𝕌𝕤𝕒𝕘𝕖:* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ • *.translat |
-| `.trivia` | PASS | ╔══════════════════════════════════╗ ║ 🧠 *𝕋ℝ𝕀𝕍𝕀𝔸 𝕋𝕀𝕄𝔼* 🧠 ║ ╚══════════════════════════════════╝ ❓ *Which organ pumps blood through the body?* ━━━━━━━━━━━━━━━━━━━━━━━━━━━ |
-| `.truth` | PASS | ╔══════════════════════════════════╗ ║ 😇 *𝕋ℝ𝕌𝕋ℍ 𝕆ℝ 𝔻𝔸ℝ𝔼* 😇 ║ ║ ━━ *𝕋ℝ𝕌𝕋ℍ* ━━ ║ ╚══════════════════════════════════╝ 🎯 *𝕐𝕆𝕌ℝ ℚ𝕌𝔼𝕊𝕋𝕀𝕆ℕ:* ❓ Have you ever cried w |
+| `.trivia` | PASS | ╔══════════════════════════════════╗ ║ 🧠 *𝕋ℝ𝕀𝕍𝕀𝔸 𝕋𝕀𝕄𝔼* 🧠 ║ ╚══════════════════════════════════╝ ❓ *How many hearts does an octopus have?* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ |
+| `.truth` | PASS | ╔══════════════════════════════════╗ ║ 😇 *𝕋ℝ𝕌𝕋ℍ 𝕆ℝ 𝔻𝔸ℝ𝔼* 😇 ║ ║ ━━ *𝕋ℝ𝕌𝕋ℍ* ━━ ║ ╚══════════════════════════════════╝ 🎯 *𝕐𝕆𝕌ℝ ℚ𝕌𝔼𝕊𝕋𝕀𝕆ℕ:* ❓ If you could date any |
 | `.tts` | CONDITIONAL | Text-to-speech is not configured on this server. Add a trusted TTS provider before using this command. |
 | `.twitter` | PASS | This source is not supported by the configured downloader. Use .instagram or .video with a public link; private or restricted posts cannot be fetched. |
 | `.unblock` | PASS | ╔══════════════════════════════════╗ ║ ❓ *ℍ𝔼𝕃ℙ* ❓ ║ ╚══════════════════════════════════╝ 📝 *𝕌𝕤𝕒𝕘𝕖:* ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ *.unblock [number redacted]* Please p |
@@ -281,12 +281,12 @@ Registered handlers: **281** (267 passed, 14 conditional, 0 failed). Supported a
 | `.wave` | PASS | 👋 @[number redacted], sending a friendly wave! |
 | `.wd` | PASS | Usage: .wd <amount> (1–1,000,000) |
 | `.weather` | PASS | ╔══════════════════════════════════╗ ║ 🌤️ *MARCO MALIK & WAQAR WRITES 𝕎𝔼𝔸𝕋ℍ𝔼ℝ* 🌤️ ║ ╚══════════════════════════════════╝ 📝 *𝕌𝕤𝕒𝕘𝕖:* .weather [city] 📌 *𝔼𝕩𝕒𝕞𝕡𝕝𝕖: |
-| `.weekly` | PASS | ✅ Weekly complete: +500 coins and +10 XP. Balance: 581. |
+| `.weekly` | PASS | ✅ Weekly complete: +500 coins and +10 XP. Balance: 560. |
 | `.weeklymvp` | PASS | 🌟 Weekly MVP is not calculated because the bot does not archive chat activity. |
 | `.welcome` | PASS | ╔══════════════════════════════════╗ ║ 👋 *𝕎𝔼𝕃ℂ𝕆𝕄𝔼 𝕊𝕐𝕊𝕋𝔼𝕄* 👋 ║ ╚══════════════════════════════════╝ *Status:* ❌ Disabled *Current message:* ╔══════════════════════════ |
 | `.wiki` | PASS | ╔══════════════════════════════════╗ ║ 📚 *𝕎𝕀𝕂𝕀ℙ𝔼𝔻𝕀𝔸* 📚 ║ ╚══════════════════════════════════╝ *Usage:* .wiki <topic> *Example:* .wiki Elon Musk |
 | `.work` | PASS | ⏳ You can use .work again after the cooldown. |
-| `.wyr` | PASS | 🤔 Would you rather: always be early or always have snacks? |
+| `.wyr` | PASS | 🤔 Would you rather: read minds or speak every language? |
 | `.yeet` | PASS | 🚀 @[number redacted] is gently yeeted into a pile of pillows (cartoon only). |
 | `.ytvideo` | PASS | 📹 *VIDEO DOWNLOADER* 📝 Usage: .video <name or any video link> 📌 Example: .video funny cats 📌 Works with YouTube, TikTok, Instagram, Facebook links 💠 *Powered by MARCO MALIK X* |
 | `.zodiac` | PASS | ╔══════════════════════════════════╗ ║ 🔮 *ℤ𝕆𝔻𝕀𝔸ℂ ℍ𝕆ℝ𝕆𝕊ℂ𝕆ℙ𝔼* 🔮 ║ ╚══════════════════════════════════╝ *Usage:* .zodiac <sign> ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━ ♈ *Aries* |

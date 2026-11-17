@@ -6,8 +6,10 @@
 2. Let Railway use the repository's `nixpacks.toml`. The build runs `npm ci`, creates `.venv`, and installs yt-dlp `2026.10.26` with the default extras. Do not replace this with an older global yt-dlp install.
 3. Add at least one AI provider key in Railway Variables if you want automatic chatbot replies: `GEMINI_API_KEY`, `OPENAI_API_KEY`, or the compatible trio `AI_API_KEY`, `AI_BASE_URL`, and `AI_MODEL`. `AI_PROVIDER=auto` is the default. Optional `AI_AUTO_CHAT=false` disables unsolicited replies; `AI_AUTO_CHAT_GROUPS=false` keeps them out of group chats.
 4. For pairing through the web page, leave `SESSION_ID` and `PHONE` blank. Add a Railway Volume mounted at `/app/sessions_active` so the Baileys credentials survive a redeploy. If the service uses `auth_info/`, mount persistent storage at `/app/auth_info` as well. Add a volume at `/app/data` if game-economy data should persist.
-5. `PORT` is supplied by Railway. The start command is `npm start`; the root URL opens the pairing flow, and `/pair` is available directly. Wait until the page confirms an online connection before sending commands.
+5. `PORT` is supplied by Railway. The start command is `npm start`; the root URL opens the pairing flow, and `/pair` is available directly. The page uses same-origin API and Socket.IO paths, so it works on Railway's generated domain and on a correctly routed custom domain. Railway's public domain is detected automatically; if you use a custom domain, set `PUBLIC_URL=https://your-domain.example` in Railway Variables. The resulting `/pair` URL is logged at startup and displayed in the bot menu.
 6. After changing source code or build configuration, deploy the latest commit again so Railway runs a new build. After changing a variable, restart/redeploy the service.
+
+Commands require the literal leading dot, for example `.menu` and `.play`. Bare command names and alternate prefixes are intentionally ignored. Both `.menu` and `.menu2` send the complete boxed command list and inline menu artwork in one WhatsApp message. The welcome video is sent by the pairing-success greeting; it is not sent as a separate message by `.menu2`.
 
 ### Optional download configuration
 

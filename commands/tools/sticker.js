@@ -77,7 +77,7 @@ export const sticker = async (sock, m, args) => {
             mimetype: "image/webp",
             stickerMetadata: {
                 packname: "MARCO MALIK & WAQAR WRITES Bot",
-                author: "https://marco-waqar-mini-bot-info-web.vercel.app"
+                author: "MARCO MALIK X"
             }
         }, { quoted: m });
 

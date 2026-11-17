@@ -18,7 +18,7 @@ export const wiki = async (sock, m, args) => {
     try {
         const { data } = await axios.get("https://en.wikipedia.org/api/rest_v1/page/summary/" + encodeURIComponent(query), {
             headers: {
-                'User-Agent': 'MARCO MALIK & WAQAR WRITES MD/2.0 (https://marco-waqar-mini-bot-info-web.vercel.app)'
+                'User-Agent': 'MARCO MALIK X WhatsApp Bot/2.0'
             },
             timeout: 10000
         });
@@ -64,7 +64,7 @@ ${extract}
             try {
                 const imgRes = await axios.get(data.thumbnail.source, {
                     headers: {
-                        'User-Agent': 'MARCO MALIK & WAQAR WRITES MD/2.0 (https://marco-waqar-mini-bot-info-web.vercel.app)'
+                        'User-Agent': 'MARCO MALIK X WhatsApp Bot/2.0'
                     },
                     responseType: "arraybuffer",
                     timeout: 10000

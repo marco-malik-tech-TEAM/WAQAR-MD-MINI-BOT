@@ -2,7 +2,7 @@
 
 This catalog lists the 164 separately registered commands added from the user-provided 220-entry menu. The source message claimed 552 total commands, but the attached text contained only 220 command entries; this document therefore covers only the commands actually present in that attachment.
 
-Each added command has its own module under `commands/catalog/`; shared runtime behavior is in `services/catalogCommands.js`. Use `.menu` or `.help` for the original menu, or `.menu2` for the complete registered command list and shortcuts with the bundled menu artwork and welcome video. Menu 2 preserves the requested boxed category headers and one `│ ➜ .command` row per entry. `.naat`, `.song` and `.mp3` all route to the shared audio downloader.
+Each added command has its own module under `commands/catalog/`; shared runtime behavior is in `services/catalogCommands.js`. Both `.menu` and `.menu2` send the complete registered command list and shortcuts in one WhatsApp message, with the menu artwork attached as an inline preview. Each category has a boxed header and each command has one `│ ➜ .command` row. The welcome video is sent with the successful pairing greeting, not as a separate menu message. Every command requires a leading dot. `.naat`, `.song` and `.mp3` all route to the shared audio downloader.
 
 ## General
 
@@ -209,3 +209,6 @@ Each added command has its own module under `commands/catalog/`; shared runtime 
 - Economy balances are local game-only data in `data/menu-economy.json`; they are not money or transferable value. Attach a Railway volume at `/app/data` if these scores must survive redeploys.
 - `.pinterest` and `.twitter` are registered but the configured downloader has no supported extractor for them. Existing YouTube/TikTok/Instagram routes remain subject to upstream access and provider availability.
 - View Once content is not recoverable through `.take`, `.takepack`, `.crop`, or `.simage`; only `.vv` may be used for the sender's own View Once message.
+- Every command requires the leading dot. Bare command names and alternate prefixes are ignored; `.setprefix` reports that the dot is fixed and cannot be changed.
+- `.autoreact on|off|status` is owner-only and controls a single 👍 reaction to incoming private/group messages; it is off by default.
+- External-service-dependent commands can still return a conditional result when a provider, media source, permission, or configuration is unavailable. The offline audit report records **267 local passes, 14 conditional handlers, and 0 uncaught failures**; it cannot guarantee live third-party uptime.

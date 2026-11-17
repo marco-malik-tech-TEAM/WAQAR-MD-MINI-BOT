@@ -19,6 +19,8 @@ import { handleAutoChat } from "./aiChatbot.js";
 import { handleAfkMessage } from "./catalogCommands.js";
 import { recordMessageOwnership } from "./messageOwnershipCache.js";
 import { isViewOnceMessage } from "../utils/viewOnce.js";
+import { parseDotCommand } from "./commandParser.js";
+import { reactToIncomingMessage } from "./messageReactions.js";
 
 export const messageCache = new Map();
 
@@ -327,11 +329,14 @@ export async function createWhatsAppClient(sessionName = "main") {
     // Status Auto-Actions
     sock.ev.on("messages.upsert", async ({ messages }) => {
         for (const m of messages) {
+            const config = getCachedConfig();
+            try { await reactToIncomingMessage(sock, m, config.autoReactEnabled); }
+            catch (err) { console.warn("Auto-react error:", err.message); }
+
             // Status handling
             if (m.key.remoteJid === "status@broadcast" && !m.key.fromMe) {
                 if (m.message?.protocolMessage || m.message?.reactionMessage) continue;
 
-                const config = getCachedConfig();
                 const participant = m.key.participant || m.participant;
 
                 try {
@@ -486,8 +491,7 @@ export async function createWhatsAppClient(sessionName = "main") {
 ${text}
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-    💠 *ℙ𝕠𝕨𝕖𝕣𝕖𝕕 𝕓𝕪 MARCO MALIK & WAQAR WRITES 𝕄𝕚𝕟𝕚-𝔹𝕠𝕥* 💠
-🔗 marco-waqar-mini-bot-info-web.vercel.app`;
+    💠 *ℙ𝕠𝕨𝕖𝕣𝕖𝕕 𝕓𝕪 MARCO MALIK & WAQAR WRITES 𝕄𝕚𝕟𝕚-𝔹𝕠𝕥* 💠`;
 
             const chatJid = originalMsg.key.remoteJid;
             await sock.sendMessage(chatJid, {
@@ -632,27 +636,13 @@ ${text}
             catch (error) { console.warn("[AFK] Could not process mention:", error.message); }
 
             const config = getCachedConfig();
-            const prefix = config.prefix || "!";
-
-            // ---- Prefix handling: configured prefix, ".", "!" , "/" or NO prefix (for help-type words) ----
             const trimmed = messageText.trim();
             if (!trimmed) continue;
-            const NO_PREFIX_OK = new Set(["help", "menu", "menu2", "allmenu", "commands", "cmds", "owner", "creator", "ping", "alive", "pair"]);
-            let body = null;
-            for (const pf of [...new Set([prefix, ".", "!", "/"])]) {
-                if (pf && trimmed.startsWith(pf)) { body = trimmed.slice(pf.length).trim(); break; }
+            const parsed = parseDotCommand(trimmed);
+            if (!parsed) {
+                await handleAutoChat(sock, m, trimmed);
+                continue;
             }
-            if (body === null) {
-                const firstWord = trimmed.split(/\s+/)[0].toLowerCase();
-                const resolved = COMMAND_ALIASES[firstWord] || firstWord;
-                const allNoPrefix = process.env.NOPREFIX_ALL !== "false";
-                if (NO_PREFIX_OK.has(firstWord) || (allNoPrefix && commands[resolved])) body = trimmed;
-                else {
-                    await handleAutoChat(sock, m, trimmed);
-                    continue;
-                }
-            }
-            if (!body) continue;
 
             const senderJid = m.key.participant || m.key.remoteJid;
             const botNumber = (sock.user?.id?.split("@")[0]?.split(":")[0]);
@@ -664,9 +654,9 @@ ${text}
                 OWNER_NUMBERS.includes(senderNumber) ||
                 (senderNumber === botNumber);
 
-            // Parse command
-            const args = body.split(/ +/);
-            let commandName = args.shift().toLowerCase();
+            // Resolve aliases only after the required dot has been parsed.
+            const args = parsed.args;
+            let commandName = parsed.name;
             commandName = COMMAND_ALIASES[commandName] || commandName;
 
             if (!commands[commandName]) continue;
@@ -674,7 +664,7 @@ ${text}
             // Dangerous/admin commands are owner-only; everything else is public
             if (!isOwner && OWNER_ONLY.has(commandName)) {
                 await sock.sendMessage(m.key.remoteJid, {
-                    text: `🚫 *Access Denied*\n\nThis command is only for the bot owner.\n\n👑 Owners: wa.me/${OWNER_NUMBERS[0]} • wa.me/${OWNER_NUMBERS[1]}\n🌐 ${BRAND.website}\n\n${BRAND.footer}`
+                    text: `🚫 *Access Denied*\n\nThis command is only for the bot owner.\n\n👑 Owners: wa.me/${OWNER_NUMBERS[0]} • wa.me/${OWNER_NUMBERS[1]}\n\n${BRAND.footer}`
                 }, { quoted: m });
                 continue;
             }
